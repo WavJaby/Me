@@ -11,7 +11,7 @@ window.onload = function() {
 		element.value = commands[i];
 		element.onclick = function() {
 			clickedText = this.value;
-			if(!typing)
+			if (!typing)
 				autoType();
 		};
 	}
@@ -19,23 +19,18 @@ window.onload = function() {
 	let clickedText;
 	let typing = false;
 	function autoType() {
-		inInput = false;
-		idle = false;
-		blink = true;
-		hintHTML = null;
-		clearTimeout(idleTimer);
 		typing = true;
 		let type = clickedText.length - 1;
-		let deleteCount = userInput.length;
+		// let deleteCount = userInput.length;
 		
 		addChar();
 		const id = setInterval(function() {
 			if (type < 0) {
 				clearInterval(id);
-				submitCommand();
-				updateCommandLine();
-				idle = true;
-				inInput = true;
+				commandWindow.onUserInput({
+					key: 'Enter',
+					auto: true
+				});
 				typing = false;
 				return;
 			}
@@ -43,15 +38,16 @@ window.onload = function() {
 		}, 50);
 		
 		function addChar() {
-			if (deleteCount > 0) {
-				userInput = userInput.slice(0, -1);
-				deleteCount--;
-			} else {
-				userInput += clickedText.charAt(clickedText.length - type - 1);
+			// if (deleteCount > 0) {
+				// userInput = userInput.slice(0, -1);
+				// deleteCount--;
+			// } else {
+				commandWindow.onUserInput({
+					key: clickedText.charAt(clickedText.length - type - 1),
+					auto: true
+				});
 				type--;
-			}
-			cmdDisplayBlink = userInput + blinkSpan + '&nbsp;</span>';
-			updateCommandLine();
+			// }
 		}
 	}
 	

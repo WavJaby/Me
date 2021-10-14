@@ -100,10 +100,11 @@ function CommandWindow(windowHeader, windowBody) {
 	const commandLine = document.getElementById('commandLine');
     
     const functions = {};
-    functions.init = function () {
+    this.init = function () {
         initCommands();
 		
 		const userIn = new UserInput(commands, submitHints, updateCommandLine, submitCommand);
+		this.onUserInput = userIn.onInput;
 		const onUserInput = userIn.onInput;
 		
         // 打字時
@@ -111,7 +112,7 @@ function CommandWindow(windowHeader, windowBody) {
 			onUserInput(e);
         });
         
-        functions.setResultHeight();
+        this.setResultHeight();
     }
 	// 傳送指令
 	function submitCommand(args, userInput) {
@@ -139,19 +140,15 @@ function CommandWindow(windowHeader, windowBody) {
 	}
     
     // 設定結果區大小
-    functions.setResultHeight = function() {
+    this.setResultHeight = function() {
         commandResult.style.maxHeight = (
             windowBody.offsetHeight - 
             commandLine.offsetHeight
         ) + 'px';
     }
-    
-    return functions;
 }
 
 function UserInput(hints, showhints, displayUpdate, onSubmit) {
-	const functions = {};
-	
 	function blinkSpan(text) {return '<span class="blink cantSelect">' + text + '</span>'};
 	function blinkHintSpan(text) {return '<span class="blink hint cantSelect">' + text + '</span>'};
 	function hintSpan(text) {return '<span class="hint cantSelect">' + text + '</span>'};
@@ -172,8 +169,13 @@ function UserInput(hints, showhints, displayUpdate, onSubmit) {
     let cmdDisplay;
     let cmdDisplayBlink;
 	
-	functions.onInput = function(e) {
-		if (!inInput)
+	// 設定能否輸入
+	this.setCanInput = function(state) {
+		inInput = state;
+	}
+	
+	this.onInput = function(e) {
+		if (!inInput && e.auto === undefined)
 			return;
 		const key = e.key;
 		let arg = args[argsPos];
@@ -326,14 +328,14 @@ function UserInput(hints, showhints, displayUpdate, onSubmit) {
 		startIdleTimer();
 		updateCommandLine();
 		
-		console.log('###### args ######');
-		console.log(args);
-		console.log('###### hint ######');
-		console.log(hint);
-		console.log('###### cursorAtlast ######');
-		console.log(cursorAtlast);
-		console.log('###### userInput ######');
-		console.log('\'' + userInput + '\'');
+		// console.log('###### args ######');
+		// console.log(args);
+		// console.log('###### hint ######');
+		// console.log(hint);
+		// console.log('###### cursorAtlast ######');
+		// console.log(cursorAtlast);
+		// console.log('###### userInput ######');
+		// console.log('\'' + userInput + '\'');
 	}
 	
 	function updateCommandLine() {
@@ -407,12 +409,6 @@ function UserInput(hints, showhints, displayUpdate, onSubmit) {
 		}, 500);
 	}
 	
-	// 設定能否輸入
-	functions.setCanInput = function(state) {
-		inInput = state;
-	}
-	
 	// init
 	resetCommandLine();
-	return functions;
 }
