@@ -1,0 +1,175 @@
+html {
+	height: 100%;
+}
+body {
+	background-color: rgb(10,10,10);
+	min-width: 400px;
+	height: 100%;
+	
+	overflow-x: auto;
+	overflow-y: hidden;
+	margin: 0;
+}
+
+/* font */
+* {
+	font-family: bitstream_vera_sans_monoroman, Arial, sans-serif;
+}
+p {
+	color: whitesmoke;
+	
+	margin: 0;
+}
+
+/* Menu */
+.menuBar {
+	background-color: rgb(30,30,30);
+	height: 40px;
+}
+.menuBar > div > p {
+	font-size: 25px;
+}
+.menuItem {
+	width: 120px;
+	line-height: 40px;
+	
+	display: inline-block;
+	text-align: center;
+	cursor: pointer;
+}
+.menuItem:hover {
+	background-color: rgb(50,50,50);
+}
+
+/* Window */
+.window {
+	/* height: 100%; */
+}
+#wHeader {
+	background-color: rgb(70,70,70);
+	height: 30px;
+}
+#wTitle{
+	font-size: 20px;
+	line-height: 30px;
+	
+	display: block;
+	float: left;
+	margin-left: 10px;
+}
+.close, .shrink {
+	width: 50px;
+	height: 26px;
+	
+	display: block;
+	float: right;
+	text-align: center;
+}
+.close:hover {
+	background-color: rgb(232,17,35);
+}
+.shrink:hover {
+	background-color: rgb(100,100,100);
+}
+#wHeader > div > img {
+	width: 16px;
+	margin: 5px 0;
+}
+#wBody {
+}
+
+/* Command Line */
+#commandWindow > p, #commandResult > p {
+	font-size: 25px;
+}
+.group {
+	color: fuchsia;
+}
+.user {
+	color: aqua;
+}
+#path, .prefix {
+	color: limegreen;
+}
+#commandWindow {
+	height: 100%;
+	cursor: text;
+}
+#commandResult {
+	overflow: auto;
+}
+.hint {
+	color: rgb(50,50,50);
+}
+.blink {
+	background-color: limegreen;
+}
+
+/* Command */
+.resultBorder {
+	border: 5px double;
+	margin: 5px;
+	padding: 5px;
+	color: whitesmoke;
+}
+.resultBorder > h1 {
+	color: cyan;
+}
+.resultBorder > div > h2 {
+	font-size: 25px;
+}
+.resultBorder > div > h3 {
+	font-size: 18px;
+}
+.resultBorder > div > video {
+	height: 100%;
+	
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: -1;
+	
+}
+.resultBorder > h1, h2, h3 {
+	margin: 0;
+}
+
+/* About Me */
+.aboutMe {
+	background-color: rgb(50,50,50);
+	width: 300px;
+	height: 300px;
+	
+	display: block;
+	position: fixed;
+	right: 6px;
+	bottom: 6px;
+}
+
+/* other */
+sp {
+	display: inline-block;
+	width: 2em;
+	height: 1em;
+}
+white {
+	color: whitesmoke;
+}
+green {
+	color: limegreen;
+	white-space: pre;
+}
+a:link, a:visited{
+	color: deepskyblue;
+}
+a:active {
+	color: whitesmoke;
+}
+
+.cantSelect {
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+	-moz-user-select: none;     /* Firefox all */
+	-ms-user-select: none;      /* IE 10+ */
+	user-select: none;          /* Likely future */      
+}

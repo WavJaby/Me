@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>WavJaby</title>
+    <link rel="stylesheet" href="font/font.css" type="text/css" charset="utf-8" >
+    <link rel="stylesheet" href="style.css" type="text/css" charset="utf-8" >
+	<script src="ie.js"></script>
+	<script src="command.js"></script>
+	<script src="fileSystem.js"></script>
+	<script src="main.js"></script>
+</head>
+<body>
+	<div id="menuBar" class="menuBar cantSelect">
+		<div class="menuItem" id="mHelp"><p>需要幫助</p></div>
+		<div class="menuItem" id="mAbout"><p>關於我</p></div>
+		<div class="menuItem" id="mProject"><p>我的專案</p></div>
+	</div>
+	<div class="window">
+		<div id="wHeader" class="cantSelect">
+			<p id="wTitle">Terminal</p>
+			<div class="close">
+				<img src="icon/close_icon.svg"/>
+			</div>
+			<div class="shrink">
+				<img src="icon/shrink_icon.svg"/>
+			</div>
+			<div id="wMenu"></div>
+		</div>
+		<div id="wBody">
+			<div id="commandWindow">
+				<div id="commandResult"></div>
+				<p id="commandLine">
+				<span class="group">AboutMe</span>@<span class="user">WavJaby</span>:<span id="path"></span><br><span class="prefix">$&nbsp;</span><span id="commandInput"></span>
+				</p>
+			</div>
+		</div>
+	</div>
+	<!-- <div class="aboutMe"> -->
+		<!-- <h1>Info</h1> -->
+	<!-- </div> -->
+</body>
+</html>
