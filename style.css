@@ -17,7 +17,10 @@ body {
 }
 p {
 	color: whitesmoke;
-	
+	margin: 0;
+}
+h1 {
+	color: whitesmoke;
 	margin: 0;
 }
 
@@ -79,7 +82,7 @@ p {
 }
 
 /* Command Line */
-#commandWindow > p, #commandResult > p {
+#terminal > p, #commandResult > p {
 	font-size: 25px;
 }
 .group {
@@ -91,7 +94,7 @@ p {
 #path, .prefix {
 	color: limegreen;
 }
-#commandWindow {
+#terminal {
 	height: 100%;
 	cursor: text;
 }
@@ -129,26 +132,31 @@ p {
 	top: 0;
 	right: 0;
 	z-index: -1;
-	
 }
-.resultBorder > h1, h2, h3 {
+.resultBorder > h2, h3 {
 	margin: 0;
 }
 
 /* Notification */
-.notification {
+#notificationWindow {
+	width: 320px;
+	height: 100%;
+	
+	right: 0px;
+	bottom: 0px;
+	position: absolute;
+	
 	overflow: hidden;
-	position: relative;
 }
 
-.slider {
+.notification {
 	background-color: rgb(50,50,50);
 	width: 300px;
-	height: 300px;
+	height: 100px;
 	
+	padding: 5px;
 	position: absolute;
-	right: -10px;
-	bottom: 6px;
+	bottom: 10px;
 }
 
 /* other */

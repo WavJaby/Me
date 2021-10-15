@@ -1,4 +1,5 @@
 'use strict';
+const storage = window.localStorage;
 window.onload = function() {
 	// 列表
 	const menuBar = document.getElementById('menuBar');
@@ -27,7 +28,7 @@ window.onload = function() {
 		const id = setInterval(function() {
 			if (type < 0) {
 				clearInterval(id);
-				commandWindow.onUserInput({
+				terminal.onUserInput({
 					key: 'Enter',
 					auto: true
 				});
@@ -42,7 +43,7 @@ window.onload = function() {
 				// userInput = userInput.slice(0, -1);
 				// deleteCount--;
 			// } else {
-				commandWindow.onUserInput({
+				terminal.onUserInput({
 					key: clickedText.charAt(clickedText.length - type - 1),
 					auto: true
 				});
@@ -50,8 +51,11 @@ window.onload = function() {
 			// }
 		}
 	}
-	
-	
+
+//##############################通知##############################
+	const notificationWindow = document.getElementById('notificationWindow');
+	const notification = new Notification(notificationWindow);
+
 //##############################視窗##############################
 	// 視窗工具列
 	const windowHeader = document.getElementById('wHeader');
@@ -66,22 +70,82 @@ window.onload = function() {
 		) + 'px';
 	}
 	
-    const commandWindow = new CommandWindow(windowHeader, windowBody);
+    const terminal = new Terminal(windowHeader, windowBody);
 	
 	window.onresize = function() {
 		setWindowBodyHeight();
-		commandWindow.setResultHeight();
+		terminal.setResultHeight();
 	};
 	
 	// 初始化
 	setWindowBodyHeight();
-    commandWindow.init();
+    terminal.init();
     initFileSystem();
+
+	// 歡迎訊息
+	if (storage.joinBefore === undefined) {
+		notification.sendNotification('歡迎光臨', '(。・ω・。)');
+		storage.setItem('joinBefore', '0');
+	} else {
+		notification.sendNotification('歡迎回來', 'ヽ(✿ﾟ▽ﾟ)ノ');
+	}
 }
 
+function Notification(notificationWindow) {
+	this.sendNotification = function(title, description, time) {
+		if(time === undefined) time = 2000;
+		
+		let notification = document.createElement('div');
+		notification.classList.add('notification');
+		let titleEle = document.createElement('h1');
+		let descriptionEle = document.createElement('p');
+		notification.appendChild(titleEle);
+		notification.appendChild(descriptionEle);
+		
+		// 設定文字內容
+		titleEle.innerText = title;
+		descriptionEle.innerText = description;
+		
+		let windowWidth = notificationWindow.offsetWidth;
+		let left = notificationWindow.offsetWidth;
+		
+		// 加入至視窗
+		notificationWindow.appendChild(notification);
+		
+		let count = 0;
+		// 滑入
+		function slideIn() {
+			if(left <= 1 || count > 100) {
+				notification.style.left = '';
+				count = 0;
+				left = 1;
+				setTimeout(slideOut, time);
+			} else {
+				notification.style.left = left + 'px';
+				left = (left / 1.2) | 0;
+				count++;
+				window.requestAnimationFrame(slideIn);
+			}
+		}
+		// 滑出
+		function slideOut() {
+			if(left > windowWidth || count > 100) {
+				notificationWindow.removeChild(notification);
+			} else {
+				notification.style.left = left + 'px';
+				left = left * 1.2;
+				count++;
+				window.requestAnimationFrame(slideOut);
+			}
+		}
+		
+		slideIn();
+	}
+}
 
-
-
+function out(i) {
+	console.log(i);
+}
 
 
 

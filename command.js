@@ -94,14 +94,14 @@ function onCommand(args) {
 }
 
 // 指令視窗
-function CommandWindow(windowHeader, windowBody) {
+function Terminal(windowHeader, windowBody) {
     const commandResult = document.getElementById('commandResult');
 	const commandInput = document.getElementById('commandInput');
 	const commandLine = document.getElementById('commandLine');
     
     const functions = {};
     this.init = function () {
-        initCommands();
+        initCommands(this);
 		
 		const userIn = new UserInput(commands, submitHints, updateCommandLine, submitCommand);
 		this.onUserInput = userIn.onInput;
