@@ -135,15 +135,19 @@ p {
 	margin: 0;
 }
 
-/* About Me */
-.aboutMe {
+/* Notification */
+.notification {
+	overflow: hidden;
+	position: relative;
+}
+
+.slider {
 	background-color: rgb(50,50,50);
 	width: 300px;
 	height: 300px;
 	
-	display: block;
-	position: fixed;
-	right: 6px;
+	position: absolute;
+	right: -10px;
 	bottom: 6px;
 }
 
