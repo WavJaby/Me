@@ -52,6 +52,9 @@ h1 {
 	background-color: rgb(70,70,70);
 	height: 30px;
 }
+#wBody {
+	background-color: black;
+}
 #wTitle{
 	font-size: 20px;
 	line-height: 30px;
@@ -60,7 +63,7 @@ h1 {
 	float: left;
 	margin-left: 10px;
 }
-.close, .shrink {
+#wClose, #wMinimize {
 	width: 50px;
 	height: 26px;
 	
@@ -68,17 +71,19 @@ h1 {
 	float: right;
 	text-align: center;
 }
-.close:hover {
+#wClose:hover {
 	background-color: rgb(232,17,35);
 }
-.shrink:hover {
+#wMinimize:hover {
 	background-color: rgb(100,100,100);
 }
 #wHeader > div > img {
 	width: 16px;
 	margin: 5px 0;
 }
-#wBody {
+#windowMinimize {
+	bottom: 0px;
+	position: absolute;
 }
 
 /* Command Line */
@@ -145,6 +150,7 @@ h1 {
 	right: 0px;
 	bottom: 0px;
 	position: absolute;
+	pointer-events: none;
 	
 	overflow: hidden;
 }

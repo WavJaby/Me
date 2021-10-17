@@ -98,18 +98,17 @@ function Terminal(windowHeader, windowBody) {
     const commandResult = document.getElementById('commandResult');
 	const commandInput = document.getElementById('commandInput');
 	const commandLine = document.getElementById('commandLine');
-    
-    const functions = {};
+	
     this.init = function () {
         initCommands(this);
 		
 		const userIn = new UserInput(commands, submitHints, updateCommandLine, submitCommand);
-		this.onUserInput = userIn.onInput;
-		const onUserInput = userIn.onInput;
+		this.userInput = userIn.onInput;
+		const userInput = userIn.onInput;
 		
         // 打字時
         document.addEventListener('keydown', function(e) {
-			onUserInput(e);
+			userInput(e);
         });
         
         this.setResultHeight();
@@ -146,6 +145,14 @@ function Terminal(windowHeader, windowBody) {
             commandLine.offsetHeight
         ) + 'px';
     }
+	
+	this.getHeight = function() {
+		return commandResult.offsetHeight + commandLine.offsetHeight;
+	}
+	
+	this.getBoundingRect = function() {
+		return commandResult.getBoundingClientRect();
+	}
 }
 
 function UserInput(hints, showhints, displayUpdate, onSubmit) {

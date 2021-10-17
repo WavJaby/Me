@@ -2,9 +2,11 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+	<!-- <link rel="icon" href="icon/close_icon.svg"> -->
     <title>WavJaby</title>
     <link rel="stylesheet" href="font/font.css" type="text/css" charset="utf-8" >
     <link rel="stylesheet" href="style.css" type="text/css" charset="utf-8" >
+	<script src="plugin.js"></script>
 	<script src="ie.js"></script>
 	<script src="command.js"></script>
 	<script src="fileSystem.js"></script>
@@ -19,10 +21,10 @@
 	<div class="window">
 		<div id="wHeader" class="cantSelect">
 			<p id="wTitle">Terminal</p>
-			<div class="close">
+			<div id="wClose">
 				<img src="icon/close_icon.svg"/>
 			</div>
-			<div class="shrink">
+			<div id="wMinimize">
 				<img src="icon/shrink_icon.svg"/>
 			</div>
 			<div id="wMenu"></div>
@@ -36,7 +38,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="notificationWindow">
-	</div>
+	<canvas id="windowMinimize"></canvas>
+	<div id="notificationWindow"></div>
 </body>
 </html>
