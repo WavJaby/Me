@@ -29,18 +29,17 @@ h1 {
 	background-color: rgb(30,30,30);
 	height: 40px;
 }
-.menuBar > div > p {
-	font-size: 25px;
-}
-.menuItem {
+.menuBar > .item {
+	color: whitesmoke;
 	width: 120px;
 	line-height: 40px;
+	font-size: 25px;
 	
 	display: inline-block;
 	text-align: center;
 	cursor: pointer;
 }
-.menuItem:hover {
+.menuBar > .item:hover {
 	background-color: rgb(50,50,50);
 }
 
@@ -48,14 +47,12 @@ h1 {
 .window {
 	/* height: 100%; */
 }
-#wHeader {
+.wHeader {
 	background-color: rgb(70,70,70);
 	height: 30px;
 }
-#wBody {
-	background-color: black;
-}
-#wTitle{
+.wHeader > .title {
+	color: whitesmoke;
 	font-size: 20px;
 	line-height: 30px;
 	
@@ -63,7 +60,7 @@ h1 {
 	float: left;
 	margin-left: 10px;
 }
-#wClose, #wMinimize {
+.wHeader > .close, .wHeader > .minimize {
 	width: 50px;
 	height: 26px;
 	
@@ -71,45 +68,62 @@ h1 {
 	float: right;
 	text-align: center;
 }
-#wClose:hover {
+.wHeader > .close:hover {
 	background-color: rgb(232,17,35);
 }
-#wMinimize:hover {
+.wHeader > .minimize:hover {
 	background-color: rgb(100,100,100);
 }
-#wHeader > div > img {
+.wHeader > div > img {
 	width: 16px;
 	margin: 5px 0;
+}
+.wMenu {
+	height: 20px;
+	background-color: rgb(100,100,100);
+}
+.wMenu > .item{
+	color: whitesmoke;
+	line-height: 20px;
+	font-size: 16px;
+	
+	padding: 0 10px;
+	display: inline-block;
+	cursor: pointer;
+}
+.wBody {
+	background-color: black;
 }
 #windowMinimize {
 	bottom: 0px;
 	position: absolute;
 }
 
-/* Command Line */
-#terminal > p, #commandResult > p {
-	font-size: 25px;
-}
-.group {
-	color: fuchsia;
-}
-.user {
-	color: aqua;
-}
-#path, .prefix {
-	color: limegreen;
-}
-#terminal {
+
+/* Terminal */
+.terminal {
 	height: 100%;
 	cursor: text;
 }
-#commandResult {
+.terminal p {
+	font-size: 25px;
+}
+.terminal > .result {
 	overflow: auto;
 }
-.hint {
+.terminal .group {
+	color: fuchsia;
+}
+.terminal .user {
+	color: aqua;
+}
+.terminal .path, .terminal .prefix {
+	color: limegreen;
+}
+.terminal .hint {
 	color: rgb(50,50,50);
 }
-.blink {
+.terminal .blink {
 	background-color: limegreen;
 }
 

@@ -65,7 +65,7 @@ function addCommand(command, subcommand) {
         commands[command] = subcommand;
 }
 
-function onCommand(args) {
+function onCommand(args, commandResult) {
     let output = true;
     let result;
     switch (args[0]) {
@@ -94,10 +94,55 @@ function onCommand(args) {
 }
 
 // 指令視窗
-function Terminal(windowHeader, windowBody) {
-    const commandResult = document.getElementById('commandResult');
-	const commandInput = document.getElementById('commandInput');
-	const commandLine = document.getElementById('commandLine');
+function Terminal() {
+	// 初始化視窗
+	const win = new Window();
+	win.setTitle('終端機');
+	// win.addMenuItem(item);
+	
+	// 建立元素
+	const terminal = document.createElement('div');
+	terminal.classList.add('terminal');
+	
+	const result = document.createElement('div');
+	result.classList.add('result');
+	
+	const commandLine = document.createElement('p');
+	commandLine.classList.add('commandLine');
+	
+	terminal.appendChild(result);
+	terminal.appendChild(commandLine);
+	
+	// 指令
+	const group = document.createElement('span');
+	group.classList.add('group');
+	const user = document.createElement('span');
+	user.classList.add('user');
+	const path = document.createElement('span');
+	path.classList.add('path');
+	const prefix = document.createElement('span');
+	prefix.classList.add('prefix');
+	const commandInput = document.createElement('span');
+	
+	// 加入
+	commandLine.appendChild(group);
+	commandLine.appendChild(document.createTextNode('@'));
+	commandLine.appendChild(user);
+	commandLine.appendChild(document.createTextNode(':'));
+	commandLine.appendChild(path);
+	commandLine.appendChild(document.createElement('br'));
+	commandLine.appendChild(prefix);
+	commandLine.appendChild(commandInput);
+	
+	// 修改內容
+	group.innerText = 'AboutMe';
+	user.innerText = 'WavJaby';
+	path.innerText = '/Desktop';
+	prefix.innerHTML = '$&nbsp;';
+
+	
+	win.addBody(terminal);
+	win.show();
 	
     this.init = function () {
         initCommands(this);
@@ -116,42 +161,42 @@ function Terminal(windowHeader, windowBody) {
 	// 傳送指令
 	function submitCommand(args, userInput) {
 		// 計算是否以滑動到最底
-		const needScroll = commandResult.scrollTop === commandResult.scrollHeight - commandResult.offsetHeight;
+		const needScroll = result.scrollTop === result.scrollHeight - result.offsetHeight;
 		commandInput.innerText = userInput;
-		commandResult.innerHTML += '<p>' + commandLine.innerHTML;
-		onCommand(args);
+		result.innerHTML += '<p>' + commandLine.innerHTML;
+		onCommand(args, result);
 		// 滑動到最底
 		if (needScroll)
-			commandResult.scrollTop = commandResult.scrollHeight - commandResult.offsetHeight;
+			result.scrollTop = result.scrollHeight - result.offsetHeight;
 	}
 	// 傳送提示
 	function submitHints(hints) {
 		let result = '<p>' + hints[0];
 		for (let i = 1; i < hints.length; i++)
 			result += '<sp></sp>' + hints[i];
-		commandResult.innerHTML += result + '</p>';
-		commandResult.scrollTop = commandResult.scrollHeight - commandResult.offsetHeight;
+		result.innerHTML += result + '</p>';
+		result.scrollTop = result.scrollHeight - result.offsetHeight;
 	}
 	
 	// 更新指令畫面
-	function updateCommandLine(result) {
-		commandInput.innerHTML = result;
+	function updateCommandLine(html) {
+		commandInput.innerHTML = html;
 	}
     
     // 設定結果區大小
     this.setResultHeight = function() {
-        commandResult.style.maxHeight = (
-            windowBody.offsetHeight - 
+        result.style.maxHeight = (
+            win.getBodyHeight() - 
             commandLine.offsetHeight
         ) + 'px';
     }
 	
 	this.getHeight = function() {
-		return commandResult.offsetHeight + commandLine.offsetHeight;
+		return result.offsetHeight + commandLine.offsetHeight;
 	}
 	
 	this.getBoundingRect = function() {
-		return commandResult.getBoundingClientRect();
+		return result.getBoundingClientRect();
 	}
 }
 

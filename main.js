@@ -5,17 +5,17 @@ window.onload = function() {
 	const menuBar = document.getElementById('menuBar');
 	
 //##############################列表區##############################
-	const buttons = ['mHelp', 'mAbout', 'mProject'];
-	const commands = ['help', 'about', 'project'];
-	for (let i = 0; i < buttons.length; i++) {
-		const element = document.getElementById(buttons[i]);
-		element.value = commands[i];
-		element.onclick = function() {
-			clickedText = this.value;
-			if (!typing)
-				autoType();
-		};
-	}
+	// const buttons = ['mHelp', 'mAbout', 'mProject'];
+	// const commands = ['help', 'about', 'project'];
+	// for (let i = 0; i < buttons.length; i++) {
+		// const element = document.getElementById(buttons[i]);
+		// element.value = commands[i];
+		// element.onclick = function() {
+			// clickedText = this.value;
+			// if (!typing)
+				// autoType();
+		// };
+	// }
 	
 	let clickedText;
 	let typing = false;
@@ -57,21 +57,6 @@ window.onload = function() {
 	const notification = new Notification(notificationWindow);
 
 //##############################視窗##############################
-	// 視窗工具列
-	const windowHeader = document.getElementById('wHeader');
-	const windowBody = document.getElementById('wBody');
-	const windowMinimize = document.getElementById('wMinimize');
-	const windowClose = document.getElementById('wClose');
-	
-	// 設定視窗大小
-	function setWindowBodyHeight() {
-		windowBody.style.height = (
-			window.innerHeight - 
-			menuBar.offsetHeight - 
-			windowHeader.offsetHeight
-		) + 'px';
-	}
-	
 	// 自動重新設定大小
 	window.onresize = function() {
 		setWindowBodyHeight();
@@ -79,16 +64,17 @@ window.onload = function() {
 	};
 	
 	
-    const terminal = new Terminal(windowHeader, windowBody);
+    const terminal = new Terminal();
+    terminal.init();
 	
 	// 初始化
-	setWindowBodyHeight();
-    terminal.init();
-    initFileSystem();
+	// setWindowBodyHeight();
+    // initFileSystem();
 	
 	
 	
 	// 最小化視窗
+	/*
 	windowMinimize.onclick = function() {
 		const windowMinimizeCanvas = document.getElementById('windowMinimize');
 		const mButtons = menuBar.getElementsByTagName('div');
@@ -117,7 +103,7 @@ window.onload = function() {
 		
 		menuBar.appendChild(terminalButton);
 	}
-	
+	*/
 
 	// 歡迎訊息
 	if (storage.getItem('joinBefore') === null) {

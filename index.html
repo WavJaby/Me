@@ -8,36 +8,39 @@
     <link rel="stylesheet" href="style.css" type="text/css" charset="utf-8" >
 	<script src="plugin.js"></script>
 	<script src="ie.js"></script>
+	<script src="window.js"></script>
 	<script src="command.js"></script>
 	<script src="fileSystem.js"></script>
 	<script src="main.js"></script>
 </head>
 <body>
 	<div id="menuBar" class="menuBar cantSelect">
-		<div class="menuItem" id="mHelp"><p>需要幫助</p></div>
-		<div class="menuItem" id="mAbout"><p>關於我</p></div>
-		<div class="menuItem" id="mProject"><p>我的專案</p></div>
+		<div class="item" id="mPrograms">程式</div>
+		<div class="item" id="mHelp">幫助</div>
 	</div>
-	<div class="window">
-		<div id="wHeader" class="cantSelect">
-			<p id="wTitle">Terminal</p>
-			<div id="wClose">
-				<img src="icon/close_icon.svg"/>
-			</div>
-			<div id="wMinimize">
-				<img src="icon/shrink_icon.svg"/>
-			</div>
-			<div id="wMenu"></div>
-		</div>
-		<div id="wBody">
-			<div id="terminal">
-				<div id="commandResult"></div>
-				<p id="commandLine">
-				<span class="group">AboutMe</span>@<span class="user">WavJaby</span>:<span id="path"></span><br><span class="prefix">$&nbsp;</span><span id="commandInput"></span>
-				</p>
-			</div>
-		</div>
-	</div>
+	<!-- <div class="window"> -->
+		<!-- <div id="wHeader" class="cantSelect"> -->
+			<!-- <div id="title">Terminal</div> -->
+			<!-- <div id="wClose"> -->
+				<!-- <img src="icon/close_icon.svg"/> -->
+			<!-- </div> -->
+			<!-- <div id="wMinimize"> -->
+				<!-- <img src="icon/shrink_icon.svg"/> -->
+			<!-- </div> -->
+			<!-- <div id="wMenu"> -->
+				<!-- <div class="item" id="mAbout">關於我</div> -->
+				<!-- <div class="item" id="mProject">我的專案</div> -->
+			<!-- </div> -->
+		<!-- </div> -->
+		<!-- <div id="wBody"> -->
+			<!-- <div id="terminal"> -->
+				<!-- <div id="commandResult"></div> -->
+				<!-- <p id="commandLine"> -->
+				<!-- <span class="group">AboutMe</span>@<span class="user">WavJaby</span>:<span id="path"></span><br><span class="prefix">$&nbsp;</span><span id="commandInput"></span> -->
+				<!-- </p> -->
+			<!-- </div> -->
+		<!-- </div> -->
+	<!-- </div> -->
 	<canvas id="windowMinimize"></canvas>
 	<div id="notificationWindow"></div>
 </body>
