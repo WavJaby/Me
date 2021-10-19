@@ -65,6 +65,6 @@ function Window() {
 	
 	// 數值
 	this.getBodyHeight = function() {
-		return windowBody.style.height;
+		return windowBody.offsetHeight;
 	}
 }

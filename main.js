@@ -58,10 +58,10 @@ window.onload = function() {
 
 //##############################視窗##############################
 	// 自動重新設定大小
-	window.onresize = function() {
-		setWindowBodyHeight();
-		terminal.setResultHeight();
-	};
+	// window.onresize = function() {
+		// setWindowBodyHeight();
+		// terminal.setResultHeight();
+	// };
 	
 	
     const terminal = new Terminal();
