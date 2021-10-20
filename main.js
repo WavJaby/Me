@@ -1,5 +1,7 @@
 'use strict';
 const storage = getStorage();
+const windowResize = new WindowResize();
+let canvasElementForMinimize;
 window.onload = function() {
 	// 列表
 	const menuBar = document.getElementById('menuBar');
@@ -57,56 +59,15 @@ window.onload = function() {
 	const notification = new Notification(notificationWindow);
 
 //##############################視窗##############################
-	// 自動重新設定大小
-	// window.onresize = function() {
-		// setWindowBodyHeight();
-		// terminal.setResultHeight();
-	// };
-	const minWinCanvas = document.createElement('canvas');
-	minWinCanvas.classList.add('windowMinimize');
-	const minWindow = new MinimizeWindow(minWinCanvas);
+	canvasElementForMinimize = document.createElement('canvas');
+	canvasElementForMinimize.classList.add('windowMinimize');
+	const ctx = canvasElementForMinimize.getContext("2d");
+	canvasElementForMinimize.style.display = 'none';
+    document.body.appendChild(canvasElementForMinimize);
 	
-	
+    // 開視窗
     const terminal = new Terminal();
     terminal.init();
-	
-	// 初始化
-	// setWindowBodyHeight();
-    // initFileSystem();
-	
-	
-	
-	// 最小化視窗
-	/*
-	windowMinimize.onclick = function() {
-		const windowMinimizeCanvas = document.getElementById('windowMinimize');
-		const mButtons = menuBar.getElementsByTagName('div');
-		const buttonWidth = parseInt(mButtons[0].getStyle('width'));
-		const minWin = new MinimizeWindow(windowMinimizeCanvas, (mButtons.length + 0.5) * buttonWidth);
-		// 視窗
-		minWin.addElement(windowHeader);
-		minWin.addElement(windowBody);
-		minWin.addElement(wTitle);
-		const btns = wHeader.getElementsByTagName('img');
-		minWin.addElement(btns[0]);
-		minWin.addElement(btns[1]);
-		// 文字
-		const height = terminal.getHeight();
-		const bound = terminal.getBoundingRect();
-		minWin.setFakeText(height, bound);
-		
-		windowBody.hidden = true;
-		windowHeader.hidden = true;
-		minWin.minimize();
-		
-		const terminalButton = document.createElement('div');
-		terminalButton.classList.add('menuItem');
-		terminalButton.id = 'terminal';
-		terminalButton.innerHTML = '<p>終端機</p>';
-		
-		menuBar.appendChild(terminalButton);
-	}
-	*/
 
 	// 歡迎訊息
 	if (storage.getItem('joinBefore') === null) {
@@ -168,6 +129,25 @@ function Notification(notificationWindow) {
 		
 		slideIn();
 	}
+}
+
+function WindowResize() {
+    const windows = [];
+    
+	window.onresize = function() {
+        if(windows.length == 0) return;
+        if(windows.length == 1) {
+            windows[0].resize();
+            return;
+        }
+        
+        for (let i = 0; i < windows.length; i++)
+            windows[i].resize();
+	};
+    
+    this.addWindow = function(win) {
+        windows.push(win);
+    }
 }
 
 function out(i) {
