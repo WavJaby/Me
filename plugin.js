@@ -2,6 +2,16 @@ Element.prototype.getStyle = function(key) {
     return window.getComputedStyle(this, null).getPropertyValue(key);  
 };
 
+function getStyle(selector, style) {
+	var styleSheet = document.styleSheets[1];
+	var rules = styleSheet.cssRules ? styleSheet.cssRules : styleSheet.rules;
+
+	for (var i = 0; i < rules.length; i++) {
+		if (rules[i].selectorText === selector)
+			return rules[i].style;
+	}
+};
+
 CanvasRenderingContext2D.prototype.fillRoundRect = function (x, y, width, height, r) {
   if (width < 2 * r) r = width / 2;
   if (height < 2 * r) r = height / 2;
@@ -15,33 +25,33 @@ CanvasRenderingContext2D.prototype.fillRoundRect = function (x, y, width, height
   this.fill();
 }
 
-let saveCookie;
+var saveCookie;
 const cookie = new (function() {
 	const map = {};
 	const cache = document.cookie.split('; ');
-	for (let i = 0; i < cache.length; i++) {
+	for (var i = 0; i < cache.length; i++) {
 		if (cache[i].length == 0) continue;
 		const split = cache[i].split('=');
 		map[split[0]] = split[1];
 	}
 	const orignalMap = {};
-	for (let key in map)
+	for (var key in map)
 		orignalMap[key] = map[key];
 	
 	this.saveCookie = function() {
-		let result = '';
-		let count = 0;
-		for (let key in map) {
+		var result = '';
+		var count = 0;
+		for (var key in map) {
 			if (count > 0)
 				result += '; ';
 			result += key + '=' + map[key];
-			let org = orignalMap[key];
+			var org = orignalMap[key];
 			if (org !== undefined)
 				delete orignalMap[key];
 			count++;
 		}
 		// 刪除cookie
-		for (let key in orignalMap) {
+		for (var key in orignalMap) {
 			if (count > 0)
 				result += '; ';
 			result += key + '=; Max-Age=0'

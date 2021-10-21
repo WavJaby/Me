@@ -2,7 +2,7 @@ html {
 	height: 100%;
 }
 body {
-	background-color: rgb(200,200,200);
+	background-color: rgb(10,10,10);
 	min-width: 400px;
 	height: 100%;
 	
@@ -158,7 +158,7 @@ h1 {
 }
 
 /* Notification */
-#notificationWindow {
+.notificationWindow {
 	width: 320px;
 	height: 100%;
 	

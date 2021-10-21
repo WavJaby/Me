@@ -140,9 +140,10 @@ function Terminal() {
 	path.innerText = '/Desktop';
 	prefix.innerHTML = '$&nbsp;';
 
-	
 	win.addBody(terminal);
-	win.show();
+	win.onBodySizeChange = function() {
+        setResultHeight();
+	}
 	
     this.init = function () {
         initCommands(this);
@@ -156,7 +157,8 @@ function Terminal() {
 			userInput(e);
         });
         
-        this.setResultHeight();
+		win.show();
+        setResultHeight();
     }
 	// 傳送指令
 	function submitCommand(args, userInput) {
@@ -184,7 +186,7 @@ function Terminal() {
 	}
     
     // 設定結果區大小
-    this.setResultHeight = function() {
+    function setResultHeight() {
         result.style.maxHeight = (
             win.getBodyHeight() - 
             commandLine.offsetHeight

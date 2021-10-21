@@ -1,11 +1,19 @@
 'use strict';
 const storage = getStorage();
 const windowResize = new WindowResize();
-let canvasElementForMinimize;
+const menuBar = new MenuBar();
+const notification = new Notification();
+const minWindow = new MinimizeWindow();
+
 window.onload = function() {
 	// 列表
-	const menuBar = document.getElementById('menuBar');
-	
+	const program = document.createElement('div');
+	program.innerText = '程式集';
+	const about = document.createElement('div');
+	about.innerText = '關於我';
+	menuBar.addItem(program);
+	menuBar.addItem(about);
+	menuBar.init();
 //##############################列表區##############################
 	// const buttons = ['mHelp', 'mAbout', 'mProject'];
 	// const commands = ['help', 'about', 'project'];
@@ -53,18 +61,14 @@ window.onload = function() {
 			// }
 		}
 	}
-
+	
 //##############################通知##############################
-	const notificationWindow = document.getElementById('notificationWindow');
-	const notification = new Notification(notificationWindow);
+	notification.init();
 
 //##############################視窗##############################
-	canvasElementForMinimize = document.createElement('canvas');
-	canvasElementForMinimize.classList.add('windowMinimize');
-	const ctx = canvasElementForMinimize.getContext("2d");
-	canvasElementForMinimize.style.display = 'none';
-    document.body.appendChild(canvasElementForMinimize);
+	minWindow.init();
 	
+//##############################初始化##############################
     // 開視窗
     const terminal = new Terminal();
     terminal.init();
@@ -78,8 +82,32 @@ window.onload = function() {
 	}
 }
 
+function MenuBar() {
+	const menuBar = document.createElement('div');
+	this.init = function() {
+		menuBar.classList.add('menuBar');
+		menuBar.classList.add('cantSelect');
+		document.body.appendChild(menuBar);
+	}
+	
+	this.addItem = function(item) {
+		item.classList.add('item');
+		menuBar.appendChild(item);
+	}
+	
+	this.getHeight = function() {
+		return menuBar.offsetHeight;
+	}
+}
 
-function Notification(notificationWindow) {
+
+function Notification() {
+	const notificationWindow = document.createElement('div');
+	this.init = function() {
+		notificationWindow.classList.add('notificationWindow');
+		document.body.appendChild(notificationWindow);
+	}
+	
 	this.sendNotification = function(title, description, time) {
 		if(time === undefined) time = 2000;
 		

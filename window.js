@@ -30,6 +30,64 @@ function Window() {
 	const minimizeButton = document.createElement('div');
 	minimizeButton.classList.add('minimize');
 	minimizeButton.innerHTML = '<img src="icon/minimize_icon.svg"/>';
+	
+	windowHeader.appendChild(windowTitle);
+	windowHeader.appendChild(closeButton);
+	windowHeader.appendChild(minimizeButton);
+	
+	// 視窗設定
+	let windowWidth;
+	let windowHeight;
+	let windowX;
+	let windowY;
+	let isMax;
+	const textFont = getStyle('*')['font-family'];
+	let style;
+	style = getStyle('.wHeader');
+	out(style['background-color']);
+	out(style.height);
+	style = getStyle('.wHeader > .title');
+	out(style.color);
+	out(style['line-height']);
+	out(style['font-size']);
+	out(textFont);
+	
+	drawElements = [];
+	// 視窗初始化
+	this.init = function(isMaximize, x, y, width, height) {
+		
+	}
+	
+	this.show = function() {
+		document.body.appendChild(windowElement);
+		setWindowBodyHeight();
+        // 最小化視窗設定
+		minWin.addElement(windowHeader);
+		minWin.addElement(windowMenu);
+		minWin.addElement(windowBody);
+		minWin.addElement(windowTitle, 'text');
+		const btns = windowHeader.getElementsByTagName('img');
+        btns[0].onload = btns[1].onload = function() {
+            minWin.addElement(this);
+        }
+	}
+	
+	this.show = function() {
+		document.body.appendChild(windowElement);
+		setWindowBodyHeight();
+        // 最小化視窗設定
+		minWin.addElement(windowHeader);
+		minWin.addElement(windowMenu);
+		minWin.addElement(windowBody);
+		minWin.addElement(windowTitle, 'text');
+		const btns = windowHeader.getElementsByTagName('img');
+        btns[0].onload = btns[1].onload = function() {
+            minWin.addElement(this);
+        }
+	}
+	
+    // 視窗縮小放大
+    const minWin = new MinimizeWindow();
     minimizeButton.onclick = function() {
         if (this.onMinimizeButton !== undefined)
             this.onMinimizeButton();
@@ -37,18 +95,11 @@ function Window() {
         minWin.minimize(100, 0);
     }
 	
-	windowHeader.appendChild(windowTitle);
-	windowHeader.appendChild(closeButton);
-	windowHeader.appendChild(minimizeButton);
-    
-    // 視窗縮小放大
-    const minWin = new MinimizeWindow();
-	
     // chrome視窗大小改變
     this.resize = function() {
         setWindowBodyHeight();
-        if (this.onSizeChange !== undefined)
-            this.onSizeChange();
+        if (this.onBodySizeChange !== undefined)
+            this.onBodySizeChange();
     }
     windowResize.addWindow(this);
 	
@@ -58,7 +109,7 @@ function Window() {
 	}
 	
 	// 功能
-    this.onSizeChange;
+    this.onBodySizeChange;
     this.onMinimizeButton;
     
 	this.setTitle = function(text) {
@@ -73,33 +124,26 @@ function Window() {
 	this.addBody = function(body) {
 		windowBody.appendChild(body);
 	}
-	
-	this.show = function() {
-		document.body.appendChild(windowElement);
-		setWindowBodyHeight();
-        out();
-        // 最小化視窗設定
-		minWin.addElement(windowHeader);
-		minWin.addElement(windowMenu);
-		minWin.addElement(windowBody);
-		minWin.addElement(windowTitle, 'text');
-		const btns = windowHeader.getElementsByTagName('img');
-        btns[0].onload = btns[1].onload = function() {
-            minWin.addElement(this);
-        }
-	}
     
 	function setWindowBodyHeight() {
 		windowBody.style.height = (
 			window.innerHeight - 
-			windowMenu.offsetHeight - 
+			menuBar.getHeight() -
+			windowMenu.offsetHeight -
 			windowHeader.offsetHeight
 		) + 'px';
 	}
 }
 
 function MinimizeWindow() {
-	const ctx = canvasElementForMinimize.getContext("2d");
+	const minimizeCanvas = document.createElement('canvas');
+	minimizeCanvas.classList.add('windowMinimize');
+	minimizeCanvas.style.display = 'none';
+	const ctx = minimizeCanvas.getContext("2d");
+	
+	this.init = function() {
+		document.body.appendChild(minimizeCanvas);
+	}
 	
 	const eles = [];
 	this.addElement = function(ele, type) {
@@ -167,9 +211,10 @@ function MinimizeWindow() {
 	let width;
 	let height;
 	let x = 0;
+	let y = 0;
 	function start() {
 		if (scale < 0.05 || scale > 1) {
-			canvasElementForMinimize.style.display = 'none';
+			minimizeCanvas.style.display = 'none';
 			return;
 		}
 		const sc = 1.2 / scaleStep;
@@ -183,25 +228,25 @@ function MinimizeWindow() {
 	}
 	
 	this.minimize = function(toX, toY) {
-		canvasElementForMinimize.style.display = 'block';
+		minimizeCanvas.style.display = 'block';
         scale = 1;
         scaleStep = 0.8;
         x = toX;
         y = toY;
-        width = ctx.canvas.width = canvasElementForMinimize.offsetWidth;
-        height = ctx.canvas.height = canvasElementForMinimize.offsetHeight;
+        width = ctx.canvas.width = minimizeCanvas.offsetWidth;
+        height = ctx.canvas.height = minimizeCanvas.offsetHeight;
 		start();
 	}
     
 	
 	this.maximize = function(fromX, fromY) {
-		canvasElementForMinimize.style.display = 'block';
+		minimizeCanvas.style.display = 'block';
         scale = 0.05;
         scaleStep = 1.2;
         x = fromX;
         y = fromY;
-        width = ctx.canvas.width = canvasElementForMinimize.offsetWidth;
-        height = ctx.canvas.height = canvasElementForMinimize.offsetHeight;
+        width = ctx.canvas.width = minimizeCanvas.offsetWidth;
+        height = ctx.canvas.height = minimizeCanvas.offsetHeight;
 		start();
 	}
 }
