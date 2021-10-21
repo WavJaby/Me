@@ -7,7 +7,7 @@ body {
 	height: 100%;
 	
 	overflow-x: auto;
-	overflow-y: hidden;
+	overflow-y: auto;
 	margin: 0;
 }
 
@@ -45,7 +45,7 @@ h1 {
 
 /* Window */
 .window {
-	/* height: 100%; */
+    position: absolute;
 }
 .wHeader {
 	background-color: rgb(70,70,70);
@@ -62,7 +62,6 @@ h1 {
 }
 .wHeader > .close, .wHeader > .minimize {
 	width: 50px;
-	height: 26px;
 	
 	display: block;
 	float: right;
@@ -81,7 +80,7 @@ h1 {
 .wMenu {
 	background-color: rgb(100,100,100);
 }
-.wMenu > .item{
+.wMenu > .item {
 	color: whitesmoke;
 	line-height: 20px;
 	font-size: 16px;
@@ -97,6 +96,7 @@ h1 {
     width: 100%;
     height: 100%;
 	bottom: 0px;
+    z-index: 99;
 	position: absolute;
 }
 

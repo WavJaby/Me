@@ -93,6 +93,7 @@ function onCommand(args, commandResult) {
         commandResult.innerHTML += result;
 }
 
+
 // 指令視窗
 function Terminal() {
 	// 初始化視窗
@@ -145,7 +146,7 @@ function Terminal() {
         setResultHeight();
 	}
 	
-    this.init = function () {
+    this.init = function(max, x, y, w, h) {
         initCommands(this);
 		
 		const userIn = new UserInput(commands, submitHints, updateCommandLine, submitCommand);
@@ -157,6 +158,7 @@ function Terminal() {
 			userInput(e);
         });
         
+		win.setWindowSize(max, x, y, w, h);
 		win.show();
         setResultHeight();
     }

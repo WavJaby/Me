@@ -1,4 +1,28 @@
 'use strict';
+const windowHeaderHeight = parseInt(getStyle('.wHeader').height);
+const windowHeaderColor = getStyle('.wHeader')['background-color'];
+
+const windowMenuHeight = parseInt(getStyle('.wMenu > .item')['line-height']);
+const windowMenuColor = getStyle('.wMenu > .item').color;
+
+const windowBodyColor = getStyle('.wBody')['background-color'];
+
+const windowTitleFont = (function(){
+	const style = getStyle('.wHeader > .title');
+    return style['font-size'] + ' / ' + style['line-height'] + ' ' + getStyle('*')['font-family'];
+})();
+const windowTitleLeft = parseInt(getStyle('.wHeader > .title')['margin-left']);
+const windowTitleHeight = parseInt(getStyle('.wHeader > .title')['font-size']) * 1.1;
+const windowTitleColor = getStyle('.wHeader > .title').color;
+
+const windowCloseIcon = new Image();
+windowCloseIcon.src = 'icon/close_icon.svg';
+const windowMinimizeIcon = new Image();
+windowMinimizeIcon.src = 'icon/minimize_icon.svg';
+const windowIconSize = parseInt(getStyle('.wHeader > div > img').width);
+const windowIconMargin = parseInt(getStyle('.wHeader > div > img').margin);
+const windowIconButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .minimize').width);
+
 function Window() {
 	// 視窗外框
 	const windowElement = document.createElement('div');
@@ -36,68 +60,66 @@ function Window() {
 	windowHeader.appendChild(minimizeButton);
 	
 	// 視窗設定
-	let windowWidth;
-	let windowHeight;
-	let windowX;
-	let windowY;
+	let winWidth;
+	let winHeight;
+	let winMenuHeight = 0;
+	let winX;
+	let winY;
 	let isMax;
-	const textFont = getStyle('*')['font-family'];
-	let style;
-	style = getStyle('.wHeader');
-	out(style['background-color']);
-	out(style.height);
-	style = getStyle('.wHeader > .title');
-	out(style.color);
-	out(style['line-height']);
-	out(style['font-size']);
-	out(textFont);
 	
-	drawElements = [];
-	// 視窗初始化
-	this.init = function(isMaximize, x, y, width, height) {
-		
+	// 視窗大小設定
+	this.setWindowSize = function(isMaximize, x, y, width, height) {
+		const data = {};
+        if (isMaximize) {
+            isMax = true;
+            winX = 0;
+            winY = 0;
+            windowElement.style.width = '100%';
+        } else {
+            isMax = false;
+            winWidth = width;
+            winHeight = height;
+            winX = x;
+            winY = y + menuBar.getHeight();
+        }
+		updateWindowSize();
 	}
 	
 	this.show = function() {
-		document.body.appendChild(windowElement);
-		setWindowBodyHeight();
-        // 最小化視窗設定
-		minWin.addElement(windowHeader);
-		minWin.addElement(windowMenu);
-		minWin.addElement(windowBody);
-		minWin.addElement(windowTitle, 'text');
-		const btns = windowHeader.getElementsByTagName('img');
-        btns[0].onload = btns[1].onload = function() {
-            minWin.addElement(this);
-        }
-	}
-	
-	this.show = function() {
-		document.body.appendChild(windowElement);
-		setWindowBodyHeight();
-        // 最小化視窗設定
-		minWin.addElement(windowHeader);
-		minWin.addElement(windowMenu);
-		minWin.addElement(windowBody);
-		minWin.addElement(windowTitle, 'text');
-		const btns = windowHeader.getElementsByTagName('img');
-        btns[0].onload = btns[1].onload = function() {
-            minWin.addElement(this);
-        }
+        if (isMax === undefined)
+            this.setWindowSize(true);
+        minWindow.open(winX, winY, winWidth, winHeight, drawWindow, function() {
+            document.body.appendChild(windowElement);
+        });
 	}
 	
     // 視窗縮小放大
-    const minWin = new MinimizeWindow();
     minimizeButton.onclick = function() {
         if (this.onMinimizeButton !== undefined)
             this.onMinimizeButton();
         windowElement.style.display = 'none';
-        minWin.minimize(100, 0);
+        minWindow.minimize(winX, winY, winX, 0, winWidth, winHeight, drawWindow);
+    }
+    
+    function drawWindow(x, y, canvas) {
+        canvas.fillStyle = windowHeaderColor;
+        canvas.fillRect(x, y, winWidth, windowHeaderHeight);
+        canvas.fillStyle = windowTitleColor;
+        canvas.font = windowTitleFont;
+        canvas.fillText(windowTitle.innerText, x + windowTitleLeft, y + windowTitleHeight);
+        const iconX = x + winWidth - windowIconButtonSize / 2 - windowIconSize / 2;
+        canvas.drawImage(windowCloseIcon, iconX , y + windowIconMargin, windowIconSize, windowIconSize);
+        canvas.drawImage(windowMinimizeIcon, iconX - windowIconButtonSize , y + windowIconMargin, windowIconSize, windowIconSize);
+        
+        canvas.fillStyle = windowMenuColor;
+        canvas.fillRect(x, y + windowHeaderHeight, winWidth, winMenuHeight);
+        canvas.fillStyle = windowBodyColor;
+        canvas.fillRect(x, y + windowHeaderHeight + winMenuHeight, winWidth, winHeight - windowHeaderHeight - winMenuHeight);
     }
 	
     // chrome視窗大小改變
     this.resize = function() {
-        setWindowBodyHeight();
+        updateWindowSize();
         if (this.onBodySizeChange !== undefined)
             this.onBodySizeChange();
     }
@@ -105,7 +127,9 @@ function Window() {
 	
 	// 數值
 	this.getBodyHeight = function() {
-		return windowBody.offsetHeight;
+		return winHeight -
+            windowHeaderHeight -
+            winMenuHeight;
 	}
 	
 	// 功能
@@ -117,6 +141,9 @@ function Window() {
 	}
 	
 	this.addMenuItem = function(item) {
+        if (winMenuHeight === 0) {
+            winMenuHeight = windowMenuHeight;
+        }
 		item.classList.add('item');
 		windowMenu.appendChild(item);
 	}
@@ -125,13 +152,20 @@ function Window() {
 		windowBody.appendChild(body);
 	}
     
-	function setWindowBodyHeight() {
-		windowBody.style.height = (
-			window.innerHeight - 
-			menuBar.getHeight() -
-			windowMenu.offsetHeight -
-			windowHeader.offsetHeight
-		) + 'px';
+	function updateWindowSize() {
+        if (isMax) {
+            winWidth = window.innerWidth;
+            winHeight = window.innerHeight - menuBar.getHeight();
+        } else {
+            windowElement.style.width = winWidth + 'px';
+            windowElement.style.left = winX + 'px';
+            windowElement.style.top = winY + 'px';
+        }
+        windowBody.style.height = (
+            winHeight -
+            windowHeaderHeight -
+            winMenuHeight
+        ) + 'px';
 	}
 }
 
@@ -208,36 +242,69 @@ function MinimizeWindow() {
 	// 縮小
 	let scale;
 	let scaleStep;
+	let winWidth;
 	let width;
 	let height;
-	let x = 0;
-	let y = 0;
+	let winHeight;
+    
+    let moveX;
+    let moveY;
+	let x;
+	let y;
 	function start() {
-		if (scale < 0.05 || scale > 1) {
+		if (scale < 0.1 || scale > 1) {
 			minimizeCanvas.style.display = 'none';
+            if (doneFun !== undefined) doneFun();
 			return;
 		}
-		const sc = 1.2 / scaleStep;
-        ctx.clearRect(-x, 0, width * sc, height * sc);
-		ctx.globalAlpha = scale;
-        drawElements(ctx);
+		ctx.setTransform(scale, 0, 0, scale, 
+            (x + (winWidth / 2) + moveX) * (1 - scale), 
+            (y + (winHeight / 2) + moveY) * (1 - scale)
+        );
         
-		ctx.setTransform(scale, 0, 0, scale, x * (1 - scale), 0);
+        ctx.clearRect(x - winWidth / 2, y - winHeight / 2, winWidth * 2, winHeight * 2);
+		ctx.globalAlpha = scale;
+        drawFun(x, y, ctx);
+        
 		scale *= scaleStep;
 		window.requestAnimationFrame(start);
 	}
+    
+    let drawFun;
+    let doneFun;
+    this.open = function(fromX, fromY, windowWidth, windowHeight, drawFunction, whenDone) {
+		minimizeCanvas.style.display = 'block';
+        scale = 0.1;
+        scaleStep = 1.2;
+        x = fromX;
+        y = fromY;
+        winWidth = windowWidth;
+        winHeight = windowHeight;
+        moveX = 0;
+        moveY = 0;
+        width = ctx.canvas.width = minimizeCanvas.offsetWidth;
+        height = ctx.canvas.height = minimizeCanvas.offsetHeight;
+        drawFun = drawFunction;
+        doneFun = whenDone;
+        start();
+    }
 	
-	this.minimize = function(toX, toY) {
+	this.minimize = function(fromX, fromY, toX, toY, windowWidth, windowHeight, drawFunction, whenDone) {
 		minimizeCanvas.style.display = 'block';
         scale = 1;
         scaleStep = 0.8;
-        x = toX;
-        y = toY;
+        x = fromX;
+        y = fromY;
+        winWidth = windowWidth;
+        winHeight = windowHeight;
+        moveX = toX - fromX - (winWidth / 2);
+        moveY = toY - fromY - (winHeight / 2);
         width = ctx.canvas.width = minimizeCanvas.offsetWidth;
         height = ctx.canvas.height = minimizeCanvas.offsetHeight;
-		start();
+        drawFun = drawFunction;
+        doneFun = whenDone;
+        start();
 	}
-    
 	
 	this.maximize = function(fromX, fromY) {
 		minimizeCanvas.style.display = 'block';
