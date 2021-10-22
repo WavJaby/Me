@@ -23,6 +23,8 @@ const windowIconSize = parseInt(getStyle('.wHeader > div > img').width);
 const windowIconMargin = parseInt(getStyle('.wHeader > div > img').margin);
 const windowIconButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .minimize').width);
 
+const menuButtonWidth = parseInt(getStyle('.menuBar > .item').width);
+
 function Window() {
 	// 視窗外框
 	const windowElement = document.createElement('div');
@@ -59,6 +61,10 @@ function Window() {
 	windowHeader.appendChild(closeButton);
 	windowHeader.appendChild(minimizeButton);
 	
+	// 程式列
+	const menuButton = document.createElement('div');
+	let menuButtonPos;
+	
 	// 視窗設定
 	let winWidth;
 	let winHeight;
@@ -85,20 +91,25 @@ function Window() {
 		updateWindowSize();
 	}
 	
-	this.show = function() {
+	this.open = function() {
         if (isMax === undefined)
             this.setWindowSize(true);
         minWindow.open(winX, winY, winWidth, winHeight, drawWindow, function() {
             document.body.appendChild(windowElement);
+			menuBar.addItem(menuButton);
+			menuButtonPos = menuButton.offsetLeft;
+			menuButton.classList.add('opened');
         });
 	}
 	
-    // 視窗縮小放大
+    // 視窗縮小
     minimizeButton.onclick = function() {
         if (this.onMinimizeButton !== undefined)
             this.onMinimizeButton();
         windowElement.style.display = 'none';
-        minWindow.minimize(winX, winY, winX, 0, winWidth, winHeight, drawWindow);
+        minWindow.minimize(winX, winY, menuButtonPos + menuButtonWidth / 2, 0, winWidth, winHeight, drawWindow, function() {
+			menuButton.classList.remove('opened');
+		});
     }
     
     function drawWindow(x, y, canvas) {
@@ -138,6 +149,7 @@ function Window() {
     
 	this.setTitle = function(text) {
 		windowTitle.innerText = text;
+		menuButton.innerText = text;
 	}
 	
 	this.addMenuItem = function(item) {
@@ -179,27 +191,6 @@ function MinimizeWindow() {
 		document.body.appendChild(minimizeCanvas);
 	}
 	
-	const eles = [];
-	this.addElement = function(ele, type) {
-		const itemData = {};
-		itemData.bound = ele.getBoundingClientRect();
-        if (type === undefined) type = ele.tagName;
-		if (type === 'IMG') {
-			itemData.tagName = 'img';
-			itemData.image = ele;
-		} else if (type === 'text') {
-			itemData.tagName = 'text';
-			itemData.fillStyle = ele.getStyle('color');
-			itemData.font = ele.getStyle('font');
-			itemData.text = ele.innerText;
-			itemData.height = parseInt(ele.getStyle('font-size')) * 1.1;
-		} else if (type === 'DIV') {
-			itemData.tagName = 'div';
-			itemData.fillStyle = ele.getStyle('background-color');
-		}
-		eles.push(itemData);
-	}
-	
 	this.setFakeText = function(height, eleBound) {
 		const fillStyle = 'rgb(200,200,200)';
 		const bound = eleBound;
@@ -216,27 +207,6 @@ function MinimizeWindow() {
 		}
 		itemData.fillStyle = fillStyle;
 		eles.push(itemData);
-	}
-	
-	function drawElements(canvas) {
-		for (let i = 0; i < eles.length; i++){
-			const ele = eles[i];
-			const bound = ele.bound;
-            const type = ele.tagName;
-			if (type === 'img') {
-				canvas.drawImage(ele.image, bound.left, bound.top, bound.width, bound.height);
-			} else if (type === 'text') {
-				canvas.fillStyle = ele.fillStyle;
-				canvas.font = ele.font;
-				canvas.fillText(ele.text, bound.left, bound.top + ele.height);
-			} else if (type ==='div') {
-				canvas.fillStyle = ele.fillStyle;
-				canvas.fillRect(bound.left, bound.top, bound.width, bound.height);
-			} else {
-				canvas.fillStyle = ele.fillStyle;
-				ele.draw(canvas);
-			}
-		}
 	}
 	
 	// 縮小
@@ -258,8 +228,8 @@ function MinimizeWindow() {
 			return;
 		}
 		ctx.setTransform(scale, 0, 0, scale, 
-            (x + (winWidth / 2) + moveX) * (1 - scale), 
-            (y + (winHeight / 2) + moveY) * (1 - scale)
+            (x + moveX) * (1 - scale), 
+            (y + moveY) * (1 - scale)
         );
         
         ctx.clearRect(x - winWidth / 2, y - winHeight / 2, winWidth * 2, winHeight * 2);
@@ -280,8 +250,8 @@ function MinimizeWindow() {
         y = fromY;
         winWidth = windowWidth;
         winHeight = windowHeight;
-        moveX = 0;
-        moveY = 0;
+        moveX = winWidth / 2;
+        moveY = winHeight / 2;
         width = ctx.canvas.width = minimizeCanvas.offsetWidth;
         height = ctx.canvas.height = minimizeCanvas.offsetHeight;
         drawFun = drawFunction;
@@ -297,8 +267,8 @@ function MinimizeWindow() {
         y = fromY;
         winWidth = windowWidth;
         winHeight = windowHeight;
-        moveX = toX - fromX - (winWidth / 2);
-        moveY = toY - fromY - (winHeight / 2);
+        moveX = toX - fromX;
+        moveY = toY - fromY;
         width = ctx.canvas.width = minimizeCanvas.offsetWidth;
         height = ctx.canvas.height = minimizeCanvas.offsetHeight;
         drawFun = drawFunction;

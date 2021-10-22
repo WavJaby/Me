@@ -159,7 +159,7 @@ function Terminal() {
         });
         
 		win.setWindowSize(max, x, y, w, h);
-		win.show();
+		win.open();
         setResultHeight();
     }
 	// 傳送指令

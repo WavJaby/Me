@@ -39,6 +39,9 @@ h1 {
 	text-align: center;
 	cursor: pointer;
 }
+.menuBar > .opened {
+	background-color: rgb(70,70,70);
+}
 .menuBar > .item:hover {
 	background-color: rgb(50,50,50);
 }
