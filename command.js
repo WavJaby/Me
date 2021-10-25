@@ -159,9 +159,13 @@ function Terminal() {
         });
         
 		win.setWindowSize(max, x, y, w, h);
+    }
+	
+	this.open = function() {
 		win.open();
         setResultHeight();
-    }
+	}
+	
 	// 傳送指令
 	function submitCommand(args, userInput) {
 		// 計算是否以滑動到最底

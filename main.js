@@ -71,8 +71,8 @@ window.onload = function() {
 //##############################初始化##############################
     // 開視窗
     const terminal = new Terminal();
-    terminal.init(true, 100, 100, 500, 200);
-    terminal.show();
+    terminal.init(false, 100, 100, 500, 200);
+    terminal.open();
 
 	// 歡迎訊息
 	if (storage.getItem('joinBefore') === null) {
