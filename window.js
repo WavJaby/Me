@@ -87,7 +87,7 @@ function Window() {
             winWidth = width;
             winHeight = height;
             winX = x;
-            winY = y + menuBar.getHeight();
+            winY = y;
         }
 		updateWindowSize();
 	}
@@ -95,7 +95,7 @@ function Window() {
 	this.open = function() {
         if (isMax === undefined)
             this.setWindowSize(true);
-        minWindow.open(winX, winY, winWidth, winHeight, drawWindow, function() {
+        minWindow.open(winX, winY + menuBar.getHeight(), winWidth, winHeight, drawWindow, function() {
             document.body.appendChild(windowElement);
 			menuBar.addItem(menuButton);
 			menuButtonPos = menuButton.offsetLeft;
@@ -110,7 +110,7 @@ function Window() {
             this.onMinimizeButton();
         windowElement.style.display = 'none';
 		console.log(menuButtonPos);
-        minWindow.minimize(winX, winY + menuBar.getHeight(), menuButtonPos - (winWidth - menuButtonWidth) / 2, 0 , winWidth, winHeight, drawWindow, function() {
+        minWindow.minimize(winX, winY + menuBar.getHeight(), menuButtonPos - menuButtonWidth / 2 - winWidth / 2, 0 , winWidth, winHeight, drawWindow, function() {
 			menuButton.classList.remove('opened');
 			minimize = true;
 		});
@@ -184,7 +184,7 @@ function Window() {
         } else {
             windowElement.style.width = winWidth + 'px';
             windowElement.style.left = winX + 'px';
-            windowElement.style.top = winY + 'px';
+            windowElement.style.top = winY + menuBar.getHeight() + 'px';
         }
         windowBody.style.height = (
             winHeight -
@@ -226,15 +226,13 @@ function MinimizeWindow() {
 	let scale;
 	let scaleStep;
 	
-	let winWidth;
-	let winHeight;
-	let width;
-	let height;
+	let winWidth, winHeight;
+	let width, height;
     
-    let moveX;
-    let moveY;
-	let x;
-	let y;
+    let moveX, moveY;
+	let x, y;
+	let newX, newY;
+	let offsetX, offsetY;
 	function start() {
 		if (scale < 0.1 || scale > 1) {
 			minimizeCanvas.style.display = 'none';
@@ -242,39 +240,18 @@ function MinimizeWindow() {
 			ctx.setTransform(1, 0, 0, 1, 0, 0);
 			return;
 		}
-		// ctx.setTransform(scale, 0, 0, scale, 
-            // (x + moveX) * (1 - scale), 
-            // (y + moveY) * (1 - scale)
-        // );
-        
-        // ctx.clearRect(x - winWidth / 2, y - winHeight / 2, winWidth * 2, winHeight * 2);
 		
-		// ctx.setTransform(scale, 0, 0, scale, 
-            // canvasWidth * (1 - scale) * 0.5 - (canvasWidth / 2 + x) * (1 - scale),
-            // canvasHeight * (1 - scale) * 0
-        // );
-		// ctx.setTransform(scale, 0, 0, scale, 
-            // width * (1 - scale) * offsetX + moveX * (1 - scale),
-            // height * (1 - scale) * offsetY + moveY * (1 - scale)
-        // );
-		ctx.setTransform(scale, 0, 0, scale, 
-            // (x) * (1 - scale) - (winWidth / 2) * scale,
-            // (y) * (1 - scale) - (winHeight / 2) * scale
-            x - (x) * scale - (winWidth / 2) * scale + winWidth / 2 + moveX * (1 - scale),
-			y - (y) * scale - (winHeight / 2) * scale + winHeight / 2 + moveY * (1 - scale)
-        );
-		out(moveX)
-        ctx.clearRect(-ctx.canvas.width, -ctx.canvas.height, ctx.canvas.width * 3, ctx.canvas.height * 3);
+        ctx.clearRect(newX - 10, newY - 10, winWidth + 20, winHeight + 20);
+		
+		ctx.setTransform(scale, 0, 0, scale, 0, 0);
 		ctx.globalAlpha = scale;
 		
-		ctx.fillStyle = 'rgb(100,0,0)';
-        ctx.fillRect(0, 0, width, height);
-		
-		drawFun(x, y, ctx);
-        
-		
+		newX = (x + winWidth * offsetX + moveX * (1 - scale)) * (1 / scale) - winWidth * offsetX;
+		newY = (y + winHeight * offsetY + moveY * (1 - scale)) * (1 / scale) - winHeight * offsetY;
+		drawFun(newX, newY, ctx);
 		
 		scale *= scaleStep;
+		
 		window.requestAnimationFrame(start);
 	}
     
@@ -283,12 +260,13 @@ function MinimizeWindow() {
     this.open = function(fromX, fromY, windowWidth, windowHeight, drawFunction, whenDone) {
 		minimizeCanvas.style.display = 'block';
         scale = 0.1;
-        scaleStep = 1.2;
+        scaleStep = 1.01;
         x = fromX;
         y = fromY;
         winWidth = windowWidth;
         winHeight = windowHeight;
         moveX = moveY = 0;
+		offsetX = offsetY = 0.5;
         width = ctx.canvas.width = minimizeCanvas.offsetWidth;
         height = ctx.canvas.height = minimizeCanvas.offsetHeight;
         drawFun = drawFunction;
@@ -306,6 +284,8 @@ function MinimizeWindow() {
         winHeight = windowHeight;
         moveX = toX - fromX;
         moveY = toY - fromY;
+		offsetX = 0.5;
+		offsetY = 0;
         width = ctx.canvas.width = minimizeCanvas.offsetWidth;
         height = ctx.canvas.height = minimizeCanvas.offsetHeight;
         drawFun = drawFunction;
