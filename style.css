@@ -42,8 +42,11 @@ h1 {
 .menuBar > .opened {
 	background-color: rgb(70,70,70);
 }
-.menuBar > .item:hover {
+.menuBar > .item:not(.opened):hover {
 	background-color: rgb(50,50,50);
+}
+.menuBar > .item.opened:hover {
+	background-color: rgb(90,90,90);
 }
 
 /* Window */
@@ -168,7 +171,7 @@ h1 {
 	right: 0px;
 	bottom: 0px;
 	position: absolute;
-	pointer-events: none;
+    z-index: 100;
 	
 	overflow: hidden;
 }
@@ -201,6 +204,10 @@ a:link, a:visited{
 }
 a:active {
 	color: whitesmoke;
+}
+
+.clickThrough {
+    pointer-events: none;
 }
 
 .cantSelect {

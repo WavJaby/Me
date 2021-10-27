@@ -70,9 +70,14 @@ window.onload = function() {
 	
 //##############################初始化##############################
     // 開視窗
-    const terminal = new Terminal();
-    terminal.init(false, 100, 100, 500, 200);
-    terminal.open();
+    let i = 0;
+    let id = setInterval(function() {
+        const terminal = new Terminal();
+        terminal.init(false, 100 + i * 10, 100 + i * 10, 500, 200);
+        terminal.open();
+        i++;
+        (i < 10 || clearInterval(id));
+    }, 10);
 
 	// 歡迎訊息
 	if (storage.getItem('joinBefore') === null) {
@@ -104,8 +109,9 @@ function MenuBar() {
 
 function Notification() {
 	const notificationWindow = document.createElement('div');
+    notificationWindow.classList.add('notificationWindow');
+    notificationWindow.classList.add('clickThrough');
 	this.init = function() {
-		notificationWindow.classList.add('notificationWindow');
 		document.body.appendChild(notificationWindow);
 	}
 	

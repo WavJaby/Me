@@ -162,8 +162,7 @@ function Terminal() {
     }
 	
 	this.open = function() {
-		win.open();
-        setResultHeight();
+		win.open(function() {setResultHeight();});
 	}
 	
 	// 傳送指令
@@ -171,7 +170,7 @@ function Terminal() {
 		// 計算是否以滑動到最底
 		const needScroll = result.scrollTop === result.scrollHeight - result.offsetHeight;
 		commandInput.innerText = userInput;
-		result.innerHTML += '<p>' + commandLine.innerHTML;
+		result.innerHTML += '<p>' + commandLine.innerHTML + '</p>';
 		onCommand(args, result);
 		// 滑動到最底
 		if (needScroll)
