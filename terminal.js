@@ -141,16 +141,18 @@ function Terminal() {
 	path.innerText = '/Desktop';
 	prefix.innerHTML = '$&nbsp;';
 
+	// 使用者輸入
+	const userIn = new UserInput(commands, submitHints, updateCommandLine, submitCommand);
+	
 	win.addBody(terminal);
-	win.onBodySizeChange = function() {
-        setResultHeight();
-	}
+	win.onSizeChange = setResultHeight;
+	win.setOnMinimize(function() {userIn.setCanInput(false);});
+	
 	
     this.init = function(max, x, y, w, h) {
         initCommands(this);
 		
-		const userIn = new UserInput(commands, submitHints, updateCommandLine, submitCommand);
-		this.userInput = userIn.onInput;
+		userIn.init();
 		const userInput = userIn.onInput;
 		
         // 打字時
@@ -162,7 +164,7 @@ function Terminal() {
     }
 	
 	this.open = function() {
-		win.open(function() {setResultHeight();});
+		win.open(setResultHeight);
 	}
 	
 	// 傳送指令
@@ -231,6 +233,11 @@ function UserInput(hints, showhints, displayUpdate, onSubmit) {
 	// 設定能否輸入
 	this.setCanInput = function(state) {
 		inInput = state;
+	}
+	
+	this.init = function() {
+		// init
+		resetCommandLine();
 	}
 	
 	this.onInput = function(e) {
@@ -467,7 +474,4 @@ function UserInput(hints, showhints, displayUpdate, onSubmit) {
 			idle = true;
 		}, 500);
 	}
-	
-	// init
-	resetCommandLine();
 }

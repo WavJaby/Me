@@ -70,14 +70,18 @@ window.onload = function() {
 	
 //##############################初始化##############################
     // 開視窗
-    let i = 0;
-    let id = setInterval(function() {
-        const terminal = new Terminal();
-        terminal.init(false, 100 + i * 10, 100 + i * 10, 500, 200);
-        terminal.open();
-        i++;
-        (i < 10 || clearInterval(id));
-    }, 10);
+    // let i = 0;
+    // let id = setInterval(function() {
+        // const terminal = new Terminal();
+        // terminal.init(false, 100 + i * 10, 100 + i * 10, 500, 200);
+        // terminal.open();
+        // i++;
+        // (i < 10 || clearInterval(id));
+    // }, 10);
+	
+	const terminal = new Terminal();
+	terminal.init(false, 100, 100, 600, 300);
+	terminal.open();
 
 	// 歡迎訊息
 	if (storage.getItem('joinBefore') === null) {

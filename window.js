@@ -65,14 +65,18 @@ function Window() {
 	const menuButton = document.createElement('div');
 	let menuButtonPos;
 	
-	// 視窗設定
+//##############################################視窗設定##############################################
 	let winWidth;
 	let winHeight;
 	let winMenuHeight = 0;
 	let winX;
 	let winY;
 	let isMax;
-	let minimize;
+	let isActivate;
+	let isMinimize;
+	
+    this.onSizeChange; 
+    let onMinimize; this.setOnMinimize = function(fun){onMinimize = fun;};
 	
 	// 視窗大小設定
 	this.setWindowSize = function(isMaximize, x, y, width, height) {
@@ -92,6 +96,29 @@ function Window() {
 		updateWindowSize();
 	}
 	
+	this.setTitle = function(text) {
+		windowTitle.innerText = text;
+		menuButton.innerText = text;
+	}
+	
+	this.setActivate = function(boolean) {
+		isActivate = boolean;
+	}
+	
+	this.addMenuItem = function(item) {
+        if (winMenuHeight === 0) {
+            winMenuHeight = windowMenuHeight;
+        }
+		item.classList.add('item');
+		windowMenu.appendChild(item);
+	}
+	
+	this.addBody = function(body) {
+		windowBody.appendChild(body);
+	}
+	
+//##############################################視窗縮放##############################################
+	// 打開
 	this.open = function(openEvent) {
         if (isMax === undefined)
             this.setWindowSize(true);
@@ -100,30 +127,34 @@ function Window() {
 			menuBar.addItem(menuButton);
 			menuButtonPos = menuButton.offsetLeft;
 			menuButton.classList.add('opened');
+			isMinimize = false;
+			isActivate = true;
             if (openEvent != undefined)
                 openEvent();
-			minimize = false;
         });
 	}
 	
-    // 視窗縮小
+	// 最小化
     function minimizeWindow() {
-        if (onMinimizeButton !== undefined)
-            onMinimizeButton();
+        if (onMinimize !== undefined)
+            onMinimize();
         windowElement.style.display = 'none';
         minWindow.minimize(winX, winY + menuBar.getHeight(), menuButtonPos + menuButtonWidth / 2, 0 , winWidth, winHeight, drawWindow, function() {
 			menuButton.classList.remove('opened');
-			minimize = true;
+			isMinimize = true;
+			isActivate = false;
 		});
     }
     minimizeButton.onclick = minimizeWindow; 
 	
+	// 最大或最小化
 	menuButton.onclick = function() {
-        if (minimize)
+        if (isMinimize)
 			minWindow.maximize(menuButtonPos + menuButtonWidth / 2, 0, winX, winY + menuBar.getHeight(), winWidth, winHeight, drawWindow, function() {
 				windowElement.style.display = '';
 				menuButton.classList.add('opened');
-				minimize = false;
+				isMinimize = false;
+				isActivate = true;
 			});
         else
             minimizeWindow();
@@ -145,42 +176,18 @@ function Window() {
         canvas.fillRect(x, y + windowHeaderHeight + winMenuHeight, winWidth, winHeight - windowHeaderHeight - winMenuHeight);
     }
 	
-    // chrome視窗大小改變
+//##############################################視窗大小改變##############################################
     this.resize = function() {
         updateWindowSize();
-        if (this.onBodySizeChange !== undefined)
-            this.onBodySizeChange();
+        if (isMax && this.onSizeChange !== undefined)
+            this.onSizeChange();
     }
     windowResize.addWindow(this);
 	
-	// 數值
 	this.getBodyHeight = function() {
 		return winHeight -
             windowHeaderHeight -
             winMenuHeight;
-	}
-	
-	// 功能
-    let onBodySizeChange;
-    let onMinimizeButton;
-    this.onBodySizeChange = function(fun) {onBodySizeChange = fun;}
-    this.setOnMinimizeButton = function(fun) {onMinimizeButton = fun;}
-    
-	this.setTitle = function(text) {
-		windowTitle.innerText = text;
-		menuButton.innerText = text;
-	}
-	
-	this.addMenuItem = function(item) {
-        if (winMenuHeight === 0) {
-            winMenuHeight = windowMenuHeight;
-        }
-		item.classList.add('item');
-		windowMenu.appendChild(item);
-	}
-	
-	this.addBody = function(body) {
-		windowBody.appendChild(body);
 	}
     
 	function updateWindowSize() {
