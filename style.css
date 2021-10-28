@@ -114,6 +114,7 @@ h1 {
 }
 .terminal p {
 	font-size: 25px;
+    white-space: pre;
 }
 .terminal > .result {
 	overflow: auto;

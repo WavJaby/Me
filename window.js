@@ -25,6 +25,10 @@ const windowIconButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .m
 
 const menuButtonWidth = parseInt(getStyle('.menuBar > .item').width);
 
+// 視窗工具
+const minWindow = new MinimizeWindow();
+const winManager = new WindowManager();
+
 function Window() {
 	// 視窗外框
 	const windowElement = document.createElement('div');
@@ -71,23 +75,23 @@ function Window() {
 	let winMenuHeight = 0;
 	let winX;
 	let winY;
-	let isMax;
+	let isMaxSize;
 	let isActivate;
 	let isMinimize;
 	
     this.onSizeChange; 
-    let onMinimize; this.setOnMinimize = function(fun){onMinimize = fun;};
+    let onActive; this.setOnActive = function(fun){onActive = fun;};
 	
 	// 視窗大小設定
 	this.setWindowSize = function(isMaximize, x, y, width, height) {
 		const data = {};
         if (isMaximize) {
-            isMax = true;
+            isMaxSize = true;
             winX = 0;
             winY = 0;
             windowElement.style.width = '100%';
         } else {
-            isMax = false;
+            isMaxSize = false;
             winWidth = width;
             winHeight = height;
             winX = x;
@@ -120,7 +124,7 @@ function Window() {
 //##############################################視窗縮放##############################################
 	// 打開
 	this.open = function(openEvent) {
-        if (isMax === undefined)
+        if (isMaxSize === undefined)
             this.setWindowSize(true);
         minWindow.open(winX, winY + menuBar.getHeight(), winWidth, winHeight, drawWindow, function() {
             document.body.appendChild(windowElement);
@@ -136,8 +140,8 @@ function Window() {
 	
 	// 最小化
     function minimizeWindow() {
-        if (onMinimize !== undefined)
-            onMinimize();
+        if (onActive !== undefined)
+            onActive();
         windowElement.style.display = 'none';
         minWindow.minimize(winX, winY + menuBar.getHeight(), menuButtonPos + menuButtonWidth / 2, 0 , winWidth, winHeight, drawWindow, function() {
 			menuButton.classList.remove('opened');
@@ -179,10 +183,9 @@ function Window() {
 //##############################################視窗大小改變##############################################
     this.resize = function() {
         updateWindowSize();
-        if (isMax && this.onSizeChange !== undefined)
+        if (isMaxSize && this.onSizeChange !== undefined)
             this.onSizeChange();
     }
-    windowResize.addWindow(this);
 	
 	this.getBodyHeight = function() {
 		return winHeight -
@@ -191,7 +194,7 @@ function Window() {
 	}
     
 	function updateWindowSize() {
-        if (isMax) {
+        if (isMaxSize) {
             winWidth = window.innerWidth;
             winHeight = window.innerHeight - menuBar.getHeight();
         } else {
@@ -205,6 +208,7 @@ function Window() {
             winMenuHeight
         ) + 'px';
 	}
+    winManager.addWindow(this);
 }
 
 function MinimizeWindow() {
@@ -346,4 +350,23 @@ function MinimizeWindow() {
             doneFun: doneFun,
         });
 	}
+}
+
+function WindowManager() {
+    const windows = [];
+    
+	window.onresize = function() {
+        if(windows.length == 0) return;
+        if(windows.length == 1) {
+            windows[0].resize();
+            return;
+        }
+        
+        for (let i = 0; i < windows.length; i++)
+            windows[i].resize();
+	};
+    
+    this.addWindow = function(win) {
+        windows.push(win);
+    }
 }

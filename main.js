@@ -1,9 +1,7 @@
 'use strict';
 const storage = getStorage();
-const windowResize = new WindowResize();
 const menuBar = new MenuBar();
 const notification = new Notification();
-const minWindow = new MinimizeWindow();
 
 window.onload = function() {
 	// 列表
@@ -168,25 +166,6 @@ function Notification() {
 		
 		slideIn();
 	}
-}
-
-function WindowResize() {
-    const windows = [];
-    
-	window.onresize = function() {
-        if(windows.length == 0) return;
-        if(windows.length == 1) {
-            windows[0].resize();
-            return;
-        }
-        
-        for (let i = 0; i < windows.length; i++)
-            windows[i].resize();
-	};
-    
-    this.addWindow = function(win) {
-        windows.push(win);
-    }
 }
 
 function out(i) {
