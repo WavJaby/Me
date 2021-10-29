@@ -147,7 +147,6 @@ function Terminal() {
 	win.onSizeChange = setResultHeight;
 	win.setOnActive(function() {userIn.setCanInput(false);});
 	
-	
     this.init = function(max, x, y, w, h) {
         initCommands(this);
 		
@@ -287,7 +286,8 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 			if (space) {
 				argsPos++;
 				argsStartPos = cursorPos;
-				args[argsPos] = '';
+				if (args[argsPos] == undefined)
+					args[argsPos] = '';
 				getHint = false;
 				hintTab = 0;
 			}
@@ -379,7 +379,9 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 						cursorPos = argsStartPos + hint.length;
                         
                         frontText = userInput.slice(0, cursorPos);
-                        backText = blinkText = '';
+                        endText = userInput.slice(cursorPos + 1);
+                        backText = hintText = '';
+						blinkText = ' ';
 					} else if (hint.length > 1) {
 						hintPos++;
 						if (hintPos == hint.length)
@@ -400,15 +402,29 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 			}
 		}
         
-        /*
 		arg = args[argsPos];
 		let hint = null;
-		if (getHint)
-			hint = commandHint(args, argsPos);
-		if(hint !== null)
-			hint = hint[hintPos];
+		if (getHint) {
+			const hints = commandHint(args, argsPos);
+			if(hints.length > 0)
+				hint = hints[hintPos];
+		}
 		
+		if (hint !== null && arg.length < hint.length) {
+			if (cursorPos - argsStartPos === arg.length) {
+				hintText = hint.slice(arg.length + 1);
+				blinkText = hint.charAt(arg.length);
+				blinkerEle.classList.add('hint', 'cantSelect');
+			} else {
+				hintText = hint.slice(arg.length);
+				blinkerEle.classList.remove('hint', 'cantSelect');
+			}
+		} else {
+			hintText = '';
+			blinkerEle.classList.remove('hint', 'cantSelect');
+		}
 		
+        /*
 		const cursorP = cursorPos - argsStartPos;
 		const last = userInput.slice(argsStartPos + cursorP);
 		const cursorAtlast = cursorP === arg.length;
@@ -446,29 +462,47 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 		
 		console.log('###### args ######');
 		console.log(args);
+		console.log(arg);
 		// console.log('###### hint ######');
 		// console.log(hint);
-		// console.log('###### cursorAtlast ######');
-		// console.log(cursorAtlast);
 		console.log('###### userInput ######');
 		console.log('\'' + userInput + '\'');
+		// console.log('###### userInput ######');
+		// console.log('\'' + frontText + '\'', '\'' + blinkText + '\'', '\'' + backText + '\'', '\'' + hintText + '\'', '\'' + endText + '\'');
 	}
 	
 	function updateCommandLine() {
         if (blink) {
+            // if (cursorPos === userInput.length)
+				// if (hintText.length > 0) {
+					// blinkerEle.innerText = hintText.charAt(0);
+					// hintEle.innerText = hintTextSub;
+				// } else {
+					// blinkerEle.innerText = ' ';
+					// hintEle.innerText = '';
+				// }
+            // else {
+                // blinkerEle.innerText = blinkText;
+				// hintEle.innerText = hintText;
+			// }
             frontEle.innerText = frontText;
-            if (cursorPos === userInput.length)
-                blinkerEle.innerText = ' ';
-            else
-                blinkerEle.innerText = blinkText;
+			if (blinkText.length == 0)
+				blinkerEle.innerText = ' ';
+			else
+				blinkerEle.innerText = blinkText;
+			hintEle.innerText = hintText;
             backEle.innerText = backText;
-            hintEle.innerText = hintText;
             endEle.innerText = endText;
         } else {
             frontEle.innerText = frontText;
             blinkerEle.innerText = '';
-            backEle.innerText = blinkText + backText;
-            hintEle.innerText = hintText;
+            if (cursorPos - argsStartPos === args[argsPos].length) {
+				backEle.innerText = backText;
+				hintEle.innerText = blinkText + hintText;
+			} else {
+				backEle.innerText = blinkText + backText;
+				hintEle.innerText = hintText;
+			}
             endEle.innerText = endText;
         }
 	}

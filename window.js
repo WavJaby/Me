@@ -181,11 +181,7 @@ function Window() {
     }
 	
 //##############################################視窗大小改變##############################################
-    this.resize = function() {
-        updateWindowSize();
-        if (isMaxSize && this.onSizeChange !== undefined)
-            this.onSizeChange();
-    }
+    this.resize = updateWindowSize;
 	
 	this.getBodyHeight = function() {
 		return winHeight -
@@ -197,6 +193,8 @@ function Window() {
         if (isMaxSize) {
             winWidth = window.innerWidth;
             winHeight = window.innerHeight - menuBar.getHeight();
+			if (this.onSizeChange !== undefined)
+				this.onSizeChange();
         } else {
             windowElement.style.width = winWidth + 'px';
             windowElement.style.left = winX + 'px';
