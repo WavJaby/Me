@@ -34,7 +34,7 @@ function Window() {
 	const windowElement = this.windowElement = document.createElement('div');
 	windowElement.classList.add('window');
 	
-	const windowHeader = document.createElement('div');
+	const windowHeader = this.windowHeader = document.createElement('div');
 	windowHeader.classList.add('wHeader');
 	windowHeader.classList.add('cantSelect');
 	
@@ -73,30 +73,37 @@ function Window() {
 	let winWidth;
 	let winHeight;
 	let winMenuHeight = 0;
-	let winX;
-	let winY;
-	let isMaxSize;
+	let winX; this.getX = function(){return winX;};
+	let winY; this.getY = function(){return winY;};
+	let isMaxSize; this.isMaxSize = function(){return isMaxSize;};
 	let isActivate;
-	let isMinimize = true;
+	let isMinimize = true; this.isMinimize = function(){return isMinimize;};
 	
     this.onSizeChange; 
     let onActivateStateChange; this.setOnActivateStateChange = function(fun){onActivateStateChange = fun;};
-	this.isMinimize = function(){return isMinimize;};
+	
 	
 	// 視窗大小設定
 	this.setWindowSize = function(isMaximize, x, y, width, height) {
-		const data = {};
         if (isMaximize) {
             isMaxSize = true;
             winX = 0;
             winY = 0;
             windowElement.style.width = '100%';
         } else {
-            isMaxSize = false;
-            winWidth = width;
-            winHeight = height;
-            winX = x;
-            winY = y;
+			if (x === undefined){
+				isMaxSize = false;
+				winWidth = this.defaultWidth;
+				winHeight = this.defaultHeight;
+			} else {
+				isMaxSize = false;
+				winWidth = width;
+				this.defaultWidth = width;
+				winHeight = height;
+				this.defaultHeight = height;
+				winX = x;
+				winY = y;
+			}
         }
 		updateWindowSize();
 	}
@@ -145,7 +152,7 @@ function Window() {
 	}
 	
 	// 最小化
-    minimizeButton.onclick = this.minimizeWindow = function() {
+    minimizeButton.onmousedown = this.minimizeWindow = function() {
 		setActivate(false);
 		isMinimize = true;
         windowElement.style.display = 'none';
@@ -190,6 +197,8 @@ function Window() {
         if (isMaxSize) {
             winWidth = window.innerWidth;
             winHeight = window.innerHeight - menuBar.getHeight();
+            windowElement.style.left = winX + 'px';
+            windowElement.style.top = winY + menuBar.getHeight() + 'px';
 			if (win.onSizeChange !== undefined)
 				win.onSizeChange();
         } else {
@@ -202,6 +211,14 @@ function Window() {
             windowHeaderHeight -
             winMenuHeight
         ) + 'px';
+	}
+//##############################################視窗位置改變##############################################
+	this.setWindowLocation = function(x, y) {
+		((y < 0) && (y = 0));
+		winX = x;
+		winY = y;
+		windowElement.style.left = x + 'px';
+        windowElement.style.top = y + menuBar.getHeight() + 'px';
 	}
 	
 	winManager.addWindow(this);
@@ -362,7 +379,25 @@ function WindowManager() {
         
         for (let i = 0; i < windows.length; i++)
             windows[i].resize();
-	};
+	}
+	
+	let clickedWin = null;
+	let startX, startY;
+	document.onmouseup = function(e) {
+		if (clickedWin === null) return;
+		if(e.y + startY < 0)
+			clickedWin.setWindowSize(true);
+		clickedWin = null;
+	}
+	
+	document.onmousemove = function(e) {
+		if (clickedWin === null) return;
+		if (clickedWin.isMaxSize()) {
+			clickedWin.setWindowSize(false);
+			startX = -clickedWin.defaultWidth / 2;
+		} else
+			clickedWin.setWindowLocation(e.x + startX, e.y + startY);
+	}
 	
 	this.openWindow = function(win) {
 		if (windows.length > 0){
@@ -387,9 +422,15 @@ function WindowManager() {
 	}
 	
     this.addWindow = function(win) {
-		win.windowElement.onclick = function() {
+		win.windowElement.onmousedown = function() {
 			moveToTop(win);
 		};
+		
+		win.windowHeader.onmousedown = function(e) {
+			clickedWin = win;
+			startX = win.getX() - e.x;
+			startY = win.getY() - e.y;
+		}
 		
 		// 最大或最小化
 		win.menuButton.onclick = function() {

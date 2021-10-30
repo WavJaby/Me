@@ -534,7 +534,8 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
     }
 	function startIdleTimer() {
 		blink = true;
-        stopBlink();
+        clearInterval(blinkInterval);
+        blinkInterval = null;
 		// 一秒後游標開始閃爍
         if (idleTimer !== null)
             clearTimeout(idleTimer);
