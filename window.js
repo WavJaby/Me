@@ -31,7 +31,7 @@ const winManager = new WindowManager();
 
 function Window() {
 	// 視窗外框
-	const windowElement = document.createElement('div');
+	const windowElement = this.windowElement = document.createElement('div');
 	windowElement.classList.add('window');
 	
 	const windowHeader = document.createElement('div');
@@ -65,11 +65,11 @@ function Window() {
 	windowHeader.appendChild(closeButton);
 	windowHeader.appendChild(minimizeButton);
 	
-	// 程式列
-	const menuButton = document.createElement('div');
+	const menuButton = this.menuButton = document.createElement('div');
 	let menuButtonPos;
 	
 //##############################################視窗設定##############################################
+	let winTitle;
 	let winWidth;
 	let winHeight;
 	let winMenuHeight = 0;
@@ -77,10 +77,11 @@ function Window() {
 	let winY;
 	let isMaxSize;
 	let isActivate;
-	let isMinimize;
+	let isMinimize = true;
 	
     this.onSizeChange; 
-    let onActive; this.setOnActive = function(fun){onActive = fun;};
+    let onActivateStateChange; this.setOnActivateStateChange = function(fun){onActivateStateChange = fun;};
+	this.isMinimize = function(){return isMinimize;};
 	
 	// 視窗大小設定
 	this.setWindowSize = function(isMaximize, x, y, width, height) {
@@ -101,13 +102,19 @@ function Window() {
 	}
 	
 	this.setTitle = function(text) {
+		winTitle = text;
 		windowTitle.innerText = text;
-		menuButton.innerText = text;
+		winManager.titleChange(this, text);
 	}
+	this.getTitle = function() {return windowTitle;};
 	
-	this.setActivate = function(boolean) {
+	const setActivate = this.setActivate = function(boolean) {
+		if (isActivate === boolean) return;
 		isActivate = boolean;
+		if (onActivateStateChange !== undefined)
+			onActivateStateChange(boolean);
 	}
+	this.isActivate = function(){return isActivate;};
 	
 	this.addMenuItem = function(item) {
         if (winMenuHeight === 0) {
@@ -122,46 +129,38 @@ function Window() {
 	}
 	
 //##############################################視窗縮放##############################################
+	const win = this;
 	// 打開
 	this.open = function(openEvent) {
         if (isMaxSize === undefined)
             this.setWindowSize(true);
+		setActivate(true);
+		isMinimize = false;
+		menuButton.classList.add('activate');
         minWindow.open(winX, winY + menuBar.getHeight(), winWidth, winHeight, drawWindow, function() {
-            document.body.appendChild(windowElement);
-			menuBar.addItem(menuButton);
-			menuButtonPos = menuButton.offsetLeft;
-			menuButton.classList.add('opened');
-			isMinimize = false;
-			isActivate = true;
-            if (openEvent != undefined)
+			winManager.openWindow(win);
+            if (openEvent !== undefined)
                 openEvent();
         });
 	}
 	
 	// 最小化
-    function minimizeWindow() {
-        if (onActive !== undefined)
-            onActive();
+    minimizeButton.onclick = this.minimizeWindow = function() {
+		setActivate(false);
+		isMinimize = true;
         windowElement.style.display = 'none';
         minWindow.minimize(winX, winY + menuBar.getHeight(), menuButtonPos + menuButtonWidth / 2, 0 , winWidth, winHeight, drawWindow, function() {
-			menuButton.classList.remove('opened');
-			isMinimize = true;
-			isActivate = false;
+			winManager.closeWindow(win);
 		});
     }
-    minimizeButton.onclick = minimizeWindow; 
 	
-	// 最大或最小化
-	menuButton.onclick = function() {
-        if (isMinimize)
-			minWindow.maximize(menuButtonPos + menuButtonWidth / 2, 0, winX, winY + menuBar.getHeight(), winWidth, winHeight, drawWindow, function() {
-				windowElement.style.display = '';
-				menuButton.classList.add('opened');
-				isMinimize = false;
-				isActivate = true;
-			});
-        else
-            minimizeWindow();
+	this.maximizeWindow = function() {
+		setActivate(true);
+		isMinimize = false;
+		minWindow.maximize(menuButtonPos + menuButtonWidth / 2, 0, winX, winY + menuBar.getHeight(), winWidth, winHeight, drawWindow, function() {
+			windowElement.style.display = '';
+			winManager.openWindow(win);
+		});
 	}
     
     function drawWindow(x, y, canvas) {
@@ -181,20 +180,18 @@ function Window() {
     }
 	
 //##############################################視窗大小改變##############################################
-    this.resize = updateWindowSize;
-	
-	this.getBodyHeight = function() {
+    this.getBodyHeight = function() {
 		return winHeight -
             windowHeaderHeight -
             winMenuHeight;
 	}
     
-	function updateWindowSize() {
+	const updateWindowSize = this.resize = function() {
         if (isMaxSize) {
             winWidth = window.innerWidth;
             winHeight = window.innerHeight - menuBar.getHeight();
-			if (this.onSizeChange !== undefined)
-				this.onSizeChange();
+			if (win.onSizeChange !== undefined)
+				win.onSizeChange();
         } else {
             windowElement.style.width = winWidth + 'px';
             windowElement.style.left = winX + 'px';
@@ -206,7 +203,10 @@ function Window() {
             winMenuHeight
         ) + 'px';
 	}
-    winManager.addWindow(this);
+	
+	winManager.addWindow(this);
+	menuBar.addItem(menuButton);
+	menuButtonPos = menuButton.offsetLeft;
 }
 
 function MinimizeWindow() {
@@ -294,7 +294,7 @@ function MinimizeWindow() {
         taskID++;
         taskCount++;
         
-        if(taskCount == 1) 
+        if(taskCount === 1) 
             window.requestAnimationFrame(start);
     }
     
@@ -354,8 +354,8 @@ function WindowManager() {
     const windows = [];
     
 	window.onresize = function() {
-        if(windows.length == 0) return;
-        if(windows.length == 1) {
+        if(windows.length === 0) return;
+        if(windows.length === 1) {
             windows[0].resize();
             return;
         }
@@ -363,8 +363,64 @@ function WindowManager() {
         for (let i = 0; i < windows.length; i++)
             windows[i].resize();
 	};
-    
-    this.addWindow = function(win) {
+	
+	this.openWindow = function(win) {
+		if (windows.length > 0){
+			windows[windows.length - 1].setActivate(false);
+			windows[windows.length - 1].menuButton.classList.remove('activate');
+		}
+		win.index = windows.length;
         windows.push(win);
+		
+		win.menuButton.classList.add('activate');
+        document.body.appendChild(win.windowElement);
+	}
+	
+	this.closeWindow = function(win) {
+		win.menuButton.classList.remove('activate');
+		
+		windows.splice(win.index, 1);
+		if (windows.length > 0){
+			windows[windows.length - 1].setActivate(true);
+			windows[windows.length - 1].menuButton.classList.add('activate');
+		}
+	}
+	
+    this.addWindow = function(win) {
+		win.windowElement.onclick = function() {
+			moveToTop(win);
+		};
+		
+		// 最大或最小化
+		win.menuButton.onclick = function() {
+			if (win.isMinimize())
+				win.maximizeWindow();
+			else {
+				if (!win.isActivate())
+					moveToTop(win);
+				else
+					win.minimizeWindow();
+			}
+		}
     }
+	
+	this.titleChange = function(win, title) {
+		win.menuButton.innerText = title;
+	}
+	
+	function moveToTop(win) {
+		windows.splice(win.index, 1);
+		for (let i = 0; i < windows.length; i++) {
+			windows[i].index = i;
+			windows[i].setActivate(false);
+			windows[i].menuButton.classList.remove('activate');
+		}
+		win.index = windows.length;
+		windows.push(win);
+		
+		win.setActivate(true);
+		win.menuButton.classList.add('activate');
+		
+		document.body.appendChild(win.windowElement);
+	}
 }

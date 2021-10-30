@@ -12,6 +12,10 @@ function getStyle(selector, style) {
 	}
 };
 
+Array.prototype.insert = function (index, item) {
+    this.splice(index, 0, item);
+};
+
 CanvasRenderingContext2D.prototype.fillRoundRect = function (x, y, width, height, r) {
   if (width < 2 * r) r = width / 2;
   if (height < 2 * r) r = height / 2;
@@ -30,7 +34,7 @@ const cookie = new (function() {
 	const map = {};
 	const cache = document.cookie.split('; ');
 	for (var i = 0; i < cache.length; i++) {
-		if (cache[i].length == 0) continue;
+		if (cache[i].length === 0) continue;
 		const split = cache[i].split('=');
 		map[split[0]] = split[1];
 	}

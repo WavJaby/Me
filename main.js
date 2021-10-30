@@ -7,10 +7,9 @@ window.onload = function() {
 	// 列表
 	const program = document.createElement('div');
 	program.innerText = '程式集';
-	const about = document.createElement('div');
-	about.innerText = '關於我';
+	// const about = document.createElement('div');
+	// about.innerText = '關於我';
 	menuBar.addItem(program);
-	menuBar.addItem(about);
 	menuBar.init();
 //##############################列表區##############################
 	// const buttons = ['mHelp', 'mAbout', 'mProject'];
@@ -71,15 +70,17 @@ window.onload = function() {
     // let i = 0;
     // let id = setInterval(function() {
         // const terminal = new Terminal();
-        // terminal.init(false, 100 + i * 10, 100 + i * 10, 500, 200);
+        // terminal.init(true, 100 + i * 20, 100 + i * 20, 500, 200);
         // terminal.open();
         // i++;
-        // (i < 10 || clearInterval(id));
-    // }, 10);
+        // (i < 5 || clearInterval(id));
+    // }, 100);
+	const aboutWindow = new AboutWindow();
 	
 	const terminal = new Terminal();
 	terminal.init(false, 100, 100, 600, 300);
 	terminal.open();
+	
 
 	// 歡迎訊息
 	if (storage.getItem('joinBefore') === null) {

@@ -14,7 +14,7 @@ const about =
 '\
 <div class="resultBorder">\
 	<h1>關於作者</h1>\
-	<h2>備審好難做@@</h2>\
+	<h2>安安</h2>\
 	<h3>GitHub: <a href="https://github.com/WavJaby" target="_blank">github.com/WavJaby</a></h3>\
 </div>\
 ';
@@ -59,7 +59,7 @@ function initCommands() {
 // 新增指令
 const commands = {};
 function addCommand(command, subcommand) {
-    if (subcommand == undefined)
+    if (subcommand === undefined)
         commands[command] = null;
     else
         commands[command] = subcommand;
@@ -86,7 +86,7 @@ function onCommand(args, commandResult) {
         result = fileSystem();
         break;
         default:
-        result = args.join(' ') + ' 是什麼? 看不懂';
+        result = '<p>' + args.join(' ') + '?? 那是什麼?' + '</p>';
         break;
     }
     if(output)
@@ -145,7 +145,7 @@ function Terminal() {
 	
 	win.addBody(terminal);
 	win.onSizeChange = setResultHeight;
-	win.setOnActive(function() {userIn.setCanInput(false);});
+	win.setOnActivateStateChange(function(boolean) {userIn.setCanInput(boolean);});
 	
     this.init = function(max, x, y, w, h) {
         initCommands(this);
@@ -159,9 +159,9 @@ function Terminal() {
 		win.setWindowSize(max, x, y, w, h);
     }
 	
-	this.open = function() {
-		win.open(setResultHeight);
-		userIn.init();
+	this.open = function(invisible) {
+		if (!invisible)
+			win.open(setResultHeight);
 	}
 	
 	// 傳送指令
@@ -182,11 +182,6 @@ function Terminal() {
 			hint += '<sp></sp>' + hints[i];
 		result.innerHTML += hint + '</p>';
 		result.scrollTop = result.scrollHeight - result.offsetHeight;
-	}
-	
-	// 更新指令畫面
-	function updateCommandLine(html) {
-		commandInput.innerHTML = html;
 	}
     
     // 設定結果區大小
@@ -231,6 +226,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 	// 輸入資訊
 	let userInput;
 	let args;
+	let inputChange;
 	// 提示
 	let hintTab;
 	let lastTabTime = 0;
@@ -245,13 +241,6 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
             stopBlink();
 	}
 	
-	this.init = function() {
-		// init
-		canInput = true;
-		resetCommandLine();
-        startBlink();
-	}
-	
 	this.onInput = function(e) {
 		if (!canInput && e.auto === undefined)
 			return;
@@ -259,7 +248,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 		let arg = args[argsPos];
 		let getHint = true;
 		if (key.length === 1) {
-			const space = key === ' ' && userInput.charAt(cursorPos - 1) !== ' ';
+			const space = key === ' ';
 			
 			// 向後增加
 			if (cursorPos === userInput.length) {
@@ -269,7 +258,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
                 frontText = userInput;
                 blinkText = backText = endText = '';
 			} 
-			// 插入
+			// insert
 			else {
                 const front = userInput.slice(0, cursorPos);
                 const end = userInput.slice(cursorPos);
@@ -279,16 +268,20 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
                 frontText = front + key;
                 blinkText = end.charAt(0);
                 backText = arg.slice(cursorPos - argsStartPos + 1);
-                endText = userInput.slice(argsStartPos + arg.length + 1);
+                endText = userInput.slice(argsStartPos + arg.length + (cursorPos - argsStartPos === arg.length?2:1));
 			}
 			cursorPos++;
 			// 空白
 			if (space) {
 				argsPos++;
-				argsStartPos = cursorPos;
-				if (args[argsPos] == undefined)
+				if (cursorPos - argsStartPos <= arg.length) {
+					args.insert(argsPos, args[argsPos - 1].slice(cursorPos - argsStartPos - 1));
+					args[argsPos - 1] = args[argsPos - 1].slice(0, cursorPos - argsStartPos - 1);
+				} else if (args[argsPos] === undefined) {
+					getHint = false;
 					args[argsPos] = '';
-				getHint = false;
+				}
+				argsStartPos = cursorPos;
 				hintTab = 0;
 			}
 		} else {
@@ -296,7 +289,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 			switch (key) {
 				case 'Backspace':
                     if (cursorPos > 0) {
-                        const space = userInput.charAt(cursorPos - 1) === ' ' && userInput.charAt(cursorPos - 2) !== ' ';
+                        const space = userInput.charAt(cursorPos - 1) === ' ';
                         if (cursorPos === userInput.length) {
                             userInput = userInput.slice(0, -1);
                             if (!space)
@@ -319,7 +312,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
                             argsStartPos = cursorPos - args[argsPos].length;
                             for (let i = argsPos + 1; i < args.length; i++) {
                                 const nextArg = args[i];
-                                if (nextArg === undefined || nextArg.length == 0) break;
+                                if (nextArg === undefined || nextArg.length === 0) break;
                                 args[i - 1] += nextArg;
                                 args[i] = '';
                             }
@@ -330,23 +323,22 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 				case 'ArrowLeft':
                     if (cursorPos > 0) {
                         cursorPos--;
-                        const space = userInput.charAt(cursorPos) === ' ' && userInput.charAt(cursorPos - 1) !== ' ';
+                        const space = userInput.charAt(cursorPos) === ' ';
                         if (space) {
                             argsPos--;
                             argsStartPos = cursorPos - args[argsPos].length;
                             hintTab = 0;
-                            endText = userInput.slice(argsStartPos + args[argsPos].length + 1);
-                        } else 
-                            endText = userInput.slice(argsStartPos + args[argsPos].length);
+                        }
                         frontText = userInput.slice(0, cursorPos);
                         blinkText = userInput.charAt(cursorPos);
                         backText = args[argsPos].slice(cursorPos - argsStartPos + 1);
+						endText = userInput.slice(argsStartPos + args[argsPos].length);
                     }
                     break;
 				case 'ArrowRight':
                     if (cursorPos < userInput.length) {
                         cursorPos++;
-                        const space = userInput.charAt(cursorPos - 1) === ' ' && userInput.charAt(cursorPos - 2) !== ' ';
+                        const space = userInput.charAt(cursorPos - 1) === ' ';
                         if (space) {
                             argsPos++;
                             argsStartPos = cursorPos;
@@ -355,10 +347,11 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
                         frontText = userInput.slice(0, cursorPos);
                         backText = args[argsPos].slice(cursorPos - argsStartPos + 1);
                         blinkText = userInput.charAt(cursorPos);
-                        endText = userInput.slice(argsStartPos + args[argsPos].length + (cursorPos - argsStartPos == args[argsPos].length?1:0));
+						endText = userInput.slice(argsStartPos + args[argsPos].length);
                     }
                     break;
 				case 'Enter':
+					frontEle.innerText = userInput;
                     commandLine.removeChild(blinkerEle);
                     commandLine.removeChild(backEle);
                     commandLine.removeChild(hintEle);
@@ -384,7 +377,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 						blinkText = ' ';
 					} else if (hint.length > 1) {
 						hintPos++;
-						if (hintPos == hint.length)
+						if (hintPos === hint.length)
 							hintPos = 0;
 						
 						if (Date.now() - lastTabTime < 100) {
@@ -392,7 +385,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 						}
 					} else {
 						hintTab++;
-						if (hintTab == 2 && hintMap !== null)
+						if (hintTab === 2 && hintMap !== null)
 							showhints(Object.keys(hintMap));
 					}
 					e.preventDefault();
@@ -424,39 +417,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 			blinkerEle.classList.remove('hint', 'cantSelect');
 		}
 		
-        /*
-		const cursorP = cursorPos - argsStartPos;
-		const last = userInput.slice(argsStartPos + cursorP);
-		const cursorAtlast = cursorP === arg.length;
-		
-		// 有提示
-		if (hint !== undefined && hint !== null && arg.length < hint.length) {
-			const hintLast = hintSpan(hint.slice(arg.length));
-			cmdDisplay = userInput.slice(0, argsStartPos + arg.length) + hintLast;
-			// 游標在最後
-			if (cursorAtlast)
-				cmdDisplayBlink = userInput.slice(0, argsStartPos + cursorP) + blinkHintSpan(hint.charAt(arg.length)) + hintSpan(hint.slice(arg.length + 1));
-			else 
-				cmdDisplayBlink = userInput.slice(0, argsStartPos + cursorP) + blinkSpan(arg.charAt(cursorP)) + arg.slice(cursorP + 1, arg.length) + hintLast;
-		}
-		// 沒有提示
-		else {
-			cmdDisplay = userInput.slice(0, argsStartPos + cursorP);
-			if (cursorAtlast)
-				cmdDisplayBlink = cmdDisplay + blinkSpan('&nbsp');
-			else
-				cmdDisplayBlink = userInput.slice(0, argsStartPos + cursorP) + blinkSpan(arg.charAt(cursorP)) + arg.slice(cursorP + 1, arg.length);
-		}
-		
-		if (userInput.length !== argsStartPos + arg.length) {
-			const other = userInput.slice(argsStartPos + cursorP);
-			cmdDisplay += other;
-			if (cursorAtlast)
-				cmdDisplayBlink += userInput.slice(argsStartPos + cursorP + 1);
-			else
-				cmdDisplayBlink += other;
-		}
-		*/
+		inputChange = true;
 		startIdleTimer();
 		updateCommandLine();
 		
@@ -465,46 +426,39 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 		console.log(arg);
 		// console.log('###### hint ######');
 		// console.log(hint);
-		console.log('###### userInput ######');
-		console.log('\'' + userInput + '\'');
+		// console.log('###### userInput ######');
+		// console.log('\'' + userInput + '\'');
 		// console.log('###### userInput ######');
 		// console.log('\'' + frontText + '\'', '\'' + blinkText + '\'', '\'' + backText + '\'', '\'' + hintText + '\'', '\'' + endText + '\'');
 	}
 	
 	function updateCommandLine() {
         if (blink) {
-            // if (cursorPos === userInput.length)
-				// if (hintText.length > 0) {
-					// blinkerEle.innerText = hintText.charAt(0);
-					// hintEle.innerText = hintTextSub;
-				// } else {
-					// blinkerEle.innerText = ' ';
-					// hintEle.innerText = '';
-				// }
-            // else {
-                // blinkerEle.innerText = blinkText;
-				// hintEle.innerText = hintText;
-			// }
-            frontEle.innerText = frontText;
-			if (blinkText.length == 0)
+			if (blinkText.length === 0)
 				blinkerEle.innerText = ' ';
 			else
 				blinkerEle.innerText = blinkText;
+            if (inputChange) {
+				frontEle.innerText = frontText;
+				endEle.innerText = endText;
+			}
 			hintEle.innerText = hintText;
-            backEle.innerText = backText;
-            endEle.innerText = endText;
+			backEle.innerText = backText;
         } else {
-            frontEle.innerText = frontText;
             blinkerEle.innerText = '';
-            if (cursorPos - argsStartPos === args[argsPos].length) {
+            if (inputChange) {
+				frontEle.innerText = frontText;
+				endEle.innerText = endText;
+			}
+			if (cursorPos - argsStartPos === args[argsPos].length) {
 				backEle.innerText = backText;
 				hintEle.innerText = blinkText + hintText;
 			} else {
 				backEle.innerText = blinkText + backText;
 				hintEle.innerText = hintText;
 			}
-            endEle.innerText = endText;
         }
+		inputChange = false;
 	}
 	
 	// 重設
@@ -519,34 +473,42 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 		hintPos = 0;
 		hintTab = 0;
         
-		frontText = '', blinkText = '', backText = '', hintText = '', endText = '';
+		frontText = blinkText = backText = hintText = endText = '';
+		frontEle.innerText = blinkerEle.innerText = backEle.innerText = hintEle.innerText = endEle.innerText = '';
 		updateCommandLine();
 	}
 	
 	// 尋找提示
 	let lastPos = 0;
-	let lastCommands = [];
 	let hintMap = hints;
 	function commandHint(args, pos) {
-		const command = args[pos];
-		if (lastPos < pos) 
-			hintMap = hintMap[lastCommands[pos-1]];
-		else if (lastPos > pos) {
+		// console.log('command: ' + lastPos)
+		// console.log('command: ' + pos)
+		if (lastPos < pos) {
+			if (hintMap !== undefined)
+				hintMap = hintMap[args[pos-1]];
+		} else if (pos < lastPos) {
 			hintMap = hints;
 			for (let i = 0; i < pos; i++) {
-				hintMap = hintMap[lastCommands[i]];
+				let result;
+				if ((result = hintMap[args[i]]) === undefined) {
+					hintMap = null;
+					break;
+				}
+				console.log(result)
+				hintMap = result;
 			}
 		}
 		
-		let result = [];
-		if (command.length > 0 && hintMap !== undefined) {
-			for (let i in hintMap){
+		const command = args[pos];
+		const result = [];
+		if (command.length > 0 && hintMap !== null) {
+			for (let i in hintMap) {
 				if (i.startsWith(command)) {
 					result.push(i);
 				}
 			}
 		}
-		lastCommands[pos] = command;
 		lastPos = pos;
 		return result;
 	}
@@ -556,7 +518,9 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 	let idleTimer = null;
 	let blinkInterval = null;
 	function startBlink() {
-        if (blinkInterval == null)
+		blink = true;
+        updateCommandLine();
+        if (blinkInterval === null)
             blinkInterval = setInterval(function() {
                 blink = !blink;
                 updateCommandLine();
@@ -564,16 +528,20 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
     }
     function stopBlink() {
         clearInterval(blinkInterval);
+		blink = false;
+		updateCommandLine();
         blinkInterval = null;
     }
 	function startIdleTimer() {
 		blink = true;
         stopBlink();
 		// 一秒後游標開始閃爍
-        if (idleTimer != null)
+        if (idleTimer !== null)
             clearTimeout(idleTimer);
 		idleTimer = setTimeout(function() {
             startBlink();
 		}, 500);
 	}
+	
+	resetCommandLine();
 }
