@@ -16,9 +16,9 @@ const windowTitleHeight = parseInt(getStyle('.wHeader > .title')['font-size']) *
 const windowTitleColor = getStyle('.wHeader > .title').color;
 
 const windowCloseIcon = new Image();
-windowCloseIcon.src = 'icon/close_icon.svg';
+windowCloseIcon.src = 'icon/close.svg';
 const windowMinimizeIcon = new Image();
-windowMinimizeIcon.src = 'icon/minimize_icon.svg';
+windowMinimizeIcon.src = 'icon/minimize.svg';
 const windowIconSize = parseInt(getStyle('.wHeader > div > img').width);
 const windowIconMargin = parseInt(getStyle('.wHeader > div > img').margin);
 const windowIconButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .minimize').width);
@@ -55,11 +55,11 @@ function Window() {
 	
 	const closeButton = document.createElement('div');
 	closeButton.classList.add('close');
-	closeButton.innerHTML = '<img src="icon/close_icon.svg"/>';
+	closeButton.innerHTML = '<img src="icon/close.svg"/>';
 	
 	const minimizeButton = document.createElement('div');
 	minimizeButton.classList.add('minimize');
-	minimizeButton.innerHTML = '<img src="icon/minimize_icon.svg"/>';
+	minimizeButton.innerHTML = '<img src="icon/minimize.svg"/>';
 	
 	windowHeader.appendChild(windowTitle);
 	windowHeader.appendChild(closeButton);
@@ -424,7 +424,7 @@ function WindowManager() {
     this.addWindow = function(win) {
 		win.windowElement.onmousedown = function() {
 			moveToTop(win);
-		};
+		}
 		
 		win.windowHeader.onmousedown = function(e) {
 			clickedWin = win;

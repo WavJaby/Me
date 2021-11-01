@@ -1,4 +1,0 @@
-<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-	<line transform="rotate(45 25 25)" stroke="#FFF" stroke-width="7" x1="-5" x2="55" y1="25" y2="25"/>
-	<line transform="rotate(-45 25 25)" stroke="#FFF" stroke-width="7" x1="-5" x2="55" y1="25" y2="25"/>
-</svg>

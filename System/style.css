@@ -62,9 +62,9 @@ h1 {
 	font-size: 20px;
 	line-height: 30px;
 	
+	margin-left: 5px;
 	display: block;
 	float: left;
-	margin-left: 10px;
 }
 .wHeader > .close, .wHeader > .minimize {
 	width: 50px;
@@ -72,6 +72,11 @@ h1 {
 	display: block;
 	float: right;
 	text-align: center;
+}
+.wHeader > .icon {
+	height: 30px;
+	display: block;
+	float: left;
 }
 .wHeader > .close:hover {
 	background-color: rgb(232,17,35);

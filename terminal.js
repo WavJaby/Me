@@ -52,7 +52,7 @@ function initCommands() {
     addCommand('about');
     addCommand('version');
     addCommand('project');
-    addCommand('clear', {what:null,where:null});
+    addCommand('clear', {what:null,where:null,wheee:null});
     addCommand('ls');
 }
 
@@ -208,7 +208,8 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
     const backEle = document.createElement('span');
     const endEle = document.createElement('span');
     const hintEle = document.createElement('span');
-    hintEle.classList.add('hint', 'cantSelect');
+    hintEle.classList.add('hint');
+    hintEle.classList.add('cantSelect');
     
     commandLine.appendChild(frontEle);
     commandLine.appendChild(blinkerEle);
@@ -244,9 +245,10 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 	this.onInput = function(e) {
 		if (!canInput && e.auto === undefined)
 			return;
-		const key = e.key;
+		let key = e.key;
 		let arg = args[argsPos];
 		let getHint = true;
+		if (key === 'Spacebar') key = ' ';
 		if (key.length === 1) {
 			const space = key === ' ';
 			
@@ -288,6 +290,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 			// 功能鍵
 			switch (key) {
 				case 'Backspace':
+					e.preventDefault();
                     if (cursorPos > 0) {
                         const space = userInput.charAt(cursorPos - 1) === ' ';
                         if (cursorPos === userInput.length) {
@@ -321,6 +324,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
                     }
                     break;
 				case 'ArrowLeft':
+					e.preventDefault();
                     if (cursorPos > 0) {
                         cursorPos--;
                         const space = userInput.charAt(cursorPos) === ' ';
@@ -336,6 +340,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
                     }
                     break;
 				case 'ArrowRight':
+					e.preventDefault();
                     if (cursorPos < userInput.length) {
                         cursorPos++;
                         const space = userInput.charAt(cursorPos - 1) === ' ';
@@ -351,6 +356,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
                     }
                     break;
 				case 'Enter':
+					e.preventDefault();
 					frontEle.innerText = userInput;
                     commandLine.removeChild(blinkerEle);
                     commandLine.removeChild(backEle);
@@ -364,6 +370,7 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 					resetCommandLine();
                     return;
 				case 'Tab':
+					e.preventDefault();
 					let hint = commandHint(args, argsPos);
 					if (hint.length === 1) {
 						hint = hint[hintPos];
@@ -388,7 +395,6 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 						if (hintTab === 2 && hintMap !== null)
 							showhints(Object.keys(hintMap));
 					}
-					e.preventDefault();
 				break;
 				default:
 				return;
@@ -399,31 +405,37 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 		let hint = null;
 		if (getHint) {
 			const hints = commandHint(args, argsPos);
+			if (hintPos >= hints.length)
+				hintPos = 0;
 			if(hints.length > 0)
 				hint = hints[hintPos];
 		}
+		
 		
 		if (hint !== null && arg.length < hint.length) {
 			if (cursorPos - argsStartPos === arg.length) {
 				hintText = hint.slice(arg.length + 1);
 				blinkText = hint.charAt(arg.length);
-				blinkerEle.classList.add('hint', 'cantSelect');
+				blinkerEle.classList.add('hint');
+				blinkerEle.classList.add('cantSelect');
 			} else {
 				hintText = hint.slice(arg.length);
-				blinkerEle.classList.remove('hint', 'cantSelect');
+				blinkerEle.classList.remove('hint');
+				blinkerEle.classList.remove('cantSelect');
 			}
 		} else {
 			hintText = '';
-			blinkerEle.classList.remove('hint', 'cantSelect');
+			blinkerEle.classList.remove('hint');
+			blinkerEle.classList.remove('cantSelect');
 		}
 		
 		inputChange = true;
 		startIdleTimer();
 		updateCommandLine();
 		
-		console.log('###### args ######');
-		console.log(args);
-		console.log(arg);
+		// console.log('###### args ######');
+		// console.log(args);
+		// console.log(arg);
 		// console.log('###### hint ######');
 		// console.log(hint);
 		// console.log('###### userInput ######');
@@ -482,21 +494,17 @@ function UserInput(hints, showhints, commandLine, onSubmit) {
 	let lastPos = 0;
 	let hintMap = hints;
 	function commandHint(args, pos) {
-		// console.log('command: ' + lastPos)
-		// console.log('command: ' + pos)
 		if (lastPos < pos) {
-			if (hintMap !== undefined)
+			if (hintMap !== null) {
 				hintMap = hintMap[args[pos-1]];
+				if (hintMap === undefined)
+					hintMap = null;
+			}
 		} else if (pos < lastPos) {
 			hintMap = hints;
 			for (let i = 0; i < pos; i++) {
-				let result;
-				if ((result = hintMap[args[i]]) === undefined) {
-					hintMap = null;
+				if ((hintMap = hintMap[args[i]]) === null || (hintMap === undefined && (hintMap = null) === null))
 					break;
-				}
-				console.log(result)
-				hintMap = result;
 			}
 		}
 		

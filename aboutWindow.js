@@ -1,3 +1,4 @@
+'use strict';
 function AboutWindow() {
 	// 初始化視窗
 	const win = new Window();

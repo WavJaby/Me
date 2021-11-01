@@ -1,0 +1,56 @@
+/* Terminal */
+.terminal {
+	height: 100%;
+	cursor: text;
+}
+.terminal p {
+	font-size: 25px;
+    white-space: pre;
+}
+.terminal > .result {
+	overflow: auto;
+}
+.terminal .group {
+	color: fuchsia;
+}
+.terminal .user {
+	color: aqua;
+}
+.terminal .path, .terminal .prefix {
+	color: limegreen;
+}
+.terminal .hint {
+	color: rgb(50,50,50);
+}
+.terminal .blink {
+	background-color: limegreen;
+}
+
+/* Command */
+.resultBorder {
+	border: 5px double;
+	margin: 5px;
+	padding: 5px;
+	color: whitesmoke;
+}
+.resultBorder > h1 {
+	color: cyan;
+}
+.resultBorder > div > h2 {
+	font-size: 25px;
+}
+.resultBorder > div > h3 {
+	font-size: 18px;
+}
+.resultBorder > div > video {
+	height: 100%;
+	
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	z-index: -1;
+}
+.resultBorder > h2, h3 {
+	margin: 0;
+}

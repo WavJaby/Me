@@ -1,3 +1,4 @@
+'use strict';
 Element.prototype.getStyle = function(key) {
     return window.getComputedStyle(this, null).getPropertyValue(key);  
 };
@@ -30,15 +31,15 @@ CanvasRenderingContext2D.prototype.fillRoundRect = function (x, y, width, height
 }
 
 var saveCookie;
-const cookie = new (function() {
-	const map = {};
-	const cache = document.cookie.split('; ');
+var cookie = new (function() {
+	var map = {};
+	var cache = document.cookie.split('; ');
 	for (var i = 0; i < cache.length; i++) {
 		if (cache[i].length === 0) continue;
-		const split = cache[i].split('=');
+		var split = cache[i].split('=');
 		map[split[0]] = split[1];
 	}
-	const orignalMap = {};
+	var orignalMap = {};
 	for (var key in map)
 		orignalMap[key] = map[key];
 	
@@ -62,8 +63,6 @@ const cookie = new (function() {
 			count++;
 		}
 		document.cookie = result;
-		console.log(result);
-		orignalKeys = Object.keys(map);
 	}
 	window.addEventListener("beforeunload", this.saveCookie, false);
 	saveCookie = this.saveCookie;
@@ -71,12 +70,12 @@ const cookie = new (function() {
 	return map;
 })();
 
-const getStorage = function() {
+var getStorage = function() {
 	if (window.localStorage === undefined) {
 		return new (function() {
-			const map = cookie.localStorage != undefined ? JSON.parse(cookie.localStorage) : {};
+			var map = cookie.localStorage != undefined ? JSON.parse(cookie.localStorage) : {};
 			this.getItem = function(key) {
-				const result = map[key];
+				var result = map[key];
 				if (result === undefined)
 					return null;
 				return result;

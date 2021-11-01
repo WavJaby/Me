@@ -1,0 +1,7 @@
+<svg width="50" height="50" viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+	<!-- 45 - (40**2 - 20**2)**0.5 -->
+	<polygon points="5,42 45,42 25,7.35" stroke="#EB0" stroke-width="3" fill="none" stroke-linejoin="round"/>
+	
+	<circle cx="25" cy="36" r="2" fill="#EB0" />
+	<line x1="25" y1="30" x2="25" y2="18" stroke="#EB0" stroke-width="3" stroke-linecap="round"/>
+</svg>
