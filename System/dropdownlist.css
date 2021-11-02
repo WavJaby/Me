@@ -1,0 +1,13 @@
+.dropdownlist {
+	position: relative;
+	overflow: hidden;
+}
+.dropdownlist > .slider {
+	position: absolute;
+	transition-duration: 0.3s;
+	transform: translateY(-100%);
+}
+.dropdownlist > .slider.open {
+	transition-duration: 0.3s;
+	transform: translateY(0%);
+}

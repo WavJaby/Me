@@ -9,7 +9,7 @@ if (String.prototype.startsWith === undefined) {
 	}
 	
 	String.prototype.delete = function(input) {
-		this.replace(new RegExp(input,'gi'), '');
+		this.replace(new RegExp(input, 'gi'), '');
 	}
 }
 
@@ -54,26 +54,44 @@ if (typeof requestAnimationFrame === 'undefined') {
 }
 
 // 給IE11以下的加載器
-function addScript(url, onload) {
+function loadScriptIE(url, onload) {
 	var request = new XMLHttpRequest();
 	request.open("GET", url);
 	request.onreadystatechange = function () {
 		if(request.readyState === XMLHttpRequest.DONE && request.status === 200) {
-			onload(request.responseText);
+			var script = document.createElement('script');
+			script.textContent = toES5(request.responseText);
+			script.onload = onload;
+			document.head.appendChild(script);
 		}
 	}
 	request.send();
 }
 
-function loadIEScript() {
+function addScript(url, onload) {
+	var request = new XMLHttpRequest();
+	request.open("GET", url);
+	request.onreadystatechange = function () {
+		if(request.readyState === XMLHttpRequest.DONE && request.status === 200)
+			onload(request.responseText);
+	}
+	request.send();
+}
+
+function loadScriptsForIE() {
 	var loadCount = 0;
 	var mainScript = document.createElement('script');
 	addScript('System/main.js', function(text) {
 		mainScript.textContent = toES5(text);
 		loadMainScript();
 	});
+	mainScript.onload = function() {
+		onPageLoad();
+		console.timeEnd('loaded in');
+	};
 	
 	for (var i = 0; i < scripts.length; i++) {
+		if (scripts[i] === 'System/main.js') continue;
 		addScript(scripts[i], function(text) {
 			var script = document.createElement('script');
 			script.textContent = toES5(text);
@@ -82,21 +100,29 @@ function loadIEScript() {
 		});
 	}
 	
-	window.onload = loadMainScript;
-	
 	function loadMainScript() {
-		if (++loadCount === scripts.length + 2)
-			document.head.appendChild(mainScript);	
+		if (++loadCount === scripts.length) {
+			document.head.appendChild(mainScript);
+		}
 	}
 }
 
 function toES5(input) {
-	return input
+	input = input
 		.replace(/const /g, 'var ')
 		.replace(/let /g, 'var ')
 		.replace(/.classList.add\('/g, '.className+=(\' ')
-		.replace(/.classList.remove/g, '.className.delete')
 	;
+	var regex = /(.*)\.classList\.remove\( *'([\d\w]+)' *\)/g;
+	var find;
+	while((find = regex.exec(input)) != null) {
+		input = input.replace(
+			new RegExp(find[1].replace('[', '\\[').replace(']', '\\]') + '\\.classList\\.remove\\( *\'' + find[2] + '\' *\\)'), 
+			find[1] + '.className=' + find[1] + '.className.replace(/' + find[2] + '/g,\'\'\)'
+		);
+	}
+	
+	return input;
 }
 
 

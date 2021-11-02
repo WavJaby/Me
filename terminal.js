@@ -135,33 +135,84 @@ function Terminal() {
 	commandLine.appendChild(prefix);
 	
 	// 修改內容
-	group.innerText = 'AboutMe';
+	group.innerText = 'Main';
 	user.innerText = 'WavJaby';
 	path.innerText = '/Desktop';
 	prefix.innerHTML = '$&nbsp;';
 
 	// 使用者輸入
 	const userIn = new UserInput(commands, submitHints, commandLine, submitCommand);
+	const userInput = userIn.onInput;
+	// 打字時
+	document.addEventListener('keydown', function(e) {
+		userInput(e);
+	});
 	
 	win.addBody(terminal);
 	win.onSizeChange = setResultHeight;
 	win.setOnActivateStateChange(function(boolean) {userIn.setCanInput(boolean);});
+	win.setDefaultSize(600, 350);
 	
-    this.init = function(max, x, y, w, h) {
-        initCommands(this);
-		
-		const userInput = userIn.onInput;
-        // 打字時
-        document.addEventListener('keydown', function(e) {
-			userInput(e);
-        });
-        
-		win.setWindowSize(max, x, y, w, h);
+	// init
+    initCommands(this);
+    this.setScale = function(max, w, h) {
+		win.setSize(max, w, h);
+    }
+	
+    this.setLocation = function(x, y) {
+		win.setLocation(x, y);
     }
 	
 	this.open = function(invisible) {
 		if (!invisible)
 			win.open(setResultHeight);
+	}
+	
+	// const buttons = ['mHelp', 'mAbout', 'mProject'];
+	// const commands = ['help', 'about', 'project'];
+	// for (let i = 0; i < buttons.length; i++) {
+		// const element = document.getElementById(buttons[i]);
+		// element.value = commands[i];
+		// element.onclick = function() {
+			// clickedText = this.value;
+			// if (!typing)
+				// autoType();
+		// }
+	// }
+
+	let clickedText;
+	let typing = false;
+	function autoType() {
+		typing = true;
+		let type = clickedText.length - 1;
+		// let deleteCount = userInput.length;
+		
+		addChar();
+		const id = setInterval(function() {
+			if (type < 0) {
+				clearInterval(id);
+				terminal.userInput({
+					key: 'Enter',
+					auto: true
+				});
+				typing = false;
+				return;
+			}
+			addChar();
+		}, 50);
+		
+		function addChar() {
+			// if (deleteCount > 0) {
+				// userInput = userInput.slice(0, -1);
+				// deleteCount--;
+			// } else {
+				terminal.userInput({
+					key: clickedText.charAt(clickedText.length - type - 1),
+					auto: true
+				});
+				type--;
+			// }
+		}
 	}
 	
 	// 傳送指令

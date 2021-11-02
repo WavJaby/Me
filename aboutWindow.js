@@ -2,8 +2,9 @@
 function AboutWindow() {
 	// 初始化視窗
 	const win = new Window();
-	win.setTitle('關於我');
-	win.setWindowSize(false, document.body.offsetWidth / 2 - 300, 50, 600, 600);
+	win.setTitle('關於');
+	win.setSize(false, 600, 600);
+	win.setLocation(document.body.offsetWidth / 2 - 300, 50);
 	
 	const body = document.createElement('div');
 	win.addBody(body);
