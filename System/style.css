@@ -6,9 +6,16 @@ body {
 	min-width: 400px;
 	height: 100%;
 	
-	overflow-x: auto;
-	overflow-y: auto;
+	/* overflow-x: auto; */
+	/* overflow-y: auto; */
+	overflow: hidden;
 	margin: 0;
+}
+.body {
+	width: 100%;
+	margin-top: 40px;
+	
+	position: absolute;
 }
 
 /* font */
@@ -27,9 +34,10 @@ h1 {
 /* Menu */
 .menuBar {
 	background-color: rgb(30,30,30);
+	width: 100%;
 	height: 40px;
 	
-	position: static;
+	position: absolute;
 }
 .menuBar > .homeMenu {
 	width: 40px;
@@ -83,6 +91,8 @@ h1 {
 .wHeader {
 	background-color: rgb(70,70,70);
 	height: 30px;
+	
+	position: relative;
 }
 .wHeader > .title {
 	color: whitesmoke;
@@ -117,6 +127,8 @@ h1 {
 }
 .wMenu {
 	background-color: rgb(100,100,100);
+	
+	position: relative;
 }
 .wMenu > .item {
 	color: whitesmoke;
@@ -129,69 +141,78 @@ h1 {
 }
 .wBody {
 	background-color: black;
+	
+	position: relative;
 }
+.wTop {
+	width: 100%;
+	height: 100%;
+	
+	top: 0;
+	position: absolute;
+}
+
+.wResizeN, .wResizeS {
+	height: 7px;
+	width: 100%;
+	position: absolute;
+}
+.wResizeN {
+	top: -7px;
+	cursor: n-resize;
+}
+.wResizeS {
+	top: 100%;
+	cursor: s-resize;
+}
+.wResizeE, .wResizeW {
+	width: 7px;
+	height: 100%;
+	position: absolute;
+}
+.wResizeW {
+	left: -7px;
+	cursor: e-resize;
+}
+.wResizeE {
+	left: 100%;
+	cursor: e-resize;
+}
+.wResizeNE, .wResizeNW, .wResizeSE, .wResizeSW {
+	height: 14px;
+	width: 14px;
+	position: absolute;
+}
+.wResizeNE {
+	top: -7px;
+	left: 100%;
+	margin-left: -7px;
+	cursor: ne-resize;
+}
+.wResizeNW {
+	top: -7px;
+	left: -7px;
+	cursor: nw-resize;
+}
+.wResizeSE {
+	top: 100%;
+	left: 100%;
+	margin-top: -7px;
+	margin-left: -7px;
+	cursor: se-resize;
+}
+.wResizeSW {
+	top: 100%;
+	left: -7px;
+	margin-top: -7px;
+	cursor: sw-resize;
+}
+
 .windowMinimize {
     width: 100%;
     height: 100%;
-	bottom: 0px;
-	position: absolute;
-}
-
-
-/* Terminal */
-.terminal {
-	height: 100%;
-	cursor: text;
-}
-.terminal p {
-	font-size: 25px;
-    white-space: pre;
-}
-.terminal > .result {
-	overflow: auto;
-}
-.terminal .group {
-	color: fuchsia;
-}
-.terminal .user {
-	color: aqua;
-}
-.terminal .path, .terminal .prefix {
-	color: limegreen;
-}
-.terminal .hint {
-	color: rgb(50,50,50);
-}
-.terminal .blink {
-	background-color: limegreen;
-}
-
-/* Command */
-.resultBorder {
-	border: 5px double;
-	margin: 5px;
-	padding: 5px;
-	color: whitesmoke;
-}
-.resultBorder > h1 {
-	color: cyan;
-}
-.resultBorder > div > h2 {
-	font-size: 25px;
-}
-.resultBorder > div > h3 {
-	font-size: 18px;
-}
-.resultBorder > div > video {
-	height: 100%;
 	
-	display: block;
 	position: absolute;
-	top: 0;
-	right: 0;
-}
-.resultBorder > h2, h3 {
-	margin: 0;
 }
 
 /* Notification */

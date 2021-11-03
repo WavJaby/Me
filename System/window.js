@@ -24,6 +24,7 @@ const windowIconMargin = parseInt(getStyle('.wHeader > div > img').margin);
 const windowIconButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .minimize').width);
 
 const menuButtonWidth = parseInt(getStyle('.menuBar > .item').width);
+const menuBarHeight = parseInt(getStyle('.menuBar').height);
 
 // 視窗工具
 const winManager = new WindowManager();
@@ -45,9 +46,43 @@ function Window() {
 	const windowBody = document.createElement('div');
 	windowBody.classList.add('wBody');
 	
+	// 用於移至最上層
+	const windowTop = this.windowTop = document.createElement('div');
+	windowTop.classList.add('wTop');
+	windowBody.appendChild(windowTop);
+	
+	// 用於縮放視窗
+	const windowResizeN = this.windowResizeN = document.createElement('div');
+	windowResizeN.classList.add('wResizeN');// 北
+	const windowResizeS = this.windowResizeS = document.createElement('div');
+	windowResizeS.classList.add('wResizeS');// 南
+	const windowResizeW = this.windowResizeW = document.createElement('div');
+	windowResizeW.classList.add('wResizeW');// 西
+	const windowResizeE = this.windowResizeE = document.createElement('div');
+	windowResizeE.classList.add('wResizeE');// 東
+	
+	const windowResizeNE = this.windowResizeNE = document.createElement('div');
+	windowResizeNE.classList.add('wResizeNE');// 東北
+	const windowResizeNW = this.windowResizeNW = document.createElement('div');
+	windowResizeNW.classList.add('wResizeNW');// 西北
+	const windowResizeSE = this.windowResizeSE = document.createElement('div');
+	windowResizeSE.classList.add('wResizeSE');// 東南
+	const windowResizeSW = this.windowResizeSW = document.createElement('div');
+	windowResizeSW.classList.add('wResizeSW');// 西南
+	
+	windowElement.appendChild(windowResizeN);
+	windowElement.appendChild(windowResizeS);
+	windowElement.appendChild(windowResizeW);
+	windowElement.appendChild(windowResizeE);
+	windowElement.appendChild(windowResizeNE);
+	windowElement.appendChild(windowResizeNW);
+	windowElement.appendChild(windowResizeSE);
+	windowElement.appendChild(windowResizeSW);
+	
 	windowElement.appendChild(windowHeader);
 	windowElement.appendChild(windowMenu);
 	windowElement.appendChild(windowBody);
+	
 	
 	// 元素
 	const windowTitle = document.createElement('div');
@@ -70,8 +105,8 @@ function Window() {
 	
 //##############################################視窗設定##############################################
 	let winTitle;
-	let winWidth;
-	let winHeight;
+	let originalWinWidth, originalWinHeight;
+	let winWidth, winHeight; this.getWinWidth = function(){return winWidth;};
 	let winMenuHeight = 0;
 	let winX; this.getX = function(){return winX;};
 	let winY; this.getY = function(){return winY;};
@@ -82,7 +117,9 @@ function Window() {
     this.onSizeChange; 
     let onActivateStateChange; this.setOnActivateStateChange = function(fun){onActivateStateChange = fun;};
 	
-	this.setDefaultSize = function(width, height){
+	this.setDefaultSize = function(width, height) {
+		originalWinWidth = width;
+		originalWinHeight = height;
 		this.defaultWidth = width;
 		this.defaultHeight = height;
 	}
@@ -90,16 +127,28 @@ function Window() {
 	this.setSize = function(isMax, width, height) {
         isMaxSize = isMax;
         if (isMax) {
-            windowElement.style.width = '100%';
+			winWidth = winManager.body.offsetWidth;
+			winHeight = winManager.body.offsetHeight;
 			winX = winY = 0;
 			updateWindowLocation();
         } else {
 			if (width !== undefined && height !== undefined) {
 				winWidth = width;
 				winHeight = height;
+			} else {
+				winWidth = originalWinWidth;
+				winHeight = originalWinHeight;
 			}
         }
 		updateWindowSize();
+	}
+	this.addSize = function(width, height) {
+        if (!isMaxSize) {
+			winWidth += width;
+			winHeight += height;
+			// updateWindowLocation();
+			updateWindowSize();
+        }
 	}
 	// 視窗位置設定
 	this.setLocation = function(x, y) {
@@ -108,7 +157,15 @@ function Window() {
 		winY = y;
 		updateWindowLocation();
 	}
+	this.addLocation = function(x, y) {
+        if (!isMaxSize) {
+			winX += x;
+			winY += y;
+			updateWindowLocation();
+        }
+	}
 	
+	// 視窗名稱設定
 	this.setTitle = function(text) {
 		winTitle = text;
 		windowTitle.innerText = text;
@@ -119,6 +176,10 @@ function Window() {
 	const setActivate = this.setActivate = function(boolean) {
 		if (isActivate === boolean) return;
 		isActivate = boolean;
+		if (isActivate)
+			windowBody.removeChild(windowTop);
+		else
+			windowBody.appendChild(windowTop);
 		if (onActivateStateChange !== undefined)
 			onActivateStateChange(boolean);
 	}
@@ -151,7 +212,7 @@ function Window() {
 		setActivate(true);
 		isMinimize = false;
 		menuButton.classList.add('activate');
-        minWindow.open(winX, winY + menuBar.getHeight(), winWidth, winHeight, drawWindow, function() {
+        minWindow.open(winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {
 			winManager.openWindow(win);
             if (openEvent !== undefined)
                 openEvent();
@@ -163,7 +224,7 @@ function Window() {
 		setActivate(false);
 		isMinimize = true;
         windowElement.style.display = 'none';
-        minWindow.minimize(winX, winY + menuBar.getHeight(), menuButtonPos + menuButtonWidth / 2, 0 , winWidth, winHeight, drawWindow, function() {
+        minWindow.minimize(winX, winY + menuBarHeight, menuButtonPos + menuButtonWidth / 2, 0 , winWidth, winHeight, drawWindow, function() {
 			winManager.closeWindow(win);
 		});
     }
@@ -171,7 +232,7 @@ function Window() {
 	this.maximizeWindow = function() {
 		setActivate(true);
 		isMinimize = false;
-		minWindow.maximize(menuButtonPos + menuButtonWidth / 2, 0, winX, winY + menuBar.getHeight(), winWidth, winHeight, drawWindow, function() {
+		minWindow.maximize(menuButtonPos + menuButtonWidth / 2, 0, winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {
 			windowElement.style.display = '';
 			winManager.openWindow(win);
 		});
@@ -199,30 +260,35 @@ function Window() {
             windowHeaderHeight -
             winMenuHeight;
 	}
-    
-	const updateWindowSize = this.resize = function() {
-        if (isMaxSize) {
-			windowBody.style.height = (
-				window.innerHeight - menuBar.getHeight() -
-				windowHeaderHeight -
-				winMenuHeight
-			) + 'px';
-			if (win.onSizeChange !== undefined)
-				win.onSizeChange();
-        } else {
-            windowElement.style.width = winWidth + 'px';
-			windowBody.style.height = (
-				winHeight -
-				windowHeaderHeight -
-				winMenuHeight
-			) + 'px';
-        }
+	
+	this.resize = function() {
+		if (isMaxSize) {
+			winWidth = winManager.body.offsetWidth;
+			winHeight = winManager.body.offsetHeight;
+			updateWindowSize();
+		}
 	}
+    
+	const updateWindowSize = function() {
+		if (win.onSizeChange !== undefined)
+			win.onSizeChange();
+		if (!isMaxSize) {
+			originalWinWidth = winWidth;
+			originalWinHeight = winHeight;
+		}
+        windowBody.style.width = winWidth + 'px';
+		windowBody.style.height = (
+			winHeight -
+			windowHeaderHeight -
+			winMenuHeight
+		) + 'px';
+	}
+	
 	const updateWindowLocation = function() {
 		windowElement.style.left = winX + 'px';
-		windowElement.style.top = winY + menuBar.getHeight() + 'px';
+		windowElement.style.top = winY + 'px';
 	}
-//##############################################視窗位置改變##############################################
+//##############################################視窗初始化##############################################
 	
 	winManager.addWindow(this);
 	menuBar.addItem(menuButton);
@@ -373,9 +439,11 @@ function MinimizeWindow() {
 function WindowManager() {
     const windows = [];
 	const body = document.createElement('div');
+	this.body = body;
 	body.classList.add('body');
 	
 	this.init = function() {
+		body.style.height = window.innerHeight - menuBarHeight + 'px';
 		document.body.appendChild(body);
 	}
 
@@ -386,6 +454,7 @@ function WindowManager() {
 	}
     
 	window.onresize = function() {
+		body.style.height = window.innerHeight - menuBarHeight + 'px';
         if(windows.length === 0) return;
         if(windows.length === 1) {
             windows[0].resize();
@@ -396,31 +465,53 @@ function WindowManager() {
             windows[i].resize();
 	}
 	
-	let clickedWin = null;
+	// 滑鼠拖曳
+	let moveWin = null;
+	let resizeWin = null;
 	let startX, startY;
+	let resizeX, resizeY;
 	document.onmouseup = document.touchcancel = document.ontouchend = function(e) {
-		if (clickedWin === null) return;
-		if(e.y + startY < 0)
-			clickedWin.setSize(true);
-		clickedWin = null;
+		if (moveWin !== null) {
+			if(e.y + startY < 0)
+				moveWin.setSize(true);
+			moveWin = null;
+		} else if (resizeWin !== null) {
+			resizeWin = null;
+		}
 	}
 	
-	document.onmousemove = function(e) {
-		if (clickedWin === null) return;
-		if (clickedWin.isMaxSize()) {
-			clickedWin.setSize(false);
-			startX = -clickedWin.defaultWidth / 2;
-		} else
-			clickedWin.setLocation(e.x + startX, e.y + startY);
+	body.onmousemove = function(e) {
+		if (moveWin !== null) {
+			if (moveWin.isMaxSize()) {
+				moveWin.setSize(false);
+				startX = -moveWin.getWinWidth() / 2;
+			} else {
+				const x = e.x, y = e.y;
+				const body = winManager.body;
+				if(x > 0 && y > 0 && x < body.offsetWidth && y < body.offsetHeight + menuBarHeight)
+					moveWin.setLocation(x + startX, y + startY);
+			}
+		} else if(resizeWin !== null) {
+			const moveX = e.movementX;
+			const moveY = e.movementY;
+			if (resizeX < 0 && resizeY < 0)
+				resizeWin.addLocation(moveX * -resizeX, moveY * -resizeY);
+			else if (resizeX < 0)
+				resizeWin.addLocation(moveX * -resizeX, 0);
+			else if (resizeY < 0)
+				resizeWin.addLocation(0, moveY * -resizeY);
+			resizeWin.addSize(moveX * resizeX, moveY * resizeY);
+		}
 	}
 	
-	document.ontouchmove = function(e) {
+	body.ontouchmove = function(e) {
 		getTouchPoint(e);
-		document.onmousemove(e);
+		body.onmousemove(e);
 	}
 	
+	// 開啟視窗
 	this.openWindow = function(win) {
-		if (windows.length > 0){
+		if (windows.length > 0) {
 			windows[windows.length - 1].setActivate(false);
 			windows[windows.length - 1].menuButton.classList.remove('activate');
 		}
@@ -430,32 +521,43 @@ function WindowManager() {
 		win.menuButton.classList.add('activate');
         body.appendChild(win.windowElement);
 	}
-	
+	// 關閉視窗
 	this.closeWindow = function(win) {
 		win.menuButton.classList.remove('activate');
 		
 		windows.splice(win.index, 1);
-		if (windows.length > 0){
+		if (windows.length > 0) {
 			windows[windows.length - 1].setActivate(true);
 			windows[windows.length - 1].menuButton.classList.add('activate');
 		}
 	}
-	
+	// 新增視窗
     this.addWindow = function(win) {
-		win.windowElement.onmousedown = function() {
+		// 移至最上層
+		win.windowTop.onmousedown = function() {
 			moveToTop(win);
 		}
-		
+		// 移動視窗
 		win.windowHeader.onmousedown = function(e) {
-			clickedWin = win;
+			if (!win.isActivate())
+				moveToTop(win);
+			moveWin = win;
 			startX = win.getX() - e.x;
 			startY = win.getY() - e.y;
 		}
-		
 		win.windowHeader.ontouchstart = function(e) {
 			getTouchPoint(e);
 			win.windowHeader.onmousedown(e)
 		}
+		// 更動視窗大小
+		win.windowResizeN.onmousedown  = function(e){resizeWin = win; resizeX = 0; resizeY = -1;e.preventDefault();};
+		win.windowResizeS.onmousedown  = function(e){resizeWin = win; resizeX = 0; resizeY = 1;e.preventDefault();};
+		win.windowResizeW.onmousedown  = function(e){resizeWin = win; resizeX = -1; resizeY = 0;e.preventDefault();};
+		win.windowResizeE.onmousedown  = function(e){resizeWin = win; resizeX = 1; resizeY = 0;e.preventDefault();};
+		win.windowResizeNE.onmousedown = function(e){resizeWin = win; resizeX = 1; resizeY = -1;e.preventDefault();};
+		win.windowResizeNW.onmousedown = function(e){resizeWin = win; resizeX = -1; resizeY = -1;e.preventDefault();};
+		win.windowResizeSE.onmousedown = function(e){resizeWin = win; resizeX = 1; resizeY = 1;e.preventDefault();};
+		win.windowResizeSW.onmousedown = function(e){resizeWin = win; resizeX = -1; resizeY = 1;e.preventDefault();};
 		
 		// 最大或最小化
 		win.menuButton.onclick = function() {

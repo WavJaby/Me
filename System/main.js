@@ -127,8 +127,8 @@ function MenuBar() {
 	}
 }
 
-function out(i) {
-	console.log(i);
+function out(...i) {
+	console.log(...i);
 }
 
 
