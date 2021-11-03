@@ -127,9 +127,7 @@ function MenuBar() {
 	}
 }
 
-function out(...i) {
-	console.log(...i);
-}
+const out = console.log;
 
 
 

@@ -67,9 +67,9 @@ function WebRTC() {
 	hangupButton.disable = true; 
 
 	//Associate Javascript handlers with click events on the buttons 
-	startButton.onmousedown = start;
-	callButton.onmousedown = call;
-	hangupButton.onmousedown = hangup;
+	startButton.onclick = start;
+	callButton.onclick = call;
+	hangupButton.onclick = hangup;
 	
 	// Utility function for logging information to the JavaScript console 
 	function log(text) {
