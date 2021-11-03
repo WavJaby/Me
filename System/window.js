@@ -443,6 +443,7 @@ function WindowManager() {
 	body.classList.add('body');
 	
 	this.init = function() {
+		minWindow.init();
 		body.style.height = window.innerHeight - menuBarHeight + 'px';
 		document.body.appendChild(body);
 	}
@@ -470,6 +471,7 @@ function WindowManager() {
 	let resizeWin = null;
 	let startX, startY;
 	let resizeX, resizeY;
+	let lastX, lastY;
 	document.onmouseup = document.touchcancel = document.ontouchend = function(e) {
 		if (moveWin !== null) {
 			if(e.pageY + startY < 0)
@@ -492,8 +494,10 @@ function WindowManager() {
 					moveWin.setLocation(x + startX, y + startY);
 			}
 		} else if(resizeWin !== null) {
-			const moveX = e.movementX;
-			const moveY = e.movementY;
+			const moveX = e.pageX - lastX;
+			const moveY = e.pageY - lastY;
+			lastX = e.pageX;
+			lastY = e.pageY;
 			if (resizeX < 0 && resizeY < 0)
 				resizeWin.addLocation(moveX * -resizeX, moveY * -resizeY);
 			else if (resizeX < 0)
@@ -550,14 +554,14 @@ function WindowManager() {
 			win.windowHeader.onmousedown(e)
 		}
 		// 更動視窗大小
-		win.windowResizeN.onmousedown  = function(e){resizeWin = win; resizeX = 0; resizeY = -1;e.preventDefault();};
-		win.windowResizeS.onmousedown  = function(e){resizeWin = win; resizeX = 0; resizeY = 1;e.preventDefault();};
-		win.windowResizeW.onmousedown  = function(e){resizeWin = win; resizeX = -1; resizeY = 0;e.preventDefault();};
-		win.windowResizeE.onmousedown  = function(e){resizeWin = win; resizeX = 1; resizeY = 0;e.preventDefault();};
-		win.windowResizeNE.onmousedown = function(e){resizeWin = win; resizeX = 1; resizeY = -1;e.preventDefault();};
-		win.windowResizeNW.onmousedown = function(e){resizeWin = win; resizeX = -1; resizeY = -1;e.preventDefault();};
-		win.windowResizeSE.onmousedown = function(e){resizeWin = win; resizeX = 1; resizeY = 1;e.preventDefault();};
-		win.windowResizeSW.onmousedown = function(e){resizeWin = win; resizeX = -1; resizeY = 1;e.preventDefault();};
+		win.windowResizeN.onmousedown = function(e){resizeSetUp(win, e);resizeX = 0; resizeY = -1;};
+		win.windowResizeS.onmousedown = function(e){resizeSetUp(win, e);resizeX = 0; resizeY = 1;};
+		win.windowResizeW.onmousedown = function(e){resizeSetUp(win, e);resizeX = -1; resizeY = 0;};
+		win.windowResizeE.onmousedown = function(e){resizeSetUp(win, e);resizeX = 1; resizeY = 0;};
+		win.windowResizeNE.onmousedown = function(e){resizeSetUp(win, e);resizeX = 1; resizeY = -1;};
+		win.windowResizeNW.onmousedown = function(e){resizeSetUp(win, e);resizeX = -1; resizeY = -1;};
+		win.windowResizeSE.onmousedown = function(e){resizeSetUp(win, e);resizeX = 1; resizeY = 1;};
+		win.windowResizeSW.onmousedown = function(e){resizeSetUp(win, e);resizeX = -1; resizeY = 1;};
 		
 		// 最大或最小化
 		win.menuButton.onclick = function() {
@@ -590,6 +594,13 @@ function WindowManager() {
 		win.menuButton.classList.add('activate');
 		
 		body.appendChild(win.windowElement);
+	}
+	
+	function resizeSetUp(win, e) {
+		resizeWin = win;
+		e.preventDefault();
+		lastX = e.pageX;
+		lastY = e.pageY;
 	}
 	
 	function getTouchPoint(e) {

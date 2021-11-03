@@ -24,6 +24,9 @@ const project =
 	<h1>作品<span style="font-size: 10px;">(有用的)</h1>\
 	<h2>Conway\'s GameOfLife 康威生命遊戲</h2>\
 	<div style="position: relative; padding-left: 2em;">\
+		<video oncontextmenu="return false;" autoplay muted loop>\
+			<source src="ProjectFiles/Switch engine.mp4" type="video/mp4">\
+		</video>\
 		<h3>簡介: </h3>\
 		<h3><sp></sp>康威生命遊戲是由英國數學家 John Horton Conway 約翰·何頓·康威 在1970年所發明的</h3>\
 		<h3><sp></sp>遊戲規則僅四條，卻能夠模擬生命的種種姿態</h3>\
@@ -33,9 +36,6 @@ const project =
 		<h3>開始製作日期: 2021/4</h3>\
 		<h3>原始碼GitHub(包含多人遊戲): <a href="https://github.com/WavJaby" target="_blank">github.com/WavJaby</a></h3>\
 		<h3>單人遊玩: <a href="https://wavjaby.github.io/GameOfLife/" target="_blank">wavjaby.github.io/GameOfLife/</a></h3>\
-		<video oncontextmenu="return false;" autoplay muted loop>\
-			<source src="ProjectFiles/Switch engine.mp4" type="video/mp4">\
-		</video>\
 	</div>\
     \
 	<h2>Disease Map 傳染病分布查詢系統(已停止更新)</h2>\
@@ -76,7 +76,8 @@ function onCommand(args, commandResult) {
         result = about;
         break;
         case 'project':
-        result = project;
+        // result = project;
+        result = '<p>Hello World!</p>';
         break;
         case 'clear':
         output = false;
@@ -84,6 +85,9 @@ function onCommand(args, commandResult) {
         break;
         case 'ls':
         result = fileSystem();
+        break;
+        case 'version':
+        result = '<p>ver_0.1Alpha</p>'
         break;
         default:
         result = '<p>' + args.join(' ') + '?? 那是什麼?' + '</p>';
@@ -96,11 +100,6 @@ function onCommand(args, commandResult) {
 
 // 指令視窗
 function Terminal() {
-	// 初始化視窗
-	const win = new Window();
-	win.setTitle('終端機');
-	// win.addMenuItem(item);
-	
 	// 建立元素
 	const terminal = document.createElement('div');
 	terminal.classList.add('terminal');
@@ -148,6 +147,10 @@ function Terminal() {
 		userInput(e);
 	});
 	
+//##############################初始化視窗##############################
+	const win = new Window();
+	win.setTitle('終端機');
+	// win.addMenuItem(item);
 	win.addBody(terminal);
 	win.onSizeChange = setResultHeight;
 	win.setOnActivateStateChange(function(boolean) {userIn.setCanInput(boolean);});
@@ -215,6 +218,7 @@ function Terminal() {
 		}
 	}
 	
+//##############################監聽##############################
 	// 傳送指令
 	function submitCommand(args, userInput) {
 		// 計算是否以滑動到最底

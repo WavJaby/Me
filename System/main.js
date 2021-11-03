@@ -2,11 +2,12 @@
 const storage = getStorage();
 const menuBar = new MenuBar();
 const notification = new Notification();
+const sysFileSystem = new SystemFileSystem();
 
 function onPageLoad() {
 //##############################視窗##############################
+	sysFileSystem.init();
 	winManager.init();
-	minWindow.init();
 //##############################列表##############################
 	const homeMenu = document.createElement('div');
 	homeMenu.classList.add('homeMenu');

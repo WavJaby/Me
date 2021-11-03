@@ -6,7 +6,7 @@ http.createServer(function (req, res) {
 	let fileName = req.url;
 	if (fileName == '/')
 		fileName = '/index.html';
-	fileName = fileName.slice(1);
+	fileName = decodeURI(fileName.slice(1));
 	console.log(fileName);
 	let file;
 	try {
