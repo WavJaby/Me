@@ -472,7 +472,7 @@ function WindowManager() {
 	let resizeX, resizeY;
 	document.onmouseup = document.touchcancel = document.ontouchend = function(e) {
 		if (moveWin !== null) {
-			if(e.y + startY < 0)
+			if(e.pageY + startY < 0)
 				moveWin.setSize(true);
 			moveWin = null;
 		} else if (resizeWin !== null) {
@@ -480,13 +480,13 @@ function WindowManager() {
 		}
 	}
 	
-	body.onmousemove = function(e) {
+	document.onmousemove = function(e) {
 		if (moveWin !== null) {
 			if (moveWin.isMaxSize()) {
 				moveWin.setSize(false);
 				startX = -moveWin.getWinWidth() / 2;
 			} else {
-				const x = e.x, y = e.y;
+				const x = e.pageX, y = e.pageY;
 				const body = winManager.body;
 				if(x > 0 && y > 0 && x < body.offsetWidth && y < body.offsetHeight + menuBarHeight)
 					moveWin.setLocation(x + startX, y + startY);
@@ -504,7 +504,7 @@ function WindowManager() {
 		}
 	}
 	
-	body.ontouchmove = function(e) {
+	document.ontouchmove = function(e) {
 		getTouchPoint(e);
 		body.onmousemove(e);
 	}
@@ -542,8 +542,8 @@ function WindowManager() {
 			if (!win.isActivate())
 				moveToTop(win);
 			moveWin = win;
-			startX = win.getX() - e.x;
-			startY = win.getY() - e.y;
+			startX = win.getX() - e.pageX;
+			startY = win.getY() - e.pageY;
 		}
 		win.windowHeader.ontouchstart = function(e) {
 			getTouchPoint(e);
@@ -594,7 +594,7 @@ function WindowManager() {
 	
 	function getTouchPoint(e) {
 		const changeTouch = e.changedTouches[0];
-		e.x = changeTouch.pageX;
-		e.y = changeTouch.pageY;
+		e.pageX = changeTouch.pageX;
+		e.pageY = changeTouch.pageY;
 	}
 }
