@@ -248,7 +248,7 @@ function FileSystem() {
 	function open(name, onLoad) {
 		const program = this.childFiles[name];
 		if (program.nodeType === FileType.program) {
-			const appPath = program.getPath() + program.fullName + '/';
+			const appPath = program.getPath().slice(1) + program.fullName + '/';
 			let resource = program.resource;
 			let resLoad = 0;
 			function load() {
@@ -303,7 +303,7 @@ function FileSystem() {
 		const file = this.childFiles[name];
 		if (file.data === null)
 			if (file.extension === 'js')
-				getFileText(program.getPath() + program.fullName, function(text) {
+				getFileText(program.getPath().slice(1) + program.fullName, function(text) {
 					if (isIE10())
 						program.app = eval('(' + toES5(text) + ')');
 					else
@@ -311,7 +311,7 @@ function FileSystem() {
 					if (onLoad !== undefined) onLoad(program);
 				});
 			else
-				getFileText(file.getPath() + file.fullName, function(text) {
+				getFileText(file.getPath().slice(1) + file.fullName, function(text) {
 					file.data = text;
 					if (onLoad !== undefined) onLoad(file);
 				});
@@ -321,7 +321,7 @@ function FileSystem() {
 	}
 	
 	function loadProgram(program, onLoad) {
-		getFileText(program.getPath() + program.fullName + '/' + program.name + '.js', function(text) {
+		getFileText(program.getPath().slice(1) + program.fullName + '/' + program.name + '.js', function(text) {
 			if (isIE10())
 				program.app = eval('(' + toES5(text) + ')');
 			else
