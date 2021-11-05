@@ -1,5 +1,4 @@
-'use strict';
-function AboutWindow() {
+function About() {
 	// 初始化視窗
 	const win = new Window();
 	win.setTitle('關於');
@@ -14,4 +13,8 @@ function AboutWindow() {
 	body.style.color = 'whitesmoke';
 	body.style['font-size'] = '20px';
 	body.innerText = 'Hello World';
+	
+	// this.loadPlugin = function(plugin) {
+		
+	// }
 }

@@ -1,5 +1,5 @@
 if (String.prototype.startsWith === undefined) {
-	console.log('no startsWith');
+	warn('沒有函式: String.startsWith');
 	String.prototype.startsWith = function(input) {
 		for (var i = 0; i < input.length; i++) {
 			if (this.charAt(i) !== input.charAt(i))
@@ -14,7 +14,7 @@ if (String.prototype.startsWith === undefined) {
 }
 
 if (typeof requestAnimationFrame === 'undefined') {
-	console.log('no requestAnimationFrame');
+	warn('沒有函式: requestAnimationFrame');
 	var delay = 1000/60;
 	var callBacks = [];
 	var idleCount = 0;
@@ -68,31 +68,20 @@ function loadScriptIE(url, onload) {
 	request.send();
 }
 
-function addScript(url, onload) {
-	var request = new XMLHttpRequest();
-	request.open("GET", url);
-	request.onreadystatechange = function () {
-		if(request.readyState === XMLHttpRequest.DONE && request.status === 200)
-			onload(request.responseText);
-	}
-	request.send();
-}
-
 function loadScriptsForIE() {
 	var loadCount = 0;
 	var mainScript = document.createElement('script');
-	addScript('System/main.js', function(text) {
+	getFileText('System/main.js', function(text) {
 		mainScript.textContent = toES5(text);
 		loadMainScript();
 	});
 	mainScript.onload = function() {
-		onPageLoad();
-		console.timeEnd('loaded in');
+		timer('花費: ');
 	};
 	
 	for (var i = 0; i < scripts.length; i++) {
 		if (scripts[i] === 'System/main.js') continue;
-		addScript(scripts[i], function(text) {
+		getFileText(scripts[i], function(text) {
 			var script = document.createElement('script');
 			script.textContent = toES5(text);
 			document.head.appendChild(script);
@@ -101,14 +90,14 @@ function loadScriptsForIE() {
 	}
 	
 	function loadMainScript() {
-		if (++loadCount === scripts.length) {
-			document.head.appendChild(mainScript);
-		}
+		if (loadCount++ < scripts.length) return;
+		document.head.appendChild(mainScript);
 	}
 }
 
 function toES5(input) {
 	input = input
+		.replace(/'use strict';/g, '')
 		.replace(/const /g, 'var ')
 		.replace(/let /g, 'var ')
 		.replace(/.classList.add\('/g, '.className+=(\' ')
@@ -125,4 +114,5 @@ function toES5(input) {
 	return input;
 }
 
+function isIE10() {return ieVersion !== null && ieVersion < 11};
 

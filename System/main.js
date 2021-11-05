@@ -1,13 +1,19 @@
 'use strict';
+
 const storage = getStorage();
+const fileSystem = new FileSystem();
 const menuBar = new MenuBar();
 const notification = new Notification();
-const fileSystem = new FileSystem();
+out('準備檔案系統...');
+fileSystem.init(desktopLoad);
 
-function onPageLoad() {
+function desktopLoad() {
+	timer('花費: ');
+	out('準備桌面...');
 //##############################視窗##############################
-	fileSystem.init();
 	winManager.init();
+//##############################通知##############################
+	notification.init();
 //##############################列表##############################
 	const homeMenu = document.createElement('div');
 	homeMenu.classList.add('homeMenu');
@@ -26,10 +32,12 @@ function onPageLoad() {
 		button.onclick = onclick;
 		return button;
 	}
+	
+	
+	const programs = fileSystem.cd('System/Programs');
 	// 終端機
 	const terminalBtn = createListItem('終端機', function() {
-		const terminal = new Terminal();
-		terminal.open();
+		programs.open('Terminal.app', function(app) {app.open();});
 		programList.close();
 	});
 	programList.addItem(terminalBtn);
@@ -53,14 +61,11 @@ function onPageLoad() {
 	menuBar.addEle(homeMenu);
 	menuBar.init();
 
-//##############################通知##############################
-	notification.init();
 
 //##############################初始化##############################
-	const aboutWindow = new AboutWindow();
+	programs.open('About.app');
 
-	const terminal = new Terminal();
-	terminal.open();
+	programs.open('Terminal.app', function(app) {app.open();});
 
 
 	// 歡迎訊息
@@ -71,7 +76,6 @@ function onPageLoad() {
 		notification.sendNotification('歡迎回來', 'ヽ(✿ﾟ▽ﾟ)ノ');
 	}
 }
-
 
 //##############################其他東西##############################
 function DropDownList(target) {
@@ -127,8 +131,6 @@ function MenuBar() {
 		return menuBar.offsetHeight;
 	}
 }
-
-const out = console.log;
 
 
 

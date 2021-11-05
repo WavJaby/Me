@@ -9,16 +9,25 @@
 	<!--[if !IE]> --><script>var ieVersion = null;</script><!-- <![endif]-->
 	<!--[if lte IE 9]><script>var ieVersion = 8;</script><![endif]-->
 	<!--[if IE 9]><script>var ieVersion = 9;</script><![endif]-->
-	<script>(document.documentMode !== undefined && document.documentMode===10 && (ieVersion = 10))</script>
-	<script>(!!window.MSInputMethodContext && !!document.documentMode && (ieVersion = 11))</script>
+	<script>
+	if (ieVersion === null)
+		try{eval('const a=1;')}catch(e){ieVersion = 10};
+	if (ieVersion === null && (!!window.ActiveXObject || "ActiveXObject" in window))
+		ieVersion = 11;
+		
+	if (ieVersion === null)
+		console.log('不是IE 🎉');
+	else 
+		console.log('IE版本: ' + ieVersion);
+	console.log('## 開始準備環境...');
+	var time = (ieVersion !== null && ieVersion < 10 ? Date.now() : performance.now());
+	</script>
 	
 	<!-- System File -->
-    <link rel="stylesheet" href="font/font.css" type="text/css" charset="utf-8">
+    <link rel="stylesheet" href="System/Font/font.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="System/style.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="System/animation.css" type="text/css" charset="utf-8">
     <link rel="stylesheet" href="System/dropdownlist.css" type="text/css" charset="utf-8">
-	<!-- Other Style File -->
-    <link rel="stylesheet" href="terminal.css" type="text/css" charset="utf-8">
 	
 	<!-- System Script File -->
 	<script src="System/plugin.js"></script>
@@ -31,9 +40,9 @@
 			document.body.removeChild(document.getElementById('errorWindow'));
 		</script>
 		<div class="wHeader cantSelect">
-			<img class="icon" src="icon/warning.svg">
+			<img class="icon" src="System/Icon/warning.svg">
 			<div class="title">WARNING!</div>
-			<div class="close"><img src="icon/close.svg"></div>
+			<div class="close"><img src="System/Icon/close.svg"></div>
 		</div>
 		<div class="wBody" style="height: 200px; line-height: 200px; text-align:center">
 			<h1>請開啟 JavaScript!</h1>

@@ -15,11 +15,11 @@ const windowTitleLeft = parseInt(getStyle('.wHeader > .title')['margin-left']);
 const windowTitleHeight = parseInt(getStyle('.wHeader > .title')['font-size']) * 1.1;
 const windowTitleColor = getStyle('.wHeader > .title').color;
 
-const windowCloseIcon = new Image();
-windowCloseIcon.src = 'icon/close.svg';
-const windowMinimizeIcon = new Image();
-windowMinimizeIcon.src = 'icon/minimize.svg';
 const windowIconSize = parseInt(getStyle('.wHeader > div > img').width);
+const windowCloseIcon = new Image();
+windowCloseIcon.src = 'System/Icon/close.svg';
+const windowMinimizeIcon = new Image();
+windowMinimizeIcon.src = 'System/Icon/minimize.svg';
 const windowIconMargin = parseInt(getStyle('.wHeader > div > img').margin);
 const windowIconButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .minimize').width);
 
@@ -90,11 +90,11 @@ function Window() {
 	
 	const closeButton = document.createElement('div');
 	closeButton.classList.add('close');
-	closeButton.innerHTML = '<img src="icon/close.svg"/>';
+	closeButton.appendChild(windowCloseIcon.cloneNode());
 	
 	const minimizeButton = document.createElement('div');
 	minimizeButton.classList.add('minimize');
-	minimizeButton.innerHTML = '<img src="icon/minimize.svg"/>';
+	minimizeButton.appendChild(windowMinimizeIcon.cloneNode());
 	
 	windowHeader.appendChild(windowTitle);
 	windowHeader.appendChild(closeButton);

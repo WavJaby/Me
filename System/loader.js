@@ -2,15 +2,7 @@ var scripts = [
 	'System/window.js',
 	'System/notification.js',
 	'System/fileSystem.js',
-	'System/main.js',
-	'aboutWindow.js',
-	'terminal.js'
 ];
-
-if (ieVersion === null)
-	console.log('not IE 🎉');
-else 
-	console.log('IE version: ' + ieVersion);
 
 function loadScript(url, onload) {
 	if (ieVersion === null || ieVersion > 10) {
@@ -22,18 +14,28 @@ function loadScript(url, onload) {
 		loadScriptIE(url, onload);
 }
 
+function getFileText(url, onload) {
+	var request = new XMLHttpRequest();
+	request.open("GET", url);
+	request.onreadystatechange = function () {
+		if(request.readyState === XMLHttpRequest.DONE && request.status === 200)
+			onload(request.responseText);
+	}
+	request.send();
+}
+
 function loadCSS(url, onload) {
-	var link = document.createElement('link'); 
-	link.rel = 'stylesheet'; 
-	link.type = 'text/css';
-	link.href = url; 
-	link.onload = onload;
-	document.head.appendChild(link);
+	var css = document.createElement('link'); 
+	css.rel = 'stylesheet'; 
+	css.type = 'text/css';
+	css.href = url; 
+	css.onload = onload;
+	document.head.appendChild(css);
 }
 
 window.onload = function() {
-	console.log('loading script...');
-	console.time('loaded in');
+	timer('花費: ');
+	out('## 開始讀取系統...');
 	if (ieVersion === null || ieVersion > 10) {
 		var loadCount = 0;
 		for (var i = 0; i < scripts.length; i++) {
@@ -41,10 +43,10 @@ window.onload = function() {
 		}
 		
 		function loadMainScript() {
-			if (++loadCount === scripts.length) {
-				onPageLoad();
-				console.timeEnd('loaded in');
-			}
+			if (++loadCount === scripts.length)
+				loadScript('System/main.js', loadMainScript);
+			else if (loadCount > scripts.length)
+				timer('花費: ');
 		}
 	} else {
 		loadScriptsForIE();
