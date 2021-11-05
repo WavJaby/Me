@@ -100,20 +100,20 @@ h1 {
 	line-height: 30px;
 	
 	margin-left: 5px;
+	float: left;
+}
+.wHeader > .icon {
+	width: 30px;
+	
 	display: block;
 	float: left;
+	margin-left: 2px;
 }
 .wHeader > .close, .wHeader > .minimize {
 	width: 50px;
 	
-	display: block;
 	float: right;
 	text-align: center;
-}
-.wHeader > .icon {
-	height: 30px;
-	display: block;
-	float: left;
 }
 .wHeader > .close:hover {
 	background-color: rgb(232,17,35);

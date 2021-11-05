@@ -4,6 +4,7 @@ function About() {
 	win.setTitle('關於');
 	win.setSize(false, 600, 600);
 	win.setLocation(document.body.offsetWidth / 2 - 300, 50);
+	this.setIcon = win.setIcon;
 	
 	const body = document.createElement('div');
 	win.addBody(body);

@@ -55,7 +55,45 @@ function Plugin(plugin) {
 			}
 		})();
 		
+		const file = new (function() {
+			const ter = terminal;
+			const args = this.args = {};
+			let path = ter.getPath();
+			function updateHints() {
+				const hints = path.ls();
+				for (let i = 0; i < hints.length; i++) {
+					args[hints[i]] = null;
+				}
+			}
+			updateHints();
+			
+			this.onSubmit = function (args, commandResult, terminal) {
+				out(args)
+				switch (args[0]) {
+					case 'cd':
+						if(args.length === 1) return;
+						let newPath = path.cd(args[1]);
+						if (newPath.code === undefined) 
+							path = newPath;
+						else {
+							commandResult.innerHTML += '<p>' + newPath.message + '</p>';
+							return;
+						}
+						break;
+					case 'ls':
+						commandResult.innerHTML += '<p>' + path.ls().join(' ') + '</p>';
+						return;
+					default:
+					return;
+				}
+				updateHints();
+				ter.setPath(path);
+			}
+		})();
+		
 		terminal.registerCommand('help', helpListener);
+		terminal.registerCommand('cd', file);
+		terminal.registerCommand('ls', file);
 		// terminal.registerCommand('cd', {args: null, function: function(args, commandResult, terminal) {
 			// commandResult.innerHTML += help;
 		// }});
@@ -260,7 +298,10 @@ function Plugin(plugin) {
 						commandLineElement.removeChild(backEle);
 						commandLineElement.removeChild(hintEle);
 						commandLineElement.removeChild(endEle);
-						onSubmit(args, userInput);
+						let last = 0;
+						for (let i = 0; i < args.length; i++)
+							if (args[i].length > 0) last = i+1;
+						onSubmit(args.slice(0, last), userInput);
 						commandLineElement.appendChild(blinkerEle);
 						commandLineElement.appendChild(backEle);
 						commandLineElement.appendChild(hintEle);

@@ -1,36 +1,8 @@
 'use strict';
-/* FileSystem
-/System
-	/Programs
-	/Settings
-/home
-	/WavJaby
-		/Desktop
-		/Download
-		/Document
-		
-*/
-
-
-/* FileNodeType
-folder: 0
-file: 1
-*/
-
-/* FileNode
-nodeType: FileNodeType
-fileType: FileType
-name: String
-path: Array
-
-parentNode: FileNode
-childFolders: Array
-childFiles: Array
-*/
 
 function FileSystem() {
 	const FileNodeType = {root:-1, folder:0, file:1};
-	const FileType = {text:0, program:1};
+	const FileType = {program: 0, text:1, image: 2};
 	
 	const systemRoot = {
 		nodeType: -1,
@@ -41,6 +13,7 @@ function FileSystem() {
 		childFiles: {},
 		
 		cd: cd,
+		ls: ls,
 		mkdir: mkdir,
 		getPath: getpath,
 		tree: tree,
@@ -48,21 +21,38 @@ function FileSystem() {
 	};
 	this.getRoot = function(){return systemRoot;};
 	
+	let userFolder;
 	this.init = function(fileSystemLoaded) {
+		// folder
 		const systemFolder = systemRoot.mkdir('System');
 		const programFolder = systemFolder.mkdir('Programs');
 		const settingsFolder = systemFolder.mkdir('Settings');
-		const userFolder = systemRoot.mkdir('home/WavJaby');
+		const iconFolder = systemFolder.mkdir('Icon');
+		const fontFolder = systemFolder.mkdir('Font');
+		userFolder = systemRoot.mkdir('home/WavJaby');
 		userFolder.mkdir('Desktop');
 		userFolder.mkdir('Download');
 		userFolder.mkdir('Document');
-		userFolder.cd('Desktop').createFile('HelloWorld', 'txt', FileType.text, 'Hello World!');
 		
-		const terminalAPP = programFolder.createFile('Terminal', 'app', FileType.program);
-		terminalAPP.pluginName = 'plugin.js';
-		terminalAPP.addResource('Terminal', 'css');
-		programFolder.createFile('About', 'app', FileType.program);
-		// const about = programFolder.mkdir('About').createFile('about', 'app', FileType.program);
+		
+		// file
+		userFolder.cd('Desktop').createFile('HelloWorld', 'txt', FileType.text, 'Hello World!');
+		iconFolder.createFile('close', 'svg', FileType.image);
+		iconFolder.createFile('minimize', 'svg', FileType.image);
+		iconFolder.createFile('warning', 'svg', FileType.image);
+		
+		
+		// program
+		const terminal = programFolder.createFile('Terminal', 'app', FileType.program);
+		terminal.pluginName = 'plugin.js';
+		terminal.addResource('Terminal', 'css');
+		terminal.addResource('icon', 'svg');
+		
+		const WebRTC = programFolder.createFile('WebRTC', 'app', FileType.program);
+		WebRTC.addResource('WebRTC', 'css');
+		
+		const about = programFolder.createFile('About', 'app', FileType.program);
+		about.addResource('icon', 'svg');
 		
 		
 		// out(systemRoot.tree(true))
@@ -72,7 +62,7 @@ function FileSystem() {
 		fileSystemLoaded();
 	}
 	
-	function createFile(name, extension, fileType) {
+	function createFile(name, extension, fileType, data) {
 		const file = {
 			nodeType: FileNodeType.file,
 			fileType: fileType,
@@ -89,8 +79,12 @@ function FileSystem() {
 			file.pluginName = null;
 			file.resource = [];
 			file.addResource = addResource;
-		} else
-			file.data = null;
+		} else {
+			if (data === undefined)
+				file.data = null;
+			else
+				file.data = data;
+		}
 		const path = this.path;
 		const newPath = file.path = [];
 		for (let i = 0; i < path.length; i++)
@@ -130,6 +124,9 @@ function FileSystem() {
 		// 這一層
 		if (name === '.')
 			return this.mkdir(nextName);
+		// home
+		if (name === '~')
+			return userFolder.mkdir(nextName);
 		// 創建資料夾
 		const dir = {
 			nodeType: FileNodeType.folder,
@@ -139,6 +136,7 @@ function FileSystem() {
 			childFiles: {},
 			
 			cd: cd,
+			ls: ls,
 			mkdir: mkdir,
 			createFile: createFile,
 			open: open,
@@ -190,12 +188,20 @@ function FileSystem() {
 				if (fileNode.parentDir !== null)
 					fileNode = fileNode.parentDir;
 				else
-					return undefined;
+					return fileNode;
 			else if (paths[i] === '.')
 				continue;
+			else if (paths[i] === '~')
+				fileNode = userFolder;
 			else {
-				fileNode = fileNode.childDirs[paths[i]];
-				if (fileNode === undefined) return undefined;
+				const newfileNode = fileNode.childDirs[paths[i]];
+				if (newfileNode === undefined) {
+					if (fileNode.childFiles[paths[i]] === undefined)
+						return {code: 1, message: path + ' 資料夾不存在'};
+					else
+						return {code: 2, message: path + ' 不是資料夾'};
+				}
+				fileNode = newfileNode;
 			}
 		}
 		return fileNode;
@@ -244,16 +250,22 @@ function FileSystem() {
 		return result;
 	}
 	
+	function ls() {
+		return Object.keys(this.childDirs).concat(Object.keys(this.childFiles));
+	}
+	
 //##############################檔案##############################
 	function open(name, onLoad) {
 		const program = this.childFiles[name];
-		if (program.nodeType === FileType.program) {
-			const appPath = program.getPath().slice(1) + program.fullName + '/';
+		if (program.fileType === FileType.program) {
+			const appPath = program.getPath().slice(1) + '/';
 			let resource = program.resource;
+			let icon = null;
 			let resLoad = 0;
 			function load() {
 				if (resLoad++ < resource.length) return;
 				const app = new (program.app)();
+				if (icon !== null && app.setIcon !== undefined) app.setIcon(icon);
 				if (program.plugin === null && program.pluginName !== null) {
 					// 讀取插件
 					getFileText(appPath + program.pluginName, function(text) {
@@ -272,12 +284,16 @@ function FileSystem() {
 					onLoad(app);
 			}
 			
+			// 讀取資源
 			for (let i = 0; i < resource.length; i++) {
 				const res = resource[i];
 				res.loaded = true;
 				if (res.extension === 'css')
 					loadCSS(appPath + res.fullName, load);
-				else
+				else if (res.name === 'icon' && res.extension === 'svg') {
+					icon = appPath + res.fullName;
+					load();
+				} else
 					load();
 			}
 			
@@ -303,7 +319,7 @@ function FileSystem() {
 		const file = this.childFiles[name];
 		if (file.data === null)
 			if (file.extension === 'js')
-				getFileText(program.getPath().slice(1) + program.fullName, function(text) {
+				getFileText(program.getPath().slice(1), function(text) {
 					if (isIE10())
 						program.app = eval('(' + toES5(text) + ')');
 					else
@@ -311,17 +327,18 @@ function FileSystem() {
 					if (onLoad !== undefined) onLoad(program);
 				});
 			else
-				getFileText(file.getPath().slice(1) + file.fullName, function(text) {
+				getFileText(file.getPath().slice(1), function(text) {
 					file.data = text;
-					if (onLoad !== undefined) onLoad(file);
+					if (onLoad !== undefined) onLoad(file.data);
 				});
 		else
-			onLoad(file);
+			onLoad(file.data);
 		return file;
 	}
 	
 	function loadProgram(program, onLoad) {
-		getFileText(program.getPath().slice(1) + program.fullName + '/' + program.name + '.js', function(text) {
+		out('讀取程式: ' + program.fullName);
+		getFileText(program.getPath().slice(1) + '/' + program.name + '.js', function(text) {
 			if (isIE10())
 				program.app = eval('(' + toES5(text) + ')');
 			else
@@ -332,8 +349,17 @@ function FileSystem() {
 	
 	function getpath() {
 		if (this.nodeType === FileNodeType.folder)
-			return this.path.join('/') + '/' + this.name + '/';
+			if (this.path.length > 2) {
+				if (this.path[2] === userFolder.name)
+					return '~' + this.path.slice(3).join('/') + '/' + this.name;
+				return this.path.join('/') + '/' + this.name;
+			} else if (this.path.length === 2 && userFolder.name === this.name)
+				return '~';
+			else
+				return this.path.join('/') + '/' + this.name;
 		if (this.nodeType === FileNodeType.file)
-			return this.path.join('/') + '/';
+			return this.path.join('/') + '/' + this.fullName;
+		if (this.nodeType === FileNodeType.root)
+			return '/';
 	}
 }

@@ -37,7 +37,7 @@ function Terminal() {
 	group.innerText = 'Main';
 	user.innerText = 'WavJaby';
 	let path = fileSystem.cd('home/WavJaby/Desktop'); this.getPath = function(){return path;};
-	pathEle.innerText = path.getPath(); this.setPath = function(path){pathEle.innerText = path.getPath();};
+	pathEle.innerText = path.getPath(); this.setPath = function(newPath){path = newPath; pathEle.innerText = path.getPath();};
 	prefix.innerHTML = '$&nbsp;';
 	
 	// 指令註冊
@@ -57,11 +57,12 @@ function Terminal() {
 	win.setOnActivateStateChange(function(boolean) {userIn.setCanInput(boolean);});
 	win.setDefaultSize(600, 350);
 	
-//##############################插件##############################
+//##############################載入##############################
+	this.setIcon = win.setIcon;
 	// 使用者輸入
 	let userIn;
 	this.pluginLoaded = function(plugin, onLoad) {
-		userIn = new plugin.UserInput(commands, commandLine, submitHints, submitCommand);
+		userIn = new plugin.UserInput(commands, commandLine, showHints, submitCommand);
 		
 		const userInput = userIn.onInput;
 		document.onkeydown = userInput;
@@ -145,12 +146,14 @@ function Terminal() {
 			result.scrollTop = result.scrollHeight - result.offsetHeight;
 	}
 	// 傳送提示
-	function submitHints(hints) {
-		let hint = '<p>' + hints[0];
-		for (let i = 1; i < hints.length; i++)
-			hint += '<sp></sp>' + hints[i];
-		result.innerHTML += hint + '</p>';
-		result.scrollTop = result.scrollHeight - result.offsetHeight;
+	function showHints(hints) {
+		if (hints.length > 0) {
+			let hint = '<p>' + hints[0];
+			for (let i = 1; i < hints.length; i++)
+				hint += '<sp></sp>' + hints[i];
+			result.innerHTML += hint + '</p>';
+			result.scrollTop = result.scrollHeight - result.offsetHeight;
+		}
 	}
     
     // 設定結果區大小

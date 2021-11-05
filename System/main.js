@@ -44,15 +44,7 @@ function desktopLoad() {
 	
 	// webRTC
 	const webRtcBtn = createListItem('Web RTC', function() {
-		if(typeof webRTCLoaded === 'undefined') {
-			loadCSS('WebRTC/style.css', function() {console.log('style.css loaded');});
-			loadScript('WebRTC/webRTC.js', function() {
-				console.log('webRTC.js loaded');
-				const webRTC = new WebRTC();
-			});
-		} else {
-			const webRTC = new WebRTC();
-		}
+		programs.open('WebRTC.app', function(app) {app.open();});
 		programList.close();
 	});
 	programList.addItem(webRtcBtn);
@@ -125,6 +117,10 @@ function MenuBar() {
 		item.classList.add('item');
 		item.classList.add('fade');
 		menuBar.appendChild(item);
+	}
+	
+	this.removeItem = function(item) {
+		menuBar.removeChild(item);
 	}
 	
 	this.getHeight = function() {

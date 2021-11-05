@@ -7,6 +7,7 @@ const windowMenuColor = getStyle('.wMenu > .item').color;
 
 const windowBodyColor = getStyle('.wBody')['background-color'];
 
+// text
 const windowTitleFont = (function(){
 	const style = getStyle('.wHeader > .title');
     return style['font-size'] + ' / ' + style['line-height'] + ' ' + getStyle('*')['font-family'];
@@ -15,14 +16,19 @@ const windowTitleLeft = parseInt(getStyle('.wHeader > .title')['margin-left']);
 const windowTitleHeight = parseInt(getStyle('.wHeader > .title')['font-size']) * 1.1;
 const windowTitleColor = getStyle('.wHeader > .title').color;
 
-const windowIconSize = parseInt(getStyle('.wHeader > div > img').width);
+// icon
+const windowIconMargin = parseInt(getStyle('.wHeader > .icon')['margin-left']);
+const windowIconSize = parseInt(getStyle('.wHeader > .icon').width);
+
+const windowFunctionIconSize = parseInt(getStyle('.wHeader > div > img').width);
 const windowCloseIcon = new Image();
 windowCloseIcon.src = 'System/Icon/close.svg';
 const windowMinimizeIcon = new Image();
 windowMinimizeIcon.src = 'System/Icon/minimize.svg';
-const windowIconMargin = parseInt(getStyle('.wHeader > div > img').margin);
-const windowIconButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .minimize').width);
+const windowFunctionIconMargin = parseInt(getStyle('.wHeader > div > img').margin);
+const windowFunctionButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .minimize').width);
 
+// menu
 const menuButtonWidth = parseInt(getStyle('.menuBar > .item').width);
 const menuBarHeight = parseInt(getStyle('.menuBar').height);
 
@@ -85,6 +91,14 @@ function Window() {
 	
 	
 	// 元素
+	let windowIcon = null;
+	this.setIcon = function(url) {
+		windowIcon = document.createElement('img');
+		windowIcon.classList.add('icon');
+		windowIcon.src = url;
+		windowHeader.insertBefore(windowIcon, windowTitle);
+	}
+	
 	const windowTitle = document.createElement('div');
 	windowTitle.classList.add('title');
 	
@@ -220,13 +234,18 @@ function Window() {
 	}
 	
 	// 最小化
-    minimizeButton.onmousedown = this.minimizeWindow = function() {
+    minimizeButton.onclick = this.minimizeWindow = function() {
 		setActivate(false);
 		isMinimize = true;
         windowElement.style.display = 'none';
         minWindow.minimize(winX, winY + menuBarHeight, menuButtonPos + menuButtonWidth / 2, 0 , winWidth, winHeight, drawWindow, function() {
 			winManager.closeWindow(win);
 		});
+    }
+	
+	// 關閉
+    closeButton.onclick = function() {
+		winManager.closeWindow(win, true);
     }
 	
 	this.maximizeWindow = function() {
@@ -243,10 +262,14 @@ function Window() {
         canvas.fillRect(x, y, winWidth, windowHeaderHeight);
         canvas.fillStyle = windowTitleColor;
         canvas.font = windowTitleFont;
-        canvas.fillText(windowTitle.innerText, x + windowTitleLeft, y + windowTitleHeight);
-        const iconX = x + winWidth - windowIconButtonSize / 2 - windowIconSize / 2;
-        canvas.drawImage(windowCloseIcon, iconX , y + windowIconMargin, windowIconSize, windowIconSize);
-        canvas.drawImage(windowMinimizeIcon, iconX - windowIconButtonSize , y + windowIconMargin, windowIconSize, windowIconSize);
+		if (windowIcon !== null) {
+			canvas.drawImage(windowIcon, x + windowIconMargin, y, windowIconSize, windowIconSize);
+			canvas.fillText(windowTitle.innerText, x + windowTitleLeft + windowIconMargin + windowIconSize, y + windowTitleHeight);
+		} else
+			canvas.fillText(windowTitle.innerText, x + windowTitleLeft, y + windowTitleHeight);
+        const iconX = x + winWidth - windowFunctionButtonSize / 2 - windowFunctionIconSize / 2;
+        canvas.drawImage(windowCloseIcon, iconX , y + windowFunctionIconMargin, windowFunctionIconSize, windowFunctionIconSize);
+        canvas.drawImage(windowMinimizeIcon, iconX - windowFunctionButtonSize , y + windowFunctionIconMargin, windowFunctionIconSize, windowFunctionIconSize);
         
         canvas.fillStyle = windowMenuColor;
         canvas.fillRect(x, y + windowHeaderHeight, winWidth, winMenuHeight);
@@ -443,9 +466,9 @@ function WindowManager() {
 	body.classList.add('body');
 	
 	this.init = function() {
-		minWindow.init();
 		body.style.height = window.innerHeight - menuBarHeight + 'px';
 		document.body.appendChild(body);
+		minWindow.init();
 	}
 
 	let defaultX = 100, defaultY = 100;
@@ -526,10 +549,13 @@ function WindowManager() {
         body.appendChild(win.windowElement);
 	}
 	// 關閉視窗
-	this.closeWindow = function(win) {
-		win.menuButton.classList.remove('activate');
-		
+	this.closeWindow = function(win, close) {
 		windows.splice(win.index, 1);
+		if (close) {
+			menuBar.removeItem(win.menuButton);
+			body.removeChild(win.windowElement);
+		} else 
+			win.menuButton.classList.remove('activate');
 		if (windows.length > 0) {
 			windows[windows.length - 1].setActivate(true);
 			windows[windows.length - 1].menuButton.classList.add('activate');

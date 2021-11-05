@@ -1,5 +1,3 @@
-'use strict';
-const webRTCLoaded = true;
 function WebRTC() {
 	// 初始化視窗
 	const win = new Window();
