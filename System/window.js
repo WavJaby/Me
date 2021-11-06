@@ -551,11 +551,12 @@ function WindowManager() {
 	// 關閉視窗
 	this.closeWindow = function(win, close) {
 		windows.splice(win.index, 1);
-		if (close) {
+		if (close === true) {
 			menuBar.removeItem(win.menuButton);
 			body.removeChild(win.windowElement);
 		} else 
 			win.menuButton.classList.remove('activate');
+		
 		if (windows.length > 0) {
 			windows[windows.length - 1].setActivate(true);
 			windows[windows.length - 1].menuButton.classList.add('activate');

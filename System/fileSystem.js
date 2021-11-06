@@ -52,6 +52,7 @@ function FileSystem() {
 		WebRTC.addResource('WebRTC', 'css');
 		
 		const about = programFolder.createFile('About', 'app', FileType.program);
+		about.addResource('About', 'css');
 		about.addResource('icon', 'svg');
 		
 		

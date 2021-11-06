@@ -48,7 +48,7 @@ function Plugin(plugin) {
 	';
 
 	plugin.initCommands = function(terminal) {
-		const helpListener = new (function() {
+		const help = new (function() {
 			this.args = null;
 			this.onSubmit = function (args, commandResult, terminal) {
 				commandResult.innerHTML += help;
@@ -57,10 +57,12 @@ function Plugin(plugin) {
 		
 		const file = new (function() {
 			const ter = terminal;
-			const args = this.args = {};
+			let args = this.args = {};
 			let path = ter.getPath();
 			function updateHints() {
 				const hints = path.ls();
+				for (const i in args)
+					delete args[i];
 				for (let i = 0; i < hints.length; i++) {
 					args[hints[i]] = null;
 				}
@@ -68,7 +70,6 @@ function Plugin(plugin) {
 			updateHints();
 			
 			this.onSubmit = function (args, commandResult, terminal) {
-				out(args)
 				switch (args[0]) {
 					case 'cd':
 						if(args.length === 1) return;
@@ -80,8 +81,16 @@ function Plugin(plugin) {
 							return;
 						}
 						break;
+					case 'mkdir':
+						if(args.length === 1) return;
+						path.mkdir(args[1])
+						return;
 					case 'ls':
-						commandResult.innerHTML += '<p>' + path.ls().join(' ') + '</p>';
+						commandResult.innerHTML += '<p>' + path.ls().join('<sp></sp>') + '</p>';
+						return;
+					case '.':
+						if(args.length === 1) return;
+						path.open(args[1], function(app){app.open()});
 						return;
 					default:
 					return;
@@ -91,9 +100,20 @@ function Plugin(plugin) {
 			}
 		})();
 		
-		terminal.registerCommand('help', helpListener);
+		const version = new (function() {
+			this.args = null;
+			this.onSubmit = function (args, commandResult, terminal) {
+				commandResult.innerHTML += '<p>\
+				</p>';
+			}
+		})();
+		
+		terminal.registerCommand('help', help);
+		terminal.registerCommand('version', version);
 		terminal.registerCommand('cd', file);
 		terminal.registerCommand('ls', file);
+		terminal.registerCommand('mkdir', file);
+		terminal.registerCommand('.', file);
 		// terminal.registerCommand('cd', {args: null, function: function(args, commandResult, terminal) {
 			// commandResult.innerHTML += help;
 		// }});
@@ -475,6 +495,7 @@ function Plugin(plugin) {
 		}
 		function stopBlink() {
 			clearInterval(blinkInterval);
+			clearTimeout(idleTimer);
 			blink = false;
 			updateCommandLine();
 			blinkInterval = null;
@@ -484,8 +505,7 @@ function Plugin(plugin) {
 			clearInterval(blinkInterval);
 			blinkInterval = null;
 			// 一秒後游標開始閃爍
-			if (idleTimer !== null)
-				clearTimeout(idleTimer);
+			clearTimeout(idleTimer);
 			idleTimer = setTimeout(function() {
 				startBlink();
 			}, 500);

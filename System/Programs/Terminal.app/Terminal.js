@@ -54,18 +54,21 @@ function Terminal() {
 	// win.addMenuItem(item);
 	win.addBody(terminal);
 	win.onSizeChange = setResultHeight;
-	win.setOnActivateStateChange(function(boolean) {userIn.setCanInput(boolean);});
+	win.setOnActivateStateChange(function(boolean) {
+		if (boolean)
+			document.onkeydown = userInput;
+		userIn.setCanInput(boolean);
+	});
 	win.setDefaultSize(600, 350);
 	
 //##############################載入##############################
 	this.setIcon = win.setIcon;
 	// 使用者輸入
 	let userIn;
+	let userInput;
 	this.pluginLoaded = function(plugin, onLoad) {
-		userIn = new plugin.UserInput(commands, commandLine, showHints, submitCommand);
-		
-		const userInput = userIn.onInput;
-		document.onkeydown = userInput;
+		userIn = new (plugin.UserInput)(commands, commandLine, showHints, submitCommand);
+		userInput = userIn.onInput;
 		
 		plugin.initCommands(this);
 		onLoad(this);

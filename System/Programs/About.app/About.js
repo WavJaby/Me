@@ -7,6 +7,7 @@ function About() {
 	this.setIcon = win.setIcon;
 	
 	const body = document.createElement('div');
+	body.classList.add('about');
 	win.addBody(body);
 	
 	body.style.width = '100%';
@@ -14,6 +15,8 @@ function About() {
 	body.style.color = 'whitesmoke';
 	body.style['font-size'] = '20px';
 	body.innerText = 'Hello World';
+	
+	
 	
 	// this.loadPlugin = function(plugin) {
 		
