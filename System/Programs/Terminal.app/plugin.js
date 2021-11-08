@@ -21,7 +21,7 @@ function Plugin(plugin) {
 	const project = 
 	'\
 	<div class="resultBorder">\
-		<h1>作品<span style="font-size: 10px;">(有用的)</h1>\
+		<h1>作品們</h1>\
 		<h2>Conway\'s GameOfLife 康威生命遊戲</h2>\
 		<div style="position: relative; padding-left: 2em;">\
 			<video oncontextmenu="return false;" autoplay muted loop>\
@@ -37,15 +37,16 @@ function Plugin(plugin) {
 			<h3>原始碼GitHub(包含多人遊戲): <a href="https://github.com/WavJaby" target="_blank">github.com/WavJaby</a></h3>\
 			<h3>單人遊玩: <a href="https://wavjaby.github.io/GameOfLife/" target="_blank">wavjaby.github.io/GameOfLife/</a></h3>\
 		</div>\
-		\
-		<h2>Disease Map 傳染病分布查詢系統(已停止更新)</h2>\
-		<div style="position: relative; padding-left: 2em;">\
-			<h3>簡介: </h3>\
-			<h3>目標: </h3>\
-			<h3>開始製作日期: 2020/3</h3>\
-		</div>\
+		<h2>......</h2>\
 	</div>\
 	';
+	
+		// <h2>Disease Map 傳染病分布查詢系統(已停止更新)</h2>\
+		// <div style="position: relative; padding-left: 2em;">\
+			// <h3>簡介: </h3>\
+			// <h3>目標: </h3>\
+			// <h3>開始製作日期: 2020/3</h3>\
+		// </div>\
 
 	plugin.initCommands = function(terminal) {
 		const help = new (function() {
@@ -114,6 +115,12 @@ function Plugin(plugin) {
 		terminal.registerCommand('ls', file);
 		terminal.registerCommand('mkdir', file);
 		terminal.registerCommand('.', file);
+		terminal.registerCommand('projects', new (function() {
+			this.args = null;
+			this.onSubmit = function (args, commandResult, terminal) {
+				commandResult.innerHTML += project;
+			}
+		})());
 		// terminal.registerCommand('cd', {args: null, function: function(args, commandResult, terminal) {
 			// commandResult.innerHTML += help;
 		// }});

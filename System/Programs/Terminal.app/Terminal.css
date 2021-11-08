@@ -45,6 +45,7 @@
 .resultBorder > div > video {
 	height: 100%;
 	
+	z-index: -1;
 	display: block;
 	position: absolute;
 	top: 0;
