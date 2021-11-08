@@ -1,20 +1,24 @@
-function About() {
+function About(win, res) {
 	// 初始化視窗
-	const win = new Window();
 	win.setTitle('關於');
 	win.setSize(false, 600, 600);
 	win.setLocation(document.body.offsetWidth / 2 - 300, 50);
 	this.setIcon = win.setIcon;
 	
-	const body = document.createElement('div');
-	body.classList.add('about');
-	win.addBody(body);
+	const body = win.body;
+	body.classList.add('aboutWindow');
 	
-	body.style.width = '100%';
-	body.style.height = '100%';
-	body.style.color = 'whitesmoke';
-	body.style['font-size'] = '20px';
-	body.innerText = 'Hello World';
+	win.open();
+	win.setCanResize(false);
+	
+	const toSource = document.createElement('a');
+	toSource.href = 'https://github.com/WavJaby/Me';
+	toSource.target = '_blank';
+	toSource.classList.add('sourceLink');
+	const toSourceIcon = res['githubIcon.svg'];
+	toSourceIcon.classList.add('sourceIcon');
+	body.appendChild(toSourceIcon);
+	body.appendChild(toSource);
 	
 	
 	

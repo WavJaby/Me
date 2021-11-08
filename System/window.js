@@ -36,7 +36,7 @@ const menuBarHeight = parseInt(getStyle('.menuBar').height);
 const winManager = new WindowManager();
 const minWindow = new MinimizeWindow();
 
-function Window() {
+function Window(resource) {
 	// 視窗外框
 	const windowElement = this.windowElement = document.createElement('div');
 	windowElement.classList.add('window');
@@ -51,6 +51,7 @@ function Window() {
 	
 	const windowBody = document.createElement('div');
 	windowBody.classList.add('wBody');
+	this.addBody = function(body){this.body=body;windowBody.appendChild(body);};
 	
 	// 用於移至最上層
 	const windowTop = this.windowTop = document.createElement('div');
@@ -76,29 +77,35 @@ function Window() {
 	const windowResizeSW = this.windowResizeSW = document.createElement('div');
 	windowResizeSW.classList.add('wResizeSW');// 西南
 	
-	windowElement.appendChild(windowResizeN);
-	windowElement.appendChild(windowResizeS);
-	windowElement.appendChild(windowResizeW);
-	windowElement.appendChild(windowResizeE);
-	windowElement.appendChild(windowResizeNE);
-	windowElement.appendChild(windowResizeNW);
-	windowElement.appendChild(windowResizeSE);
-	windowElement.appendChild(windowResizeSW);
+	let canResize;
+	this.setCanResize = function(boolean) {
+		canResize = boolean;
+		if (boolean) {
+			windowElement.appendChild(windowResizeN);
+			windowElement.appendChild(windowResizeS);
+			windowElement.appendChild(windowResizeW);
+			windowElement.appendChild(windowResizeE);
+			windowElement.appendChild(windowResizeNE);
+			windowElement.appendChild(windowResizeNW);
+			windowElement.appendChild(windowResizeSE);
+			windowElement.appendChild(windowResizeSW);
+		} else {
+			windowElement.removeChild(windowResizeN);
+			windowElement.removeChild(windowResizeS);
+			windowElement.removeChild(windowResizeW);
+			windowElement.removeChild(windowResizeE);
+			windowElement.removeChild(windowResizeNE);
+			windowElement.removeChild(windowResizeNW);
+			windowElement.removeChild(windowResizeSE);
+			windowElement.removeChild(windowResizeSW);
+		}
+	}
 	
 	windowElement.appendChild(windowHeader);
 	windowElement.appendChild(windowMenu);
 	windowElement.appendChild(windowBody);
 	
-	
 	// 元素
-	let windowIcon = null;
-	this.setIcon = function(url) {
-		windowIcon = document.createElement('img');
-		windowIcon.classList.add('icon');
-		windowIcon.src = url;
-		windowHeader.insertBefore(windowIcon, windowTitle);
-	}
-	
 	const windowTitle = document.createElement('div');
 	windowTitle.classList.add('title');
 	
@@ -114,6 +121,19 @@ function Window() {
 	windowHeader.appendChild(closeButton);
 	windowHeader.appendChild(minimizeButton);
 	
+	let windowIcon = resource.icon;
+	if (windowIcon !== undefined) {
+		windowIcon = windowIcon.cloneNode();
+		windowIcon.classList.add('icon');
+		windowHeader.insertBefore(windowIcon, windowTitle);
+	}
+	this.setIcon = function(url) {
+		windowIcon = document.createElement('img');
+		windowIcon.classList.add('icon');
+		windowIcon.src = url;
+		windowHeader.insertBefore(windowIcon, windowTitle);
+	}
+	
 	const menuButton = this.menuButton = document.createElement('div');
 	let menuButtonPos;
 	
@@ -121,6 +141,7 @@ function Window() {
 	let winTitle;
 	let originalWinWidth, originalWinHeight;
 	let winWidth, winHeight; this.getWinWidth = function(){return winWidth;};
+	let winMinWidth = 600, winMinHeight = 350;  this.setMinSize = function(w, h){winMinWidth=w;winMinHeight=h;};
 	let winMenuHeight = 0;
 	let winX; this.getX = function(){return winX;};
 	let winY; this.getY = function(){return winY;};
@@ -147,8 +168,8 @@ function Window() {
 			updateWindowLocation();
         } else {
 			if (width !== undefined && height !== undefined) {
-				winWidth = width;
-				winHeight = height;
+				winWidth = inWinWidth = width;
+				winHeight = inWinHeight = height;
 			} else {
 				winWidth = originalWinWidth;
 				winHeight = originalWinHeight;
@@ -156,11 +177,25 @@ function Window() {
         }
 		updateWindowSize();
 	}
-	this.addSize = function(width, height) {
+	
+	let inWinWidth, inWinHeight;
+	this.addSize = function(width, height, left, top) {
         if (!isMaxSize) {
-			winWidth += width;
-			winHeight += height;
-			// updateWindowLocation();
+			inWinWidth += width;
+			if (inWinWidth < winMinWidth)
+				winWidth = winMinWidth;
+			else
+				winWidth = inWinWidth;
+			inWinHeight += height;
+			if (inWinHeight < winMinHeight)
+				winHeight = winMinHeight;
+			else
+				winHeight = inWinHeight;
+			if (left || top) {
+				if (winWidth > winMinWidth && left) winX -= width;
+				if (winHeight > winMinHeight && top) winY -= height;
+				updateWindowLocation();
+			}
 			updateWindowSize();
         }
 	}
@@ -207,10 +242,6 @@ function Window() {
 		windowMenu.appendChild(item);
 	}
 	
-	this.addBody = function(body) {
-		windowBody.appendChild(body);
-	}
-	
 //##############################################視窗縮放##############################################
 	const win = this;
 	// 打開
@@ -223,6 +254,8 @@ function Window() {
 		}
 		if (winX === undefined || winY === undefined)
 			winManager.setDefaultLocation(this);
+		if (canResize === undefined)
+			this.setCanResize(true);
 		setActivate(true);
 		isMinimize = false;
 		menuButton.classList.add('activate');
@@ -262,7 +295,7 @@ function Window() {
         canvas.fillRect(x, y, winWidth, windowHeaderHeight);
         canvas.fillStyle = windowTitleColor;
         canvas.font = windowTitleFont;
-		if (windowIcon !== null) {
+		if (windowIcon !== undefined) {
 			canvas.drawImage(windowIcon, x + windowIconMargin, y, windowIconSize, windowIconSize);
 			canvas.fillText(windowTitle.innerText, x + windowTitleLeft + windowIconMargin + windowIconSize, y + windowTitleHeight);
 		} else
@@ -521,13 +554,13 @@ function WindowManager() {
 			const moveY = e.pageY - lastY;
 			lastX = e.pageX;
 			lastY = e.pageY;
-			if (resizeX < 0 && resizeY < 0)
-				resizeWin.addLocation(moveX * -resizeX, moveY * -resizeY);
-			else if (resizeX < 0)
-				resizeWin.addLocation(moveX * -resizeX, 0);
-			else if (resizeY < 0)
-				resizeWin.addLocation(0, moveY * -resizeY);
-			resizeWin.addSize(moveX * resizeX, moveY * resizeY);
+			// if (resizeX < 0 && resizeY < 0)
+				// resizeWin.addLocation(moveX * -resizeX, moveY * -resizeY);
+			// else if (resizeX < 0)
+				// resizeWin.addLocation(moveX * -resizeX, 0);
+			// else if (resizeY < 0)
+				// resizeWin.addLocation(0, moveY * -resizeY);
+			resizeWin.addSize(moveX * resizeX, moveY * resizeY, resizeX < 0, resizeY < 0);
 		}
 	}
 	

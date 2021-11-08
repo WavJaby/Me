@@ -1,5 +1,5 @@
 function Plugin(plugin) {
-	const help = 
+	const helpHTML = 
 	'\
 	<div class="resultBorder">\
 		<h1>指令教學<white>(ﾉ*ФωФ)ﾉ</white></h1>\
@@ -51,7 +51,7 @@ function Plugin(plugin) {
 		const help = new (function() {
 			this.args = null;
 			this.onSubmit = function (args, commandResult, terminal) {
-				commandResult.innerHTML += help;
+				commandResult.innerHTML += helpHTML;
 			}
 		})();
 		

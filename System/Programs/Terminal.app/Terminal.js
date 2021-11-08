@@ -1,5 +1,5 @@
 // 指令視窗
-function Terminal() {
+function Terminal(win) {
 	// 建立元素
 	const terminal = document.createElement('div');
 	terminal.classList.add('terminal');
@@ -49,7 +49,6 @@ function Terminal() {
 	}
 	
 //##############################初始化視窗##############################
-	const win = new Window();
 	win.setTitle('終端機');
 	// win.addMenuItem(item);
 	win.addBody(terminal);
@@ -62,7 +61,6 @@ function Terminal() {
 	win.setDefaultSize(600, 350);
 	
 //##############################載入##############################
-	this.setIcon = win.setIcon;
 	// 使用者輸入
 	let userIn;
 	let userInput;

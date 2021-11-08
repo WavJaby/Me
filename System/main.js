@@ -55,9 +55,10 @@ function desktopLoad() {
 
 
 //##############################初始化##############################
-	programs.open('About.app');
-
-	programs.open('Terminal.app', function(app) {app.open();});
+	programs.open('Terminal.app', function(app) {
+		app.open();
+		programs.open('About.app');
+	});
 
 
 	// 歡迎訊息

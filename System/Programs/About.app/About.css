@@ -1,0 +1,89 @@
+.aboutWindow {
+	position: relative;
+	overflow: hidden;
+}
+.aboutWindow > .sourceIcon {
+	height: 94px;
+	width: 94px;
+	top: 0;
+	left: 0;
+	
+	position: absolute;
+}
+.aboutWindow > .sourceLink {
+	height: 66px;
+	width: 133px;
+	top: -9px;
+	left: -43px;
+    transform: rotate(-45deg);
+	
+	position: absolute;
+}
+
+.aboutWindow > .title {
+	text-align: center;
+	line-height: 94px;
+	font-size: 50px;
+}
+
+.aboutWindow .avatar {
+	width: 200px;
+	
+	float: left; 
+	border-radius: 50%;
+}
+
+.aboutWindow > .info {
+	padding: 50px 20px;
+	
+	float: left; 
+}
+
+.aboutWindow > .info > h2 > span {
+	color: cyan;
+}
+
+.aboutWindow > .info a {
+	text-decoration: none;
+}
+
+
+.aboutWindow > .title > span {
+	top: 10px;
+	
+	position: relative;
+	animation: wave 1.5s ease-in-out forwards infinite alternate;
+}
+.aboutWindow > .title > span:nth-child(1) {
+	color: #ef5350;
+}
+.aboutWindow > .title > span:nth-child(2) {
+	color: #ab47bc;
+	animation-delay: 0.3s;
+}
+.aboutWindow > .title > span:nth-child(3) {
+	color: #651fff;
+	animation-delay: 0.6s;
+}
+.aboutWindow > .title > span:nth-child(4) {
+	color: #3949ab;
+	animation-delay: 0.9s;
+}
+.aboutWindow > .title > span:nth-child(5) {
+	color: #2196f3;
+	animation-delay: 1.2s;
+}
+.aboutWindow > .title > span:nth-child(6) {
+	color: #00bcd4;
+	animation-delay: 1.5s;
+}
+
+@-webkit-keyframes wave {
+    0% {top: 10px;}
+    100% {top: -10px;}
+}
+
+@keyframes wave {
+    0% {top: 10px;}
+    100% {top: -10px;}
+}

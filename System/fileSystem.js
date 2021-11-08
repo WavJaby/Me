@@ -44,7 +44,7 @@ function FileSystem() {
 		
 		// program
 		const terminal = programFolder.createFile('Terminal', 'app', FileType.program);
-		terminal.pluginName = 'plugin.js';
+		terminal.addResource('plugin', 'js');
 		terminal.addResource('Terminal', 'css');
 		terminal.addResource('icon', 'svg');
 		
@@ -54,6 +54,8 @@ function FileSystem() {
 		const about = programFolder.createFile('About', 'app', FileType.program);
 		about.addResource('About', 'css');
 		about.addResource('icon', 'svg');
+		about.addResource('body', 'html');
+		about.addResource('githubIcon', 'svg');
 		
 		
 		// out(systemRoot.tree(true))
@@ -76,9 +78,8 @@ function FileSystem() {
 		};
 		if (fileType === FileType.program) {
 			file.app = null;
-			file.plugin = null;
-			file.pluginName = null;
-			file.resource = [];
+			file.resource = {};
+			file.notLoadResource = [];
 			file.addResource = addResource;
 		} else {
 			if (data === undefined)
@@ -260,44 +261,76 @@ function FileSystem() {
 		const program = this.childFiles[name];
 		if (program.fileType === FileType.program) {
 			const appPath = program.getPath().slice(1) + '/';
-			let resource = program.resource;
-			let icon = null;
 			let resLoad = 0;
 			function load() {
-				if (resLoad++ < resource.length) return;
-				const app = new (program.app)();
-				if (icon !== null && app.setIcon !== undefined) app.setIcon(icon);
-				if (program.plugin === null && program.pluginName !== null) {
-					// 讀取插件
-					getFileText(appPath + program.pluginName, function(text) {
-						program.plugin = {};
-						if (isIE10())
-							eval('(' + toES5(text) + ')')(program.plugin);
-						else
-							eval('(' + text + ')')(program.plugin);
-						if (app.pluginLoaded !== undefined)
-							app.pluginLoaded(program.plugin, onLoad);
-					});
-				} else if (typeof program.app === 'function') {
+				if (resLoad++ < notLoadResource.length) return;
+				const window = new Window(resource);
+				let body;
+				if ((body = resource.body) !== undefined) {
+					const bodyEle = document.createElement('div');
+					bodyEle.innerHTML = body;
+					window.addBody(bodyEle);
+				}
+				const app = new (program.app)(window, resource);
+				if (resource.plugin !== undefined) {
 					if (app.pluginLoaded !== undefined)
-						app.pluginLoaded(program.plugin, onLoad);
-				} else 
+						app.pluginLoaded(resource.plugin, onLoad);
+				} else if (onLoad !== undefined)
 					onLoad(app);
 			}
 			
 			// 讀取資源
-			for (let i = 0; i < resource.length; i++) {
-				const res = resource[i];
-				res.loaded = true;
-				if (res.extension === 'css')
-					loadCSS(appPath + res.fullName, load);
-				else if (res.name === 'icon' && res.extension === 'svg') {
-					icon = appPath + res.fullName;
-					load();
-				} else
-					load();
+			const notLoadResource = program.notLoadResource;
+			const resource = program.resource;
+			for (let i = 0; i < notLoadResource.length; i++) {
+				const res = notLoadResource[i];
+				const resPath = appPath + res.fullName;
+				if (resource[res.name] === undefined) {
+					// 讀取插件
+					if (res.fullName === 'plugin.js') {
+						getFileText(resPath, function(text) {
+							if (isIE10())
+								text = toES5(text);
+							eval('(' + text + ')')(resource.plugin = {});
+							load();
+						}); 
+						continue;
+					}
+					// 讀取body
+					if (res.fullName === 'body.html') {
+						getFileText(resPath, function(text) {
+							resource.body = text;
+							load();
+						});
+						continue;
+					}
+					// 讀取Icon
+					if (res.fullName === 'icon.svg') {
+						getFileText(resPath, function(text) {
+							const image = resource.icon = new Image();
+							image.onload = load;
+							image.src = resPath;
+						});
+						continue;
+					}
+				}
+				if (resource[res.fullName] === undefined) {
+					// 讀取css
+					if (res.extension === 'css') {
+						resource[res.fullName] = null;
+						loadCSS(resPath, load);
+						continue;
+					} else if (res.extension === 'svg') {
+						const image = resource[res.fullName] = new Image();
+						image.onload = load;
+						image.src = resPath;
+						continue;
+					}
+				}
+				load();
 			}
 			
+			// 讀取程式
 			if (program.app === null)
 				loadProgram(program, load);
 			else if (typeof program.app === 'function')
@@ -308,11 +341,10 @@ function FileSystem() {
 	}
 	
 	function addResource(name, extension) {
-		this.resource.push({
-			fullName: name + '.' + extension, 
-			name: name, 
-			extension: extension, 
-			loaded: false
+		this.notLoadResource.push({
+			fullName: name + '.' + extension,
+			name: name,
+			extension: extension
 		});
 	}
 	
