@@ -330,7 +330,7 @@ function FileSystem() {
 				load();
 			}
 			
-			// 讀取程式
+			// 讀取主程式
 			if (program.app === null)
 				loadProgram(program, load);
 			else if (typeof program.app === 'function')
