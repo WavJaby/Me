@@ -72,13 +72,9 @@ function Terminal(win) {
 		onLoad(this);
 	}
 
-    this.setScale = function(max, w, h) {
-		win.setSize(max, w, h);
-    }
+    this.setSize = win.setSize;
 	
-    this.setLocation = function(x, y) {
-		win.setLocation(x, y);
-    }
+    this.setLocation = win.setLocation;
 	
 	this.open = function(invisible) {
 		if (!invisible)

@@ -88,11 +88,17 @@ h1, h2 {
 .window {
     position: absolute;
 }
+.window.activate {
+	box-shadow: -2px 2px 6px rgba(50, 50, 50, 0.7);
+}
 .wHeader {
-	background-color: rgb(70,70,70);
+	background-color: rgb(50,50,50);
 	height: 30px;
 	
 	position: relative;
+}
+.window.activate > .wHeader {
+	background-color: rgb(70,70,70);
 }
 .wHeader > .title {
 	color: whitesmoke;
@@ -166,6 +172,7 @@ h1, h2 {
 	cursor: s-resize;
 }
 .wResizeE, .wResizeW {
+	top: 0;
 	width: 7px;
 	height: 100%;
 	position: absolute;
@@ -220,8 +227,8 @@ h1, h2 {
 	width: 320px;
 	height: 100%;
 	
-	right: 0px;
-	bottom: 0px;
+	right: 0;
+	bottom: 0;
 	position: absolute;
 	
 	overflow: hidden;

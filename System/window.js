@@ -42,6 +42,7 @@ function Window(resource) {
 	windowElement.classList.add('window');
 	
 	const windowHeader = this.windowHeader = document.createElement('div');
+	windowHeader.classList.add('fade');
 	windowHeader.classList.add('wHeader');
 	windowHeader.classList.add('cantSelect');
 	
@@ -77,7 +78,7 @@ function Window(resource) {
 	const windowResizeSW = this.windowResizeSW = document.createElement('div');
 	windowResizeSW.classList.add('wResizeSW');// 西南
 	
-	let canResize;
+	let canResize; this.canResize = function(){return canResize;};
 	this.setCanResize = function(boolean) {
 		canResize = boolean;
 		if (boolean) {
@@ -178,24 +179,27 @@ function Window(resource) {
 		updateWindowSize();
 	}
 	
-	let inWinWidth, inWinHeight;
-	this.addSize = function(width, height, left, top) {
+	let inWinWidth, inWinHeight; this.resetChangeSize = function(){inWinWidth=winWidth;inWinHeight=winHeight;};
+	this.addSize = function(width, height, x, y, left, top) {
         if (!isMaxSize) {
 			inWinWidth += width;
-			if (inWinWidth < winMinWidth)
+			if (inWinWidth < winMinWidth) {
+				if (left) winX -= winMinWidth - winWidth;
 				winWidth = winMinWidth;
-			else
+			} else {
+				if (left) winX -= inWinWidth - winWidth;
 				winWidth = inWinWidth;
-			inWinHeight += height;
-			if (inWinHeight < winMinHeight)
-				winHeight = winMinHeight;
-			else
-				winHeight = inWinHeight;
-			if (left || top) {
-				if (winWidth > winMinWidth && left) winX -= width;
-				if (winHeight > winMinHeight && top) winY -= height;
-				updateWindowLocation();
 			}
+			inWinHeight += height;
+			if (inWinHeight < winMinHeight) {
+				if (top) winY -= winMinHeight - winHeight;
+				winHeight = winMinHeight;
+			} else {
+				if (top) winY -= inWinHeight - winHeight;
+				winHeight = inWinHeight;
+			}
+			if (left || top)
+				updateWindowLocation();
 			updateWindowSize();
         }
 	}
@@ -205,13 +209,6 @@ function Window(resource) {
 		winX = x;
 		winY = y;
 		updateWindowLocation();
-	}
-	this.addLocation = function(x, y) {
-        if (!isMaxSize) {
-			winX += x;
-			winY += y;
-			updateWindowLocation();
-        }
 	}
 	
 	// 視窗名稱設定
@@ -223,14 +220,20 @@ function Window(resource) {
 	this.getTitle = function() {return windowTitle;};
 	
 	const setActivate = this.setActivate = function(boolean) {
-		if (isActivate === boolean) return;
+		if (isActivate === boolean) return false;
 		isActivate = boolean;
-		if (isActivate)
+		if (isActivate) {
 			windowBody.removeChild(windowTop);
-		else
+			menuButton.classList.add('activate');
+			windowElement.classList.add('activate');
+		} else {
 			windowBody.appendChild(windowTop);
+			menuButton.classList.remove('activate');
+			windowElement.classList.remove('activate');
+		}
 		if (onActivateStateChange !== undefined)
 			onActivateStateChange(boolean);
+		return true;
 	}
 	this.isActivate = function(){return isActivate;};
 	
@@ -258,7 +261,6 @@ function Window(resource) {
 			this.setCanResize(true);
 		setActivate(true);
 		isMinimize = false;
-		menuButton.classList.add('activate');
         minWindow.open(winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {
 			winManager.openWindow(win);
             if (openEvent !== undefined)
@@ -311,6 +313,8 @@ function Window(resource) {
     }
 	
 //##############################################視窗大小改變##############################################
+	const style = this.style = windowElement.style;
+	const bodyStyle = windowBody.style;
     this.getBodyHeight = function() {
 		return winHeight -
             windowHeaderHeight -
@@ -332,8 +336,8 @@ function Window(resource) {
 			originalWinWidth = winWidth;
 			originalWinHeight = winHeight;
 		}
-        windowBody.style.width = winWidth + 'px';
-		windowBody.style.height = (
+        bodyStyle.width = winWidth + 'px';
+		bodyStyle.height = (
 			winHeight -
 			windowHeaderHeight -
 			winMenuHeight
@@ -341,8 +345,8 @@ function Window(resource) {
 	}
 	
 	const updateWindowLocation = function() {
-		windowElement.style.left = winX + 'px';
-		windowElement.style.top = winY + 'px';
+		style.left = winX + 'px';
+		style.top = winY + 'px';
 	}
 //##############################################視窗初始化##############################################
 	
@@ -530,10 +534,11 @@ function WindowManager() {
 	let lastX, lastY;
 	document.onmouseup = document.touchcancel = document.ontouchend = function(e) {
 		if (moveWin !== null) {
-			if(e.pageY + startY < 0)
+			if(e.pageY + startY < 0 && moveWin.canResize())
 				moveWin.setSize(true);
 			moveWin = null;
 		} else if (resizeWin !== null) {
+			resizeWin.resetChangeSize();
 			resizeWin = null;
 		}
 	}
@@ -554,13 +559,7 @@ function WindowManager() {
 			const moveY = e.pageY - lastY;
 			lastX = e.pageX;
 			lastY = e.pageY;
-			// if (resizeX < 0 && resizeY < 0)
-				// resizeWin.addLocation(moveX * -resizeX, moveY * -resizeY);
-			// else if (resizeX < 0)
-				// resizeWin.addLocation(moveX * -resizeX, 0);
-			// else if (resizeY < 0)
-				// resizeWin.addLocation(0, moveY * -resizeY);
-			resizeWin.addSize(moveX * resizeX, moveY * resizeY, resizeX < 0, resizeY < 0);
+			resizeWin.addSize(moveX * resizeX, moveY * resizeY, lastX, lastY, resizeX < 0, resizeY < 0);
 		}
 	}
 	
@@ -573,12 +572,10 @@ function WindowManager() {
 	this.openWindow = function(win) {
 		if (windows.length > 0) {
 			windows[windows.length - 1].setActivate(false);
-			windows[windows.length - 1].menuButton.classList.remove('activate');
 		}
 		win.index = windows.length;
         windows.push(win);
 		
-		win.menuButton.classList.add('activate');
         body.appendChild(win.windowElement);
 	}
 	// 關閉視窗
@@ -587,12 +584,10 @@ function WindowManager() {
 		if (close === true) {
 			menuBar.removeItem(win.menuButton);
 			body.removeChild(win.windowElement);
-		} else 
-			win.menuButton.classList.remove('activate');
+		}
 		
 		if (windows.length > 0) {
 			windows[windows.length - 1].setActivate(true);
-			windows[windows.length - 1].menuButton.classList.add('activate');
 		}
 	}
 	// 新增視窗
@@ -643,20 +638,22 @@ function WindowManager() {
 	function moveToTop(win) {
 		windows.splice(win.index, 1);
 		for (let i = 0; i < windows.length; i++) {
-			windows[i].index = i;
-			windows[i].setActivate(false);
-			windows[i].menuButton.classList.remove('activate');
+			const window = windows[i]
+			window.index = i;
+			window.style.zIndex = i;
+			window.setActivate(false);
 		}
 		win.index = windows.length;
 		windows.push(win);
 		
 		win.setActivate(true);
-		win.menuButton.classList.add('activate');
 		
-		body.appendChild(win.windowElement);
+		win.style.zIndex = win.index;
 	}
 	
 	function resizeSetUp(win, e) {
+		if (!win.isActivate())
+			moveToTop(win);
 		resizeWin = win;
 		e.preventDefault();
 		lastX = e.pageX;
