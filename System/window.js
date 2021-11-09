@@ -169,17 +169,18 @@ function Window(resource) {
 			updateWindowLocation();
         } else {
 			if (width !== undefined && height !== undefined) {
-				winWidth = inWinWidth = width;
-				winHeight = inWinHeight = height;
+				winWidth = width;
+				winHeight = height;
 			} else {
 				winWidth = originalWinWidth;
 				winHeight = originalWinHeight;
 			}
         }
+		resetChangeSize();
 		updateWindowSize();
 	}
 	
-	let inWinWidth, inWinHeight; this.resetChangeSize = function(){inWinWidth=winWidth;inWinHeight=winHeight;};
+	let inWinWidth, inWinHeight; const resetChangeSize = this.resetChangeSize = function(){inWinWidth=winWidth;inWinHeight=winHeight;};
 	this.addSize = function(width, height, x, y, left, top) {
         if (!isMaxSize) {
 			inWinWidth += width;
@@ -205,7 +206,7 @@ function Window(resource) {
 	}
 	// 視窗位置設定
 	this.setLocation = function(x, y) {
-		((y < 0) && (y = 0));
+		if(y < 0) y = 0;
 		winX = x;
 		winY = y;
 		updateWindowLocation();
@@ -574,6 +575,7 @@ function WindowManager() {
 			windows[windows.length - 1].setActivate(false);
 		}
 		win.index = windows.length;
+		win.style.zIndex = windows.length;
         windows.push(win);
 		
         body.appendChild(win.windowElement);

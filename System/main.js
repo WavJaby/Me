@@ -55,10 +55,10 @@ function desktopLoad() {
 
 
 //##############################初始化##############################
-		programs.open('About.app');
 	programs.open('Terminal.app', function(app) {
 		app.setSize(true);
 		app.open();
+		programs.open('About.app');
 	});
 
 
