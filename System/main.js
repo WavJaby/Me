@@ -1,8 +1,6 @@
 'use strict';
 
-
-// const dbUrl = 'https://script.google.com/macros/s/AKfycbwb4wdV7WWZKRnsxP1kaRlKz6s77AkXrqco9GKX1d4Iq5teUX8fzlpuY8iWXj5MEo8qog/exec';
-const dbUrl = 'https://script.google.com/macros/s/AKfycbwk-h5xWj9I0IaIIMYuxYoebRDlo-7h0iwWRCdBhJFjphuBuiSXonMZLN6Dr_N4fmwdRg/exec';
+const dbUrl = 'https://script.google.com/macros/s/AKfycbwgQy6QNPc4CpD4AO4Atqj7we7N5NDBVAQT1w1t0KOLdlfLeVrdFGUs6t50O1Cn_1VE/exec';
 getText(dbUrl + '?data=MyWeb&post=connect', out);
 
 const storage = getStorage();
