@@ -142,6 +142,7 @@ function FileSystem() {
 			mkdir: mkdir,
 			createFile: createFile,
 			open: open,
+			getProgramIcon: getProgramIcon,
 			getFile: getFile,
 			getPath: getpath,
 			tree: tree,
@@ -259,7 +260,7 @@ function FileSystem() {
 //##############################檔案##############################
 	function open(name, onLoad) {
 		const program = this.childFiles[name];
-		if (program.fileType === FileType.program) {
+		if (program !== undefined && program.fileType === FileType.program) {
 			const appPath = program.getPath().slice(1) + '/';
 			let resLoad = 0;
 			function load() {
@@ -288,7 +289,7 @@ function FileSystem() {
 				if (resource[res.name] === undefined) {
 					// 讀取插件
 					if (res.fullName === 'plugin.js') {
-						getFileText(resPath, function(text) {
+						getText(resPath, function(text) {
 							if (isIE10())
 								text = toES5(text);
 							eval('(' + text + ')')(resource.plugin = {});
@@ -298,7 +299,7 @@ function FileSystem() {
 					}
 					// 讀取body
 					if (res.fullName === 'body.html') {
-						getFileText(resPath, function(text) {
+						getText(resPath, function(text) {
 							resource.body = text;
 							load();
 						});
@@ -306,7 +307,7 @@ function FileSystem() {
 					}
 					// 讀取Icon
 					if (res.fullName === 'icon.svg') {
-						getFileText(resPath, function(text) {
+						getText(resPath, function(text) {
 							const image = resource.icon = new Image();
 							image.onload = load;
 							image.src = resPath;
@@ -340,6 +341,31 @@ function FileSystem() {
 		return {code: 1, message: '不是可執行檔'};
 	}
 	
+	function getProgramIcon(name, onLoad) {
+		const program = this.childFiles[name];
+		if (program !== undefined && program.fileType === FileType.program) {
+			const resource = program.resource;
+			if (resource.icon !== undefined && onLoad !== undefined) onLoad(resource.icon);
+			const notLoadResource = program.notLoadResource;
+			const appPath = program.getPath().slice(1) + '/';
+			for (let i = 0; i < notLoadResource.length; i++) {
+				const res = notLoadResource[i];
+				// 讀取Icon
+				if (res.fullName !== 'icon.svg') continue;
+				const resPath = appPath + res.fullName;
+				getText(resPath, function(text) {
+					const image = resource.icon = new Image();
+					if (onLoad !== undefined)
+						image.onload = onLoad(image);
+					image.src = resPath;
+				});
+				return {code: 0};
+			}
+			return {code: 2, message: '找不到Icon'};
+		}
+		return {code: 1, message: '不是可執行檔'};
+	}
+	
 	function addResource(name, extension) {
 		this.notLoadResource.push({
 			fullName: name + '.' + extension,
@@ -352,7 +378,7 @@ function FileSystem() {
 		const file = this.childFiles[name];
 		if (file.data === null)
 			if (file.extension === 'js')
-				getFileText(program.getPath().slice(1), function(text) {
+				getText(program.getPath().slice(1), function(text) {
 					if (isIE10())
 						program.app = eval('(' + toES5(text) + ')');
 					else
@@ -360,7 +386,7 @@ function FileSystem() {
 					if (onLoad !== undefined) onLoad(program);
 				});
 			else
-				getFileText(file.getPath().slice(1), function(text) {
+				getText(file.getPath().slice(1), function(text) {
 					file.data = text;
 					if (onLoad !== undefined) onLoad(file.data);
 				});
@@ -371,7 +397,7 @@ function FileSystem() {
 	
 	function loadProgram(program, onLoad) {
 		out('讀取程式: ' + program.fullName);
-		getFileText(program.getPath().slice(1) + '/' + program.name + '.js', function(text) {
+		getText(program.getPath().slice(1) + '/' + program.name + '.js', function(text) {
 			if (isIE10())
 				program.app = eval('(' + toES5(text) + ')');
 			else

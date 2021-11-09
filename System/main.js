@@ -1,5 +1,10 @@
 'use strict';
 
+
+// const dbUrl = 'https://script.google.com/macros/s/AKfycbwb4wdV7WWZKRnsxP1kaRlKz6s77AkXrqco9GKX1d4Iq5teUX8fzlpuY8iWXj5MEo8qog/exec';
+const dbUrl = 'https://script.google.com/macros/s/AKfycbwk-h5xWj9I0IaIIMYuxYoebRDlo-7h0iwWRCdBhJFjphuBuiSXonMZLN6Dr_N4fmwdRg/exec';
+getText(dbUrl + '?data=MyWeb&post=connect', out);
+
 const storage = getStorage();
 const fileSystem = new FileSystem();
 const menuBar = new MenuBar();
@@ -24,30 +29,37 @@ function desktopLoad() {
 
 	const programList = new DropDownList(homeMenu);
 	
-	function createListItem(text, onclick) {
+	function createListItem(text, appName) {
 		const button = document.createElement('div');
+		const title = document.createElement('div');
 		button.classList.add('item');
 		button.classList.add('fade');
-		button.innerText = text;
-		button.onclick = onclick;
-		return button;
+		
+		title.innerText = text;
+		if (programs.getProgramIcon(appName, function(icon){
+			// 加入Icon
+			button.appendChild(icon);
+			button.appendChild(title);
+		}).code > 0) {
+			// 如果沒有Icon
+			button.appendChild(title);
+		}
+		
+		button.onclick = function() {
+			programs.open(appName, function(app) {if(app.open!==undefined)app.open();});
+			programList.close();
+		};
+		programList.addItem(button);
 	}
 	
 	
 	const programs = fileSystem.cd('System/Programs');
 	// 終端機
-	const terminalBtn = createListItem('終端機', function() {
-		programs.open('Terminal.app', function(app) {app.open();});
-		programList.close();
-	});
-	programList.addItem(terminalBtn);
-	
+	createListItem('終端機', 'Terminal.app');
 	// webRTC
-	const webRtcBtn = createListItem('Web RTC', function() {
-		programs.open('WebRTC.app', function(app) {app.open();});
-		programList.close();
-	});
-	programList.addItem(webRtcBtn);
+	createListItem('Web RTC', 'WebRTC.app');
+	// About
+	createListItem('關於', 'About.app');
 
 	homeButton.onclick = programList.toggle;
 	menuBar.addEle(homeMenu);

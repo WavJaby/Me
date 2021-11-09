@@ -54,13 +54,18 @@ h1, h2 {
 .menuBar > .homeMenu .item {
 	background-color: rgb(30,30,30);
 	color: whitesmoke;
-	width: 120px;
+	width: 200px;
 	height: 40px;
 	line-height: 40px;
 	font-size: 25px;
 	
-	text-align: center;
 	cursor: pointer;
+}
+.menuBar > .homeMenu .item > img {
+	height: 40px;
+	
+	margin: 0 5px;
+	float: left;
 }
 .menuBar > .homeMenu > .homeButton:hover, .menuBar > .homeMenu .item:hover {
 	background-color: rgb(70,70,70);

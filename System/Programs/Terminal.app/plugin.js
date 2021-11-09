@@ -62,7 +62,7 @@ function Plugin(plugin) {
 			let path = ter.getPath();
 			function updateHints() {
 				const hints = path.ls();
-				for (const i in args)
+				for (let i in args)
 					delete args[i];
 				for (let i = 0; i < hints.length; i++) {
 					args[hints[i]] = null;
@@ -91,7 +91,9 @@ function Plugin(plugin) {
 						return;
 					case '.':
 						if(args.length === 1) return;
-						path.open(args[1], function(app){app.open()});
+						const status = path.open(args[1], function(app){app.open()});
+						if (status.code)
+							commandResult.innerHTML += '<p>' + args[1] + ' ' + status.message + '</p>';
 						return;
 					default:
 					return;
@@ -115,21 +117,21 @@ function Plugin(plugin) {
 		terminal.registerCommand('ls', file);
 		terminal.registerCommand('mkdir', file);
 		terminal.registerCommand('.', file);
+		terminal.registerCommand('clear', new (function() {
+			this.args = null;
+			this.onSubmit = function (args, commandResult, terminal) {
+				commandResult.innerHTML = '';
+			}
+		})());
 		terminal.registerCommand('projects', new (function() {
 			this.args = null;
 			this.onSubmit = function (args, commandResult, terminal) {
 				commandResult.innerHTML += project;
 			}
 		})());
-		// terminal.registerCommand('cd', {args: null, function: function(args, commandResult, terminal) {
-			// commandResult.innerHTML += help;
-		// }});
 		// addCommand('help');
 		// addCommand('about');
 		// addCommand('version');
-		// addCommand('project');
-		// addCommand('clear', {what:null,where:null,wheee:null});
-		// addCommand('ls');
 	}
 
 	function onCommand(args, commandResult) {

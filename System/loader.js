@@ -14,7 +14,7 @@ function loadScript(url, onload) {
 		loadScriptIE(url, onload);
 }
 
-function getFileText(url, onload) {
+function getText(url, onload) {
 	var request = new XMLHttpRequest();
 	request.open("GET", url);
 	request.onreadystatechange = function () {

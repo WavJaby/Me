@@ -79,8 +79,8 @@ function Window(resource) {
 	windowResizeSW.classList.add('wResizeSW');// 西南
 	
 	let canResize; this.canResize = function(){return canResize;};
-	this.setCanResize = function(boolean) {
-		canResize = boolean;
+	const setCanResize = this.setCanResize = function(boolean) {
+		if (canResize === boolean) return;
 		if (boolean) {
 			windowElement.appendChild(windowResizeN);
 			windowElement.appendChild(windowResizeS);
@@ -90,7 +90,7 @@ function Window(resource) {
 			windowElement.appendChild(windowResizeNW);
 			windowElement.appendChild(windowResizeSE);
 			windowElement.appendChild(windowResizeSW);
-		} else {
+		} else if (canResize !== undefined){
 			windowElement.removeChild(windowResizeN);
 			windowElement.removeChild(windowResizeS);
 			windowElement.removeChild(windowResizeW);
@@ -100,6 +100,7 @@ function Window(resource) {
 			windowElement.removeChild(windowResizeSE);
 			windowElement.removeChild(windowResizeSW);
 		}
+		canResize = boolean;
 	}
 	
 	windowElement.appendChild(windowHeader);
@@ -166,6 +167,7 @@ function Window(resource) {
 			winWidth = winManager.body.offsetWidth;
 			winHeight = winManager.body.offsetHeight;
 			winX = winY = 0;
+			setCanResize(false);
 			updateWindowLocation();
         } else {
 			if (width !== undefined && height !== undefined) {
@@ -175,6 +177,7 @@ function Window(resource) {
 				winWidth = originalWinWidth;
 				winHeight = originalWinHeight;
 			}
+			setCanResize(true);
         }
 		resetChangeSize();
 		updateWindowSize();
@@ -259,7 +262,7 @@ function Window(resource) {
 		if (winX === undefined || winY === undefined)
 			winManager.setDefaultLocation(this);
 		if (canResize === undefined)
-			this.setCanResize(true);
+			setCanResize(true);
 		setActivate(true);
 		isMinimize = false;
         minWindow.open(winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {

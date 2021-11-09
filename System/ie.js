@@ -71,7 +71,7 @@ function loadScriptIE(url, onload) {
 function loadScriptsForIE() {
 	var loadCount = 0;
 	var mainScript = document.createElement('script');
-	getFileText('System/main.js', function(text) {
+	getText('System/main.js', function(text) {
 		mainScript.textContent = toES5(text);
 		loadMainScript();
 	});
@@ -81,7 +81,7 @@ function loadScriptsForIE() {
 	
 	for (var i = 0; i < scripts.length; i++) {
 		if (scripts[i] === 'System/main.js') continue;
-		getFileText(scripts[i], function(text) {
+		getText(scripts[i], function(text) {
 			var script = document.createElement('script');
 			script.textContent = toES5(text);
 			document.head.appendChild(script);
