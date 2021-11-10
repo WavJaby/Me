@@ -53,11 +53,13 @@ function desktopLoad() {
 	
 	const programs = fileSystem.cd('System/Programs');
 	// 終端機
-	createListItem('終端機', 'Terminal.app');
+	createListItem('終端機', 'Terminal');
 	// webRTC
-	createListItem('Web RTC', 'WebRTC.app');
+	createListItem('Web RTC', 'WebRTC');
 	// About
-	createListItem('關於', 'About.app');
+	createListItem('關於', 'About');
+	// Dashboard
+	createListItem('Dashboard', 'Dashboard');
 
 	homeButton.onclick = programList.toggle;
 	menuBar.addEle(homeMenu);
@@ -65,10 +67,10 @@ function desktopLoad() {
 
 
 //##############################初始化##############################
-	programs.open('Terminal.app', function(app) {
+	programs.open('Terminal', function(app) {
 		app.setSize(true);
 		app.open();
-		programs.open('About.app');
+		programs.open('About');
 	});
 
 

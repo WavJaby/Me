@@ -10,7 +10,7 @@ http.createServer(function (req, res) {
 	console.log(fileName);
 	let file;
 	try {
-		file = fs.readFileSync(fileName);
+		file = fs.readFileSync('../public/' + fileName);
 		res.writeHead(200, {'Content-Type': mime.getType(fileName)});
 		res.end(file);
 	} catch (e) {

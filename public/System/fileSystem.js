@@ -14,6 +14,7 @@ function FileSystem() {
 		
 		cd: cd,
 		ls: ls,
+		lsHint: lsHint,
 		mkdir: mkdir,
 		getPath: getpath,
 		tree: tree,
@@ -56,6 +57,11 @@ function FileSystem() {
 		about.addResource('icon', 'svg');
 		about.addResource('body', 'html');
 		about.addResource('githubIcon', 'svg');
+
+		const dashboard = programFolder.createFile('Dashboard', 'app', FileType.program);
+		dashboard.addResource('Dashboard', 'css');
+		// about.addResource('icon', 'svg');
+		dashboard.addResource('body', 'html');
 		
 		
 		// out(systemRoot.tree(true))
@@ -140,6 +146,7 @@ function FileSystem() {
 			cd: cd,
 			ls: ls,
 			mkdir: mkdir,
+			lsHint: lsHint,
 			createFile: createFile,
 			open: open,
 			getProgramIcon: getProgramIcon,
@@ -257,9 +264,26 @@ function FileSystem() {
 		return Object.keys(this.childDirs).concat(Object.keys(this.childFiles));
 	}
 	
+	function lsFolder() {
+		return Object.keys(this.childDirs);
+	}
+	
+	function lsHint() {
+		const result = Object.keys(this.childDirs);
+		const files = this.childFiles;
+		const fileKeys = Object.keys(files);
+		for (let i = 0; i < fileKeys.length; i++) {
+			const file = files[fileKeys[i]];
+			if (file.fileType === FileType.program)
+				result.push(file.name);
+			else
+				result.push(file.fullName);
+		}
+		return result;
+	}
 //##############################檔案##############################
 	function open(name, onLoad) {
-		const program = this.childFiles[name];
+		const program = this.childFiles[name + '.app'];
 		if (program !== undefined && program.fileType === FileType.program) {
 			const appPath = program.getPath().slice(1) + '/';
 			let resLoad = 0;
@@ -342,7 +366,7 @@ function FileSystem() {
 	}
 	
 	function getProgramIcon(name, onLoad) {
-		const program = this.childFiles[name];
+		const program = this.childFiles[name + '.app'];
 		if (program !== undefined && program.fileType === FileType.program) {
 			const resource = program.resource;
 			if (resource.icon !== undefined && onLoad !== undefined) onLoad(resource.icon);

@@ -143,7 +143,8 @@ function Window(resource) {
 	let winTitle;
 	let originalWinWidth, originalWinHeight;
 	let winWidth, winHeight; this.getWinWidth = function(){return winWidth;};
-	let winMinWidth = 600, winMinHeight = 350;  this.setMinSize = function(w, h){winMinWidth=w;winMinHeight=h;};
+	let winMinWidth = this.defaultWidth = 600, winMinHeight = this.defaultHeight = 350;  
+	this.setMinSize = function(w, h){winMinWidth=w;winMinHeight=h;};
 	let winMenuHeight = 0;
 	let winX; this.getX = function(){return winX;};
 	let winY; this.getY = function(){return winY;};
@@ -254,10 +255,7 @@ function Window(resource) {
 	// 打開
 	this.open = function(openEvent) {
 		if (winWidth === undefined || winHeight === undefined) {
-			if (this.defaultWidth === undefined || this.defaultHeight === undefined)
-				this.setSize(true);
-			else
-				this.setSize(false, this.defaultWidth, this.defaultHeight);
+			this.setSize(false, this.defaultWidth, this.defaultHeight);
 		}
 		if (winX === undefined || winY === undefined)
 			winManager.setDefaultLocation(this);

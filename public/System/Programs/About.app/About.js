@@ -21,7 +21,6 @@ function About(win, res) {
 	body.appendChild(toSource);
 	
 	
-	
 	// this.loadPlugin = function(plugin) {
 		
 	// }

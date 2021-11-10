@@ -61,7 +61,7 @@ function Plugin(plugin) {
 			let args = this.args = {};
 			let path = ter.getPath();
 			function updateHints() {
-				const hints = path.ls();
+				const hints = path.lsHint();
 				for (let i in args)
 					delete args[i];
 				for (let i = 0; i < hints.length; i++) {
