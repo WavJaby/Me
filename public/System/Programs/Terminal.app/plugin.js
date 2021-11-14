@@ -49,12 +49,19 @@ function Plugin(plugin) {
 		// </div>\
 
 	plugin.initCommands = function(terminal) {
-		const help = new (function() {
-			this.args = null;
-			this.onSubmit = function (args, commandResult, terminal) {
+		const help = {
+			args: null,
+			onSubmit: function (args, commandResult, terminal) {
 				commandResult.innerHTML += helpHTML;
 			}
-		})();
+		};
+		
+		const version = {
+			args: null,
+			onSubmit: function (args, commandResult, terminal) {
+				commandResult.innerHTML += '<p>Ver. 1.0 Alpha</p>';
+			}
+		};
 		
 		const file = new (function() {
 			const ter = terminal;
@@ -71,6 +78,7 @@ function Plugin(plugin) {
 			updateHints();
 			
 			this.onSubmit = function (args, commandResult, terminal) {
+				let status;
 				switch (args[0]) {
 					case 'cd':
 						if(args.length === 1) return;
@@ -89,11 +97,21 @@ function Plugin(plugin) {
 					case 'ls':
 						commandResult.innerHTML += '<p>' + path.ls().join('<sp></sp>') + '</p>';
 						return;
-					case '.':
+					case 'cat':
 						if(args.length === 1) return;
-						const status = path.open(args[1], function(app){app.open()});
+						status = path.getFile(args[1], function(file) {
+							commandResult.innerHTML += '<p>' + file.data + '</p>';
+						});
 						if (status.code)
 							commandResult.innerHTML += '<p>' + args[1] + ' ' + status.message + '</p>';
+						return;
+					case '.':
+						if(args.length === 1) return;
+						status = path.getProgram(args[1]);
+						if (status.code)
+							commandResult.innerHTML += '<p>' + args[1] + ' ' + status.message + '</p>';
+						else 
+							status.open(function(app){app.open()});
 						return;
 					default:
 					return;
@@ -103,20 +121,13 @@ function Plugin(plugin) {
 			}
 		})();
 		
-		const version = new (function() {
-			this.args = null;
-			this.onSubmit = function (args, commandResult, terminal) {
-				commandResult.innerHTML += '<p>\
-				</p>';
-			}
-		})();
-		
 		terminal.registerCommand('help', help);
 		terminal.registerCommand('version', version);
 		terminal.registerCommand('cd', file);
 		terminal.registerCommand('ls', file);
 		terminal.registerCommand('mkdir', file);
 		terminal.registerCommand('.', file);
+		terminal.registerCommand('cat', file);
 		terminal.registerCommand('clear', new (function() {
 			this.args = null;
 			this.onSubmit = function (args, commandResult, terminal) {
@@ -132,38 +143,6 @@ function Plugin(plugin) {
 		// addCommand('help');
 		// addCommand('about');
 		// addCommand('version');
-	}
-
-	function onCommand(args, commandResult) {
-		let output = true;
-		let result;
-		switch (args[0]) {
-			case 'help':
-			result = help;
-			break;
-			case 'about':
-			result = about;
-			break;
-			case 'project':
-			// result = project;
-			result = '<p>Hello World!</p>';
-			break;
-			case 'clear':
-			output = false;
-			commandResult.innerHTML = '';
-			break;
-			case 'ls':
-			result = fileSystem();
-			break;
-			case 'version':
-			result = '<p>ver_0.1Alpha</p>'
-			break;
-			default:
-			result = '<p>' + args.join(' ') + '?? 那是什麼?' + '</p>';
-			break;
-		}
-		if(output)
-			commandResult.innerHTML += result;
 	}
 
 	plugin.UserInput = function(commands, commandLineElement, showhints, onSubmit) {
@@ -197,6 +176,8 @@ function Plugin(plugin) {
 		let hintTab;
 		let lastTabTime = 0;
 		let hintPos;
+		const history = [];
+		let historyPos = 0;
 		
 		// 設定能否輸入
 		this.setCanInput = function(state) {
@@ -323,18 +304,12 @@ function Plugin(plugin) {
 					case 'Enter':
 						e.preventDefault();
 						frontEle.innerText = userInput;
-						commandLineElement.removeChild(blinkerEle);
-						commandLineElement.removeChild(backEle);
-						commandLineElement.removeChild(hintEle);
-						commandLineElement.removeChild(endEle);
 						let last = 0;
 						for (let i = 0; i < args.length; i++)
 							if (args[i].length > 0) last = i+1;
 						onSubmit(args.slice(0, last), userInput);
-						commandLineElement.appendChild(blinkerEle);
-						commandLineElement.appendChild(backEle);
-						commandLineElement.appendChild(hintEle);
-						commandLineElement.appendChild(endEle);
+						historyPos = history.length;
+						history.push(args);
 						resetCommandLine();
 						return;
 					case 'Tab':
@@ -363,7 +338,16 @@ function Plugin(plugin) {
 							if (hintTab === 2 && hintMap !== null)
 								showhints(Object.keys(hintMap));
 						}
-					break;
+						break;
+					case 'ArrowUp':
+						e.preventDefault();
+						if (historyPos === history.length - 1) {
+							history.push(args);
+						}
+						out(history);
+						break;
+					case 'ArrowDown':
+						e.preventDefault();
 					default:
 					return;
 				}

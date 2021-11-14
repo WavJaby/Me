@@ -55,7 +55,7 @@
 	top: 10px;
 	
 	position: relative;
-	animation: wave 1.5s ease-in-out forwards infinite alternate;
+	animation: wave 1s ease-in-out forwards infinite alternate;
 }
 .aboutWindow > .title > span:nth-child(1) {
 	color: #ef5350;

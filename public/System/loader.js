@@ -24,6 +24,16 @@ function getText(url, onload) {
 	request.send();
 }
 
+function getData(url, onload) {
+	if (ieVersion === null || ieVersion > 10)
+		getText(url, onload);
+	else {
+		var request = new XDomainRequest();
+		request.onload = out;
+		request.open('GET', url.replace('https', 'http'));
+	}
+}
+
 function loadCSS(url, onload) {
 	var css = document.createElement('link'); 
 	css.rel = 'stylesheet'; 

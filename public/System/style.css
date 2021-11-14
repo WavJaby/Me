@@ -38,6 +38,7 @@ h1, h2 {
 	width: 100%;
 	height: 40px;
 	
+	z-index: 1;
 	position: absolute;
 }
 .menuBar > .homeMenu {
@@ -49,6 +50,7 @@ h1, h2 {
 	width: 40px;
 	height: 40px;
 	
+	display: block;
 	cursor: pointer;
 }
 .menuBar > .homeMenu .item {
@@ -72,10 +74,10 @@ h1, h2 {
 }
 .menuBar > .item {
 	color: whitesmoke;
-	width: 120px;
 	line-height: 40px;
 	font-size: 25px;
 	
+	padding: 0 10px;
 	float: left;
 	text-align: center;
 	cursor: pointer;
@@ -88,6 +90,15 @@ h1, h2 {
 }
 .menuBar > .item.activate:hover {
 	background-color: rgb(90,90,90);
+}
+
+.menuBar > .clock {
+	color: whitesmoke;
+	line-height: 40px;
+	
+	white-space: pre;
+	margin-right: 10px;
+	float: right;
 }
 
 /* Window */
@@ -125,6 +136,7 @@ h1, h2 {
 	width: 50px;
 	
 	float: right;
+	line-height: 28px;
 	text-align: center;
 }
 .wHeader > .close:hover {
@@ -134,8 +146,8 @@ h1, h2 {
 	background-color: rgb(100,100,100);
 }
 .wHeader > div > img {
-	width: 16px;
-	margin: 5px 0;
+	width: 13px;
+	margin-top: 5px;
 }
 .wMenu {
 	background-color: rgb(100,100,100);
@@ -154,6 +166,7 @@ h1, h2 {
 .wBody {
 	background-color: black;
 	
+	overflow: hidden;
 	position: relative;
 }
 .wTop {
@@ -220,11 +233,15 @@ h1, h2 {
 	margin-top: -7px;
 	cursor: sw-resize;
 }
+iframe {
+	border: none;
+}
 
 .windowMinimize {
     width: 100%;
     height: 100%;
 	
+	z-index: 2;
 	position: absolute;
 }
 
@@ -261,7 +278,6 @@ white {
 }
 green {
 	color: limegreen;
-	white-space: pre;
 }
 a:link, a:visited{
 	color: deepskyblue;

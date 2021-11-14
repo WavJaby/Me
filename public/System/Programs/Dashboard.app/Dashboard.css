@@ -1,3 +1,72 @@
 .dashboardWindow {
+	background-color: rgb(28, 30, 31);
+	width: 100%;
+	height: 100%;
 	
+	position: absolute;
+	
+	overflow: auto;
+}
+
+.dashboardWindow > .row.table {
+	display: table;
+	table-layout: fixed;
+	margin: 20px 60px;
+	border-spacing: 20px;
+}
+
+.dashboardWindow > .row > .block {
+	background-color: rgb(14, 16, 17);
+	min-width: 250px;
+	
+	position: relative;
+	vertical-align: top;
+	padding: 20px;
+	border-radius: 20px;
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 20px;
+	cursor: pointer;
+}
+
+.dashboardWindow > .row.table > .block {
+	width: 2%;
+	display: table-cell;
+}
+
+.dashboardWindow > .row.table > .block > .image {
+	height: 250px;
+}
+.dashboardWindow .block > .image {
+	
+	text-align: center;
+	vertical-align: center;
+}
+
+.dashboardWindow .block > .image > img {
+	display: inline-block;
+	max-height: 100%;
+	max-width: 100%;
+}
+
+.dashboardWindow .block > .title {
+	color: whitesmoke;
+	font-size: 25px;
+	
+	margin-bottom: 5px;
+}
+
+.dashboardWindow .block > .time {
+	color: whitesmoke;
+	line-height: 20px;
+	font-size: 14px;
+	
+	position: absolute;
+	right: 15px;
+	bottom: 0px;
+}
+
+.dashboardWindow .block > .description {
+	color: gray;
+	font-size: 18px;
 }

@@ -41,6 +41,7 @@ function FileSystem() {
 		iconFolder.createFile('close', 'svg', FileType.image);
 		iconFolder.createFile('minimize', 'svg', FileType.image);
 		iconFolder.createFile('warning', 'svg', FileType.image);
+		iconFolder.createFile('OSIcon', 'svg', FileType.image);
 		
 		
 		// program
@@ -52,17 +53,21 @@ function FileSystem() {
 		const WebRTC = programFolder.createFile('WebRTC', 'app', FileType.program);
 		WebRTC.addResource('WebRTC', 'css');
 		
+		const dashboard = programFolder.createFile('Dashboard', 'app', FileType.program);
+		dashboard.addResource('Dashboard', 'css');
+		dashboard.addResource('GameOfLife', 'png');
+		dashboard.addResource('YouTubeDownloader', 'png');
+		dashboard.addResource('JsonParser', 'png');
+		// about.addResource('icon', 'svg');
+		// dashboard.addResource('body', 'html');
+		
+		const pdfViewer = programFolder.createFile('PDFViewer', 'app', FileType.program);
+		
 		const about = programFolder.createFile('About', 'app', FileType.program);
 		about.addResource('About', 'css');
 		about.addResource('icon', 'svg');
 		about.addResource('body', 'html');
 		about.addResource('githubIcon', 'svg');
-
-		const dashboard = programFolder.createFile('Dashboard', 'app', FileType.program);
-		dashboard.addResource('Dashboard', 'css');
-		// about.addResource('icon', 'svg');
-		dashboard.addResource('body', 'html');
-		
 		
 		// out(systemRoot.tree(true))
 		out(systemRoot.treeText())
@@ -83,7 +88,9 @@ function FileSystem() {
 			getPath: getpath,
 		};
 		if (fileType === FileType.program) {
+			file.open = open;
 			file.app = null;
+			file.getIcon = getIcon;
 			file.resource = {};
 			file.notLoadResource = [];
 			file.addResource = addResource;
@@ -148,8 +155,7 @@ function FileSystem() {
 			mkdir: mkdir,
 			lsHint: lsHint,
 			createFile: createFile,
-			open: open,
-			getProgramIcon: getProgramIcon,
+			getProgram: getProgram,
 			getFile: getFile,
 			getPath: getpath,
 			tree: tree,
@@ -282,112 +288,114 @@ function FileSystem() {
 		return result;
 	}
 //##############################檔案##############################
-	function open(name, onLoad) {
-		const program = this.childFiles[name + '.app'];
-		if (program !== undefined && program.fileType === FileType.program) {
-			const appPath = program.getPath().slice(1) + '/';
-			let resLoad = 0;
-			function load() {
-				if (resLoad++ < notLoadResource.length) return;
-				const window = new Window(resource);
-				let body;
-				if ((body = resource.body) !== undefined) {
-					const bodyEle = document.createElement('div');
-					bodyEle.innerHTML = body;
-					window.addBody(bodyEle);
-				}
-				const app = new (program.app)(window, resource);
-				if (resource.plugin !== undefined) {
-					if (app.pluginLoaded !== undefined)
-						app.pluginLoaded(resource.plugin, onLoad);
-				} else if (onLoad !== undefined)
-					onLoad(app);
+	function open(onLoad) {
+		const appPath = this.getPath().slice(1) + '/';
+		const program = this;
+		let resLoad = 0;
+		function load() {
+			if (resLoad++ < needLoad) return;
+			const window = new Window(resource);
+			let body;
+			if ((body = resource.body) !== undefined) {
+				const bodyEle = document.createElement('div');
+				bodyEle.innerHTML = body;
+				window.addBody(bodyEle);
 			}
-			
-			// 讀取資源
-			const notLoadResource = program.notLoadResource;
-			const resource = program.resource;
-			for (let i = 0; i < notLoadResource.length; i++) {
-				const res = notLoadResource[i];
-				const resPath = appPath + res.fullName;
-				if (resource[res.name] === undefined) {
-					// 讀取插件
-					if (res.fullName === 'plugin.js') {
-						getText(resPath, function(text) {
-							if (isIE10())
-								text = toES5(text);
-							eval('(' + text + ')')(resource.plugin = {});
-							load();
-						}); 
-						continue;
-					}
-					// 讀取body
-					if (res.fullName === 'body.html') {
-						getText(resPath, function(text) {
-							resource.body = text;
-							load();
-						});
-						continue;
-					}
-					// 讀取Icon
-					if (res.fullName === 'icon.svg') {
-						getText(resPath, function(text) {
-							const image = resource.icon = new Image();
-							image.onload = load;
-							image.src = resPath;
-						});
-						continue;
-					}
+			const app = new (program.app)(window, resource);
+			if (resource.plugin !== undefined) {
+				if (app.pluginLoaded !== undefined)
+					app.pluginLoaded(resource.plugin, onLoad);
+			} else if (onLoad !== undefined)
+				onLoad(app);
+		}
+		
+		// 讀取資源
+		const notLoadResource = this.notLoadResource;
+		const resource = this.resource;
+		const needLoad = notLoadResource.length;
+		for (let i = 0; i < notLoadResource.length; i++) {
+			const res = notLoadResource[i];
+			const resPath = appPath + res.fullName;
+			if (resource[res.name] === undefined) {
+				// 讀取插件
+				if (res.fullName === 'plugin.js') {
+					getText(resPath, function(text) {
+						if (isIE10()) text = toES5(text);
+						eval('(' + text + ')')(resource.plugin = {});
+						load();
+					}); 
+					continue;
 				}
-				if (resource[res.fullName] === undefined) {
-					// 讀取css
-					if (res.extension === 'css') {
-						resource[res.fullName] = null;
-						loadCSS(resPath, load);
-						continue;
-					} else if (res.extension === 'svg') {
-						const image = resource[res.fullName] = new Image();
+				// 讀取body
+				if (res.fullName === 'body.html') {
+					getText(resPath, function(text) {
+						resource.body = text;
+						load();
+					});
+					continue;
+				}
+				// 讀取Icon
+				if (res.fullName === 'icon.svg') {
+					getText(resPath, function(text) {
+						const image = resource.icon = new Image();
 						image.onload = load;
 						image.src = resPath;
-						continue;
-					}
+					});
+					continue;
 				}
-				load();
 			}
-			
-			// 讀取主程式
-			if (program.app === null)
-				loadProgram(program, load);
-			else if (typeof program.app === 'function')
-				load();
-			return {code: 0};
+			if (resource[res.fullName] === undefined) {
+				// 讀取css
+				if (res.extension === 'css') {
+					resource[res.fullName] = null;
+					loadCSS(resPath, load);
+					continue;
+				} else if (res.extension === 'svg' || res.extension === 'png') {
+					const image = resource[res.fullName] = new Image();
+					image.onload = load;
+					image.src = resPath;
+					continue;
+				}
+			}
+			load();
 		}
-		return {code: 1, message: '不是可執行檔'};
+		notLoadResource.length = 0;
+		
+		// 讀取主程式
+		if (this.app === null)
+			loadProgram(this, load);
+		else if (typeof this.app === 'function')
+			load();
+		return {code: 0};
 	}
 	
-	function getProgramIcon(name, onLoad) {
+	function getProgram(name) {
 		const program = this.childFiles[name + '.app'];
-		if (program !== undefined && program.fileType === FileType.program) {
-			const resource = program.resource;
-			if (resource.icon !== undefined && onLoad !== undefined) onLoad(resource.icon);
-			const notLoadResource = program.notLoadResource;
-			const appPath = program.getPath().slice(1) + '/';
-			for (let i = 0; i < notLoadResource.length; i++) {
-				const res = notLoadResource[i];
-				// 讀取Icon
-				if (res.fullName !== 'icon.svg') continue;
-				const resPath = appPath + res.fullName;
-				getText(resPath, function(text) {
-					const image = resource.icon = new Image();
-					if (onLoad !== undefined)
-						image.onload = onLoad(image);
-					image.src = resPath;
-				});
-				return {code: 0};
-			}
-			return {code: 2, message: '找不到Icon'};
+		if (program === undefined) return {code: 1, message: '不存在'};
+		if (program.fileType !== FileType.program)
+			return {code: 2, message: '不是可執行檔'};
+		return program;
+	}
+	
+	function getIcon(onLoad) {
+		const resource = this.resource;
+		if (resource.icon !== undefined && onLoad !== undefined) onLoad(resource.icon);
+		const notLoadResource = this.notLoadResource;
+		const appPath = this.getPath().slice(1) + '/';
+		for (let i = 0; i < notLoadResource.length; i++) {
+			const res = notLoadResource[i];
+			// 讀取Icon
+			if (res.fullName !== 'icon.svg') continue;
+			const resPath = appPath + res.fullName;
+			getText(resPath, function(text) {
+				const image = resource.icon = new Image();
+				if (onLoad !== undefined)
+					image.onload = onLoad(image);
+				image.src = resPath;
+			});
+			return {code: 0};
 		}
-		return {code: 1, message: '不是可執行檔'};
+		return {code: 2, message: '找不到Icon'};
 	}
 	
 	function addResource(name, extension) {
@@ -400,32 +408,30 @@ function FileSystem() {
 	
 	function getFile(name, onLoad) {
 		const file = this.childFiles[name];
+		if (file === undefined) return {code: 1, message: '不存在'};
+		if (file.fileType === FileType.program) return {code: 2, message: '為程式非檔案'};
 		if (file.data === null)
 			if (file.extension === 'js')
-				getText(program.getPath().slice(1), function(text) {
-					if (isIE10())
-						program.app = eval('(' + toES5(text) + ')');
-					else
-						program.app = eval('(' + text + ')');
-					if (onLoad !== undefined) onLoad(program);
+				getText(file.getPath().slice(1), function(text) {
+					if (isIE10()) text = toES5(text);
+					file.data = eval('(' + text + ')');
+					if (onLoad !== undefined) onLoad(file);
 				});
 			else
 				getText(file.getPath().slice(1), function(text) {
 					file.data = text;
-					if (onLoad !== undefined) onLoad(file.data);
+					if (onLoad !== undefined) onLoad(file);
 				});
 		else
-			onLoad(file.data);
-		return file;
+			onLoad(file);
+		return {code: 0};
 	}
 	
 	function loadProgram(program, onLoad) {
 		out('讀取程式: ' + program.fullName);
 		getText(program.getPath().slice(1) + '/' + program.name + '.js', function(text) {
-			if (isIE10())
-				program.app = eval('(' + toES5(text) + ')');
-			else
-				program.app = eval('(' + text + ')');
+			if (isIE10()) text = toES5(text);
+			program.app = eval('(' + text + ')');
 			if (onLoad !== undefined) onLoad(program);
 		});
 	}

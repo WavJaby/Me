@@ -1,23 +1,23 @@
 'use strict';
 const windowHeaderHeight = parseInt(getStyle('.wHeader').height);
-const windowHeaderColor = getStyle('.wHeader')['background-color'];
+const windowHeaderColor = getStyle('.wHeader').backgroundColor;
 
-const windowMenuHeight = parseInt(getStyle('.wMenu > .item')['line-height']);
+const windowMenuHeight = parseInt(getStyle('.wMenu > .item').lineHeight);
 const windowMenuColor = getStyle('.wMenu > .item').color;
 
-const windowBodyColor = getStyle('.wBody')['background-color'];
+const windowBodyColor = getStyle('.wBody').backgroundColor;
 
 // text
 const windowTitleFont = (function(){
 	const style = getStyle('.wHeader > .title');
-    return style['font-size'] + ' / ' + style['line-height'] + ' ' + getStyle('*')['font-family'];
+    return style['font-size'] + ' / ' + style.lineHeight + ' ' + getStyle('*').fontFamily;
 })();
-const windowTitleLeft = parseInt(getStyle('.wHeader > .title')['margin-left']);
-const windowTitleHeight = parseInt(getStyle('.wHeader > .title')['font-size']) * 1.1;
+const windowTitleLeft = parseInt(getStyle('.wHeader > .title').marginLeft);
+const windowTitleHeight = parseInt(getStyle('.wHeader > .title').fontSize) * 1.1;
 const windowTitleColor = getStyle('.wHeader > .title').color;
 
 // icon
-const windowIconMargin = parseInt(getStyle('.wHeader > .icon')['margin-left']);
+const windowIconMargin = parseInt(getStyle('.wHeader > .icon').marginTop);
 const windowIconSize = parseInt(getStyle('.wHeader > .icon').width);
 
 const windowFunctionIconSize = parseInt(getStyle('.wHeader > div > img').width);
@@ -25,11 +25,14 @@ const windowCloseIcon = new Image();
 windowCloseIcon.src = 'System/Icon/close.svg';
 const windowMinimizeIcon = new Image();
 windowMinimizeIcon.src = 'System/Icon/minimize.svg';
-const windowFunctionIconMargin = parseInt(getStyle('.wHeader > div > img').margin);
+if (ieVersion != null && ieVersion < 11) {
+	windowCloseIcon.height = windowFunctionIconSize;
+	windowMinimizeIcon.height = windowFunctionIconSize;
+}
+const windowFunctionIconMargin = parseInt(getStyle('.wHeader > div > img').marginTop);
 const windowFunctionButtonSize = parseInt(getStyle('.wHeader > .close, .wHeader > .minimize').width);
 
 // menu
-const menuButtonWidth = parseInt(getStyle('.menuBar > .item').width);
 const menuBarHeight = parseInt(getStyle('.menuBar').height);
 
 // 視窗工具
@@ -141,18 +144,17 @@ function Window(resource) {
 	
 //##############################################視窗設定##############################################
 	let winTitle;
-	let originalWinWidth, originalWinHeight;
 	let winWidth, winHeight; this.getWinWidth = function(){return winWidth;};
 	let winMinWidth = this.defaultWidth = 600, winMinHeight = this.defaultHeight = 350;  
-	this.setMinSize = function(w, h){winMinWidth=w;winMinHeight=h;};
-	let winMenuHeight = 0;
+	let originalWinWidth = winMinWidth, originalWinHeight = winMinHeight;this.setMinSize = function(w, h){winMinWidth=w;winMinHeight=h;};
+	let winMenuHeight = 0, winHederHeight = windowHeaderHeight;
 	let winX; this.getX = function(){return winX;};
 	let winY; this.getY = function(){return winY;};
 	let isMaxSize; this.isMaxSize = function(){return isMaxSize;};
 	let isActivate;
 	let isMinimize = true; this.isMinimize = function(){return isMinimize;};
 	
-    this.onSizeChange; 
+    let onSizeChange; this.setOnSizeChange = function(fun){onSizeChange = fun;};
     let onActivateStateChange; this.setOnActivateStateChange = function(fun){onActivateStateChange = fun;};
 	
 	this.setDefaultSize = function(width, height) {
@@ -185,7 +187,7 @@ function Window(resource) {
 	}
 	
 	let inWinWidth, inWinHeight; const resetChangeSize = this.resetChangeSize = function(){inWinWidth=winWidth;inWinHeight=winHeight;};
-	this.addSize = function(width, height, x, y, left, top) {
+	this.addSize = function(width, height, bodyWidth, bodyHeight, left, top) {
         if (!isMaxSize) {
 			inWinWidth += width;
 			if (inWinWidth < winMinWidth) {
@@ -253,7 +255,7 @@ function Window(resource) {
 //##############################################視窗縮放##############################################
 	const win = this;
 	// 打開
-	this.open = function(openEvent) {
+	this.open = function() {
 		if (winWidth === undefined || winHeight === undefined) {
 			this.setSize(false, this.defaultWidth, this.defaultHeight);
 		}
@@ -264,9 +266,9 @@ function Window(resource) {
 		setActivate(true);
 		isMinimize = false;
         minWindow.open(winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {
-			winManager.openWindow(win);
-            if (openEvent !== undefined)
-                openEvent();
+			winManager.openWindow(win); 
+			if (onSizeChange !== undefined)
+				onSizeChange(winWidth, winHeight - winHederHeight - winMenuHeight);
         });
 	}
 	
@@ -275,7 +277,7 @@ function Window(resource) {
 		setActivate(false);
 		isMinimize = true;
         windowElement.style.display = 'none';
-        minWindow.minimize(winX, winY + menuBarHeight, menuButtonPos + menuButtonWidth / 2, 0 , winWidth, winHeight, drawWindow, function() {
+        minWindow.minimize(winX, winY + menuBarHeight, menuButtonPos + menuButton.offsetWidth / 2, 0, winWidth, winHeight, drawWindow, function() {
 			winManager.closeWindow(win);
 		});
     }
@@ -288,7 +290,7 @@ function Window(resource) {
 	this.maximizeWindow = function() {
 		setActivate(true);
 		isMinimize = false;
-		minWindow.maximize(menuButtonPos + menuButtonWidth / 2, 0, winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {
+		minWindow.maximize(menuButtonPos + menuButton.offsetWidth / 2, 0, winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {
 			windowElement.style.display = '';
 			winManager.openWindow(win);
 		});
@@ -296,7 +298,7 @@ function Window(resource) {
     
     function drawWindow(x, y, canvas) {
         canvas.fillStyle = windowHeaderColor;
-        canvas.fillRect(x, y, winWidth, windowHeaderHeight);
+        canvas.fillRect(x, y, winWidth, winHederHeight);
         canvas.fillStyle = windowTitleColor;
         canvas.font = windowTitleFont;
 		if (windowIcon !== undefined) {
@@ -309,22 +311,17 @@ function Window(resource) {
         canvas.drawImage(windowMinimizeIcon, iconX - windowFunctionButtonSize , y + windowFunctionIconMargin, windowFunctionIconSize, windowFunctionIconSize);
         
         canvas.fillStyle = windowMenuColor;
-        canvas.fillRect(x, y + windowHeaderHeight, winWidth, winMenuHeight);
+        canvas.fillRect(x, y + winHederHeight, winWidth, winMenuHeight);
         canvas.fillStyle = windowBodyColor;
-        canvas.fillRect(x, y + windowHeaderHeight + winMenuHeight, winWidth, winHeight - windowHeaderHeight - winMenuHeight);
+        canvas.fillRect(x, y + winHederHeight + winMenuHeight, winWidth, winHeight - winHederHeight - winMenuHeight);
     }
 	
 //##############################################視窗大小改變##############################################
 	const style = this.style = windowElement.style;
 	const bodyStyle = windowBody.style;
-    this.getBodyHeight = function() {
-		return winHeight -
-            windowHeaderHeight -
-            winMenuHeight;
-	}
 	
 	this.resize = function() {
-		if (isMaxSize) {
+		if (!isMinimize && isMaxSize) {
 			winWidth = winManager.body.offsetWidth;
 			winHeight = winManager.body.offsetHeight;
 			updateWindowSize();
@@ -332,8 +329,8 @@ function Window(resource) {
 	}
     
 	const updateWindowSize = function() {
-		if (win.onSizeChange !== undefined)
-			win.onSizeChange();
+		if (!isMinimize && onSizeChange !== undefined)
+			onSizeChange(winWidth, winHeight - winHederHeight - winMenuHeight);
 		if (!isMaxSize) {
 			originalWinWidth = winWidth;
 			originalWinHeight = winHeight;
@@ -341,7 +338,7 @@ function Window(resource) {
         bodyStyle.width = winWidth + 'px';
 		bodyStyle.height = (
 			winHeight -
-			windowHeaderHeight -
+			winHederHeight -
 			winMenuHeight
 		) + 'px';
 	}
@@ -419,7 +416,7 @@ function MinimizeWindow() {
             newX = (win.x * scale + win.toX * (1 - scale) + winWidth * offsetX) * (1 / scale) - winWidth * offsetX;
             newY = (win.y * scale + win.toY * (1 - scale) + winHeight * offsetY) * (1 / scale) - winHeight * offsetY;
             win.drawFun(newX, newY, ctx);
-            
+			
             win.lastScale = scale;
             win.scale = scale * win.step;
             win.newX = newX;
@@ -536,8 +533,14 @@ function WindowManager() {
 	let lastX, lastY;
 	document.onmouseup = document.touchcancel = document.ontouchend = function(e) {
 		if (moveWin !== null) {
-			if(e.pageY + startY < 0 && moveWin.canResize())
-				moveWin.setSize(true);
+			if (moveWin.canResize()) {
+				if (e.pageY < menuBarHeight)
+					moveWin.setSize(true);
+				else if (e.pageX <= 0) {
+					moveWin.setSize(false, body.offsetWidth / 2, body.offsetHeight);
+					moveWin.setLocation(0,0);
+				}
+			}
 			moveWin = null;
 		} else if (resizeWin !== null) {
 			resizeWin.resetChangeSize();
@@ -546,22 +549,31 @@ function WindowManager() {
 	}
 	
 	document.onmousemove = function(e) {
+		// if (moveWin === null && resizeWin === null) return;
+		// let mouseX = e.pageX;
+		// if (mouseX > window.innerWidth) mouseX = window.innerWidth;
+		// if (mouseX < 0) mouseX = 0;
+		// let mouseY = e.pageY;
+		// if (mouseY > window.innerHeight) mouseY = window.innerHeight - menuBarHeight;
+		// if (mouseY < menuBarHeight) mouseY = menuBarHeight;
 		if (moveWin !== null) {
+			let mouseX = e.pageX;
+			let mouseY = e.pageY;
 			if (moveWin.isMaxSize()) {
 				moveWin.setSize(false);
 				startX = -moveWin.getWinWidth() / 2;
 			} else {
-				const x = e.pageX, y = e.pageY;
-				const body = winManager.body;
-				if(x > 0 && y > 0 && x < body.offsetWidth && y < body.offsetHeight + menuBarHeight)
-					moveWin.setLocation(x + startX, y + startY);
+				if(mouseX > 0 && mouseY > 0 && mouseX < body.offsetWidth && mouseY < body.offsetHeight + menuBarHeight)
+					moveWin.setLocation(mouseX + startX, mouseY + startY);
 			}
 		} else if(resizeWin !== null) {
-			const moveX = e.pageX - lastX;
-			const moveY = e.pageY - lastY;
-			lastX = e.pageX;
-			lastY = e.pageY;
-			resizeWin.addSize(moveX * resizeX, moveY * resizeY, lastX, lastY, resizeX < 0, resizeY < 0);
+			let mouseX = e.pageX;
+			let mouseY = e.pageY;
+			const moveX = mouseX - lastX;
+			const moveY = mouseY - lastY;
+			lastX = mouseX;
+			lastY = mouseY;
+			resizeWin.addSize(moveX * resizeX, moveY * resizeY, body.offsetWidth, body.offsetHeight, resizeX < 0, resizeY < 0);
 		}
 	}
 	

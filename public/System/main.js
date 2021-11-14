@@ -1,11 +1,12 @@
 'use strict';
 
 const dbUrl = 'https://script.google.com/macros/s/AKfycbwgQy6QNPc4CpD4AO4Atqj7we7N5NDBVAQT1w1t0KOLdlfLeVrdFGUs6t50O1Cn_1VE/exec';
-getText(dbUrl + '?data=MyWeb&post=connect', out);
+getData(dbUrl + '?data=MyWeb&post=connect', out);
 
 const storage = getStorage();
 const fileSystem = new FileSystem();
 const menuBar = new MenuBar();
+const clock = new Clock();
 const notification = new Notification();
 out('準備檔案系統...');
 fileSystem.init(desktopLoad);
@@ -15,14 +16,17 @@ function desktopLoad() {
 	out('準備桌面...');
 //##############################視窗##############################
 	winManager.init();
+//##############################時鐘##############################
+	clock.init();
 //##############################通知##############################
 	notification.init();
 //##############################列表##############################
 	const homeMenu = document.createElement('div');
 	homeMenu.classList.add('homeMenu');
-	const homeButton = document.createElement('div');
+	const homeButton = document.createElement('img');
 	homeButton.classList.add('homeButton');
 	homeButton.classList.add('fade');
+	homeButton.src = 'System/Icon/OSIcon.svg';
 	homeMenu.appendChild(homeButton);
 
 	const programList = new DropDownList(homeMenu);
@@ -34,7 +38,8 @@ function desktopLoad() {
 		button.classList.add('fade');
 		
 		title.innerText = text;
-		if (programs.getProgramIcon(appName, function(icon){
+		const program = programs.getProgram(appName);
+		if (program.getIcon(function(icon){
 			// 加入Icon
 			button.appendChild(icon);
 			button.appendChild(title);
@@ -44,7 +49,7 @@ function desktopLoad() {
 		}
 		
 		button.onclick = function() {
-			programs.open(appName, function(app) {if(app.open!==undefined)app.open();});
+			program.open(function(app) {if(app.open!==undefined)app.open();});
 			programList.close();
 		};
 		programList.addItem(button);
@@ -54,12 +59,14 @@ function desktopLoad() {
 	const programs = fileSystem.cd('System/Programs');
 	// 終端機
 	createListItem('終端機', 'Terminal');
+	// Dashboard
+	createListItem('Dashboard', 'Dashboard');
+	// PDF檢視器
+	// createListItem('PDF檢視器', 'PDFViewer');
 	// webRTC
 	createListItem('Web RTC', 'WebRTC');
 	// About
 	createListItem('關於', 'About');
-	// Dashboard
-	createListItem('Dashboard', 'Dashboard');
 
 	homeButton.onclick = programList.toggle;
 	menuBar.addEle(homeMenu);
@@ -67,12 +74,12 @@ function desktopLoad() {
 
 
 //##############################初始化##############################
-	programs.open('Terminal', function(app) {
-		app.setSize(true);
-		app.open();
-		programs.open('About');
-	});
-
+	// programs.open('Terminal', function(app) {
+		// app.setSize(true);
+		// app.open();
+		// programs.open('About');
+	// });
+	programs.getProgram('Dashboard').open();
 
 	// 歡迎訊息
 	if (storage.getItem('joinBefore') === null) {
@@ -84,6 +91,43 @@ function desktopLoad() {
 }
 
 //##############################其他東西##############################
+function Clock() {
+	const clock = document.createElement('div');
+	clock.classList.add('clock')
+	let date = new Date();
+	let dateText = format(date.getFullYear()) + '/' + format(date.getMonth()) + '/' + format(date.getDate());
+	this.init = function() {
+		menuBar.addEle(clock);
+		update();
+		sw = false;
+		setTimeout(setInterval, 1000 - Date.now()%1000, update, 500);
+	}
+	
+	let sw = false;
+	let time, hr, min, sec;
+	function update() {
+		if (sw = !sw) {
+			time = Date.now()/1000|0;
+			sec = time % 60;
+			time = time/60|0;
+			min = time % 60;
+			time = time/60|0;
+			hr = time % 24 + 8;
+			time = time/24|0;
+			if (sec+min+hr===0) {
+				date = new Date();
+				dateText = format(date.getFullYear()) + '/' + format(date.getMonth()) + '/' + format(date.getDate());
+			}
+			clock.innerText = dateText + ' ' + format(hr) + ':' + format(min) + ':' + format(sec);
+		} else
+			clock.innerText = dateText + ' ' + format(hr) + ' ' + format(min) + ' ' + format(sec);
+	}
+	
+	function format(i) {
+		return i < 10 ? '0' + i : i;
+	}
+}
+
 function DropDownList(target) {
 	const dropDownList = document.createElement('div');
 	dropDownList.classList.add('dropdownlist');
@@ -116,10 +160,10 @@ function DropDownList(target) {
 
 function MenuBar() {
 	const menuBar = document.createElement('div');
+	menuBar.classList.add('menuBar');
+	menuBar.classList.add('cantSelect');
 	
 	this.init = function() {
-		menuBar.classList.add('menuBar');
-		menuBar.classList.add('cantSelect');
 		document.body.appendChild(menuBar);
 	}
 	

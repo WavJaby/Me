@@ -47,6 +47,18 @@ function repeatChar(len, char) {
     return new Array(len + 1).join(char);
 };
 
+function fullScreen() {
+	var body = document.body;
+	if (body.requestFullscreen)
+		body.requestFullscreen();
+	else if (body.msRequestFullscreen)
+		body.msRequestFullscreen();
+	else if (body.mozRequestFullScreen)
+		body.mozRequestFullScreen();
+	else if (body.webkitRequestFullscreen)
+		body.webkitRequestFullscreen();
+}
+
 CanvasRenderingContext2D.prototype.fillRoundRect = function (x, y, width, height, r) {
   if (width < 2 * r) r = width / 2;
   if (height < 2 * r) r = height / 2;

@@ -16,7 +16,7 @@
 .terminal .user {
 	color: aqua;
 }
-.terminal .path, .terminal .prefix {
+.terminal .path, .terminal .pre {
 	color: limegreen;
 }
 .terminal .hint {

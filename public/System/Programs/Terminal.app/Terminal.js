@@ -20,17 +20,19 @@ function Terminal(win) {
 	user.classList.add('user');
 	const pathEle = document.createElement('span');
 	pathEle.classList.add('path');
+	const pre = document.createElement('span');
+	pre.classList.add('pre');
+	
 	const prefix = document.createElement('span');
-	prefix.classList.add('prefix');
-	const commandInput = document.createElement('span');
 	
 	// 加入
-	commandLine.appendChild(group);
-	commandLine.appendChild(document.createTextNode('@'));
-	commandLine.appendChild(user);
-	commandLine.appendChild(document.createTextNode(':'));
-	commandLine.appendChild(pathEle);
-	commandLine.appendChild(document.createElement('br'));
+	prefix.appendChild(group);
+	prefix.appendChild(document.createTextNode('@'));
+	prefix.appendChild(user);
+	prefix.appendChild(document.createTextNode(':'));
+	prefix.appendChild(pathEle);
+	prefix.appendChild(document.createElement('br'));
+	prefix.appendChild(pre);
 	commandLine.appendChild(prefix);
 	
 	// 修改內容
@@ -38,7 +40,7 @@ function Terminal(win) {
 	user.innerText = 'WavJaby';
 	let path = fileSystem.cd('home/WavJaby/Desktop'); this.getPath = function(){return path;};
 	pathEle.innerText = path.getPath(); this.setPath = function(newPath){path = newPath; pathEle.innerText = path.getPath();};
-	prefix.innerHTML = '$&nbsp;';
+	pre.innerHTML = '$&nbsp;';
 	
 	// 指令註冊
 	const commands = {};
@@ -52,7 +54,7 @@ function Terminal(win) {
 	win.setTitle('終端機');
 	// win.addMenuItem(item);
 	win.addBody(terminal);
-	win.onSizeChange = setResultHeight;
+	win.setOnSizeChange(function(width, height){result.style.maxHeight=(height-commandLine.offsetHeight)+'px';});
 	win.setOnActivateStateChange(function(boolean) {
 		if (boolean)
 			document.onkeydown = userInput;
@@ -73,13 +75,8 @@ function Terminal(win) {
 	}
 
     this.setSize = win.setSize;
-	
     this.setLocation = win.setLocation;
-	
-	this.open = function(invisible) {
-		if (!invisible)
-			win.open(setResultHeight);
-	}
+	this.open = win.open;
 	
 	// const buttons = ['mHelp', 'mAbout', 'mProject'];
 	// const commands = ['help', 'about', 'project'];
@@ -133,8 +130,7 @@ function Terminal(win) {
 	function submitCommand(args, userInput) {
 		// 計算是否以滑動到最底
 		const needScroll = result.scrollTop === result.scrollHeight - result.offsetHeight;
-		commandInput.innerText = userInput;
-		result.innerHTML += '<p>' + commandLine.innerHTML + '</p>';
+		result.innerHTML += '<p>' + prefix.innerHTML + userInput + '</p>';
 		const listener = listeners[args[0]];
 		if (listener !== undefined)
 			listener(args, result, this);
@@ -152,14 +148,6 @@ function Terminal(win) {
 			result.scrollTop = result.scrollHeight - result.offsetHeight;
 		}
 	}
-    
-    // 設定結果區大小
-    function setResultHeight() {
-        result.style.maxHeight = (
-            win.getBodyHeight() - 
-            commandLine.offsetHeight
-        ) + 'px';
-    }
 	
 	this.getHeight = function() {
 		return result.offsetHeight + commandLine.offsetHeight;

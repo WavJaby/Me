@@ -3,13 +3,12 @@ function About(win, res) {
 	win.setTitle('關於');
 	win.setSize(false, 600, 600);
 	win.setLocation(document.body.offsetWidth / 2 - 300, 50);
-	this.setIcon = win.setIcon;
 	
 	const body = win.body;
 	body.classList.add('aboutWindow');
 	
-	win.open();
 	win.setCanResize(false);
+	win.open();
 	
 	const toSource = document.createElement('a');
 	toSource.href = 'https://github.com/WavJaby/Me';
