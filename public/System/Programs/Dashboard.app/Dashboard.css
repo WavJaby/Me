@@ -28,8 +28,14 @@
 	margin-top: 20px;
 	cursor: pointer;
 }
+.dashboardWindow > .row > .empty {
+	min-width: 250px;
+	
+	position: relative;
+	margin-top: 20px;
+}
 
-.dashboardWindow > .row.table > .block {
+.dashboardWindow > .row.table > .block, .dashboardWindow > .row.table > .empty {
 	width: 2%;
 	display: table-cell;
 }

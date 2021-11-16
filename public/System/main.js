@@ -62,9 +62,11 @@ function desktopLoad() {
 	// Dashboard
 	createListItem('Dashboard', 'Dashboard');
 	// PDF檢視器
-	// createListItem('PDF檢視器', 'PDFViewer');
-	// webRTC
+	createListItem('PDF檢視器', 'PDFViewer');
+	// WebRTC
 	createListItem('Web RTC', 'WebRTC');
+	// WebAR
+	createListItem('Web AR', 'WebAR');
 	// About
 	createListItem('關於', 'About');
 

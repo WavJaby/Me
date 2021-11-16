@@ -38,6 +38,13 @@ function About(win, res) {
 			row.appendChild(block);
 			this.blockCount++;
 		}
+        
+        this.addEmpty = function() {
+			const block = document.createElement('div');
+            block.classList.add('empty');
+			row.appendChild(block);
+			this.blockCount++;
+        }
 	}
 	
 	const viewer = fileSystem.cd('System/Programs').getProgram('PDFViewer');
@@ -80,16 +87,23 @@ function About(win, res) {
 		'2020/3 ~ 2020/5',
 		res['DiseaseMap.png'],
 		function() {
-			window.open('https://github.com/WavJaby/TinyJson', '_blank').focus();
+			window.open('https://github.com/WavJaby/DiseaseMap', '_blank').focus();
 		}
 	);
+    
+    row2.addEmpty();
+    row2.addEmpty();
 	
 	
 	win.setOnSizeChange(function(width, height) {
-		if (width < row1.blockCount * (blockMinWidth + 20) + 80)
+		if (width < row1.blockCount * (blockMinWidth + 20) + 100)
 			row1.classList.remove('table');
 		else 
 			row1.classList.add('table');
+		if (width < row2.blockCount * (blockMinWidth + 20) + 100)
+			row2.classList.remove('table');
+		else 
+			row2.classList.add('table');
 	});
 	
 	win.addBody(body);

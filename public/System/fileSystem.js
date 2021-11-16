@@ -52,6 +52,8 @@ function FileSystem() {
 		
 		const WebRTC = programFolder.createFile('WebRTC', 'app', FileType.program);
 		WebRTC.addResource('WebRTC', 'css');
+        
+		const WebAR = programFolder.createFile('WebAR', 'app', FileType.program);
 		
 		const dashboard = programFolder.createFile('Dashboard', 'app', FileType.program);
 		dashboard.addResource('Dashboard', 'css');
@@ -70,10 +72,8 @@ function FileSystem() {
 		about.addResource('body', 'html');
 		about.addResource('githubIcon', 'svg');
 		
-		// out(systemRoot.tree(true))
-		out(systemRoot.treeText())
-		// out(systemRoot)
-		
+		out(systemRoot.treeText());
+        
 		fileSystemLoaded();
 	}
 	
