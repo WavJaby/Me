@@ -63,10 +63,22 @@ function About(win, res) {
 	);
 	row1.addBlock(
 		'JsonObject parser library for Java',
-		'製作了解析速度比org.Json快2倍以上的Json Parser，程式碼僅有18KB，適合讀取大型檔案、小型專案或測試使用。\r\n\
+		'製作了解析速度比org.Json快2倍以上的Json Parser，且程式碼僅有18KB，適合讀取大型檔案、小型專案或測試使用。\r\n\
 		為本身開發的Youtube Downloader、Discord bot API、KeyBase bot API主要工具。',
 		'2021/5',
 		res['JsonParser.png'],
+		function() {
+			window.open('https://github.com/WavJaby/TinyJson', '_blank').focus();
+		}
+	);
+	
+	const row2 = new Row();
+	row2.addBlock(
+		'Disease Map 傳染病分布查詢系統(已停止更新)',
+		'使用Java以及Google Map API來製作應用程式，並製作自動抓取器來取得每日縣市疫情資訊。\r\n\
+		可以將各縣市疫情資料顯示於地圖上，供使用者查看，也可以查看歷史資料等',
+		'2020/3 ~ 2020/5',
+		res['DiseaseMap.png'],
 		function() {
 			window.open('https://github.com/WavJaby/TinyJson', '_blank').focus();
 		}

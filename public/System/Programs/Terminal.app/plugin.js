@@ -128,18 +128,18 @@ function Plugin(plugin) {
 		terminal.registerCommand('mkdir', file);
 		terminal.registerCommand('.', file);
 		terminal.registerCommand('cat', file);
-		terminal.registerCommand('clear', new (function() {
-			this.args = null;
-			this.onSubmit = function (args, commandResult, terminal) {
+		terminal.registerCommand('clear', {
+			args: null,
+			onSubmit: function (args, commandResult, terminal) {
 				commandResult.innerHTML = '';
 			}
-		})());
-		terminal.registerCommand('projects', new (function() {
-			this.args = null;
-			this.onSubmit = function (args, commandResult, terminal) {
+		});
+		terminal.registerCommand('projects', {
+			args: null,
+			onSubmit: function (args, commandResult, terminal) {
 				commandResult.innerHTML += project;
 			}
-		})());
+		});
 		// addCommand('help');
 		// addCommand('about');
 		// addCommand('version');

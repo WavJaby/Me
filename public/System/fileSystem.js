@@ -58,6 +58,7 @@ function FileSystem() {
 		dashboard.addResource('GameOfLife', 'png');
 		dashboard.addResource('YouTubeDownloader', 'png');
 		dashboard.addResource('JsonParser', 'png');
+		dashboard.addResource('DiseaseMap', 'png');
 		// about.addResource('icon', 'svg');
 		// dashboard.addResource('body', 'html');
 		
