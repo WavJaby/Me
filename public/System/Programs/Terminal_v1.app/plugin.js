@@ -40,6 +40,13 @@ function Plugin(plugin) {
 		<h2>......</h2>\
 	</div>\
 	';
+	
+		// <h2>Disease Map 傳染病分布查詢系統(已停止更新)</h2>\
+		// <div style="position: relative; padding-left: 2em;">\
+			// <h3>簡介: </h3>\
+			// <h3>目標: </h3>\
+			// <h3>開始製作日期: 2020/3</h3>\
+		// </div>\
 
 	plugin.initCommands = function(terminal) {
 		const help = {
@@ -148,12 +155,7 @@ function Plugin(plugin) {
 		hintEle.classList.add('hint');
 		hintEle.classList.add('cantSelect');
 		
-		const input = document.createElement('input');
-		input.classList.add('input');
-		input.type = 'text';
-		
 		commandLineElement.appendChild(frontEle);
-		commandLineElement.appendChild(input);
 		commandLineElement.appendChild(blinkerEle);
 		commandLineElement.appendChild(backEle);
 		commandLineElement.appendChild(hintEle);
@@ -178,37 +180,12 @@ function Plugin(plugin) {
 		let historyPos = 0;
 		
 		// 設定能否輸入
-		this.focus = function() {
-			if (canInput) input.focus();
-		}
 		this.setCanInput = function(state) {
 			canInput = state;
-			if (state) {
+			if (state)
 				startBlink();
-			} else
+			else
 				stopBlink();
-		}
-		
-		input.onkeydown = function(e) {
-			switch (e.which || e.keyCode || 0) {
-				case 9: //tab
-					e.preventDefault();
-					out('tab')
-					break;
-				default: 
-					// out(e);
-			}
-		}
-		
-		input.oninput = function(e) {
-			const type = e.inputType;
-			switch (type) {
-				case 'insertText':
-					out(e);
-					break;
-				default: 
-					out(e);
-			}
 		}
 		
 		this.onInput = function(e) {

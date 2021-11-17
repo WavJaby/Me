@@ -1,8 +1,10 @@
 .dropdownlist {
+	pointer-events: none;
 	position: relative;
 	overflow: hidden;
 }
 .dropdownlist > .slider {
+	pointer-events: auto;
 	position: absolute;
 	transition-duration: 0.3s;
 	transform: translateY(-100%);

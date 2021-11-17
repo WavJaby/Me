@@ -154,8 +154,10 @@ function Window(resource) {
 	let isActivate;
 	let isMinimize = true; this.isMinimize = function(){return isMinimize;};
 	
+    let onOpen; this.setOnOpen = function(fun){onOpen = fun;};
     let onSizeChange; this.setOnSizeChange = function(fun){onSizeChange = fun;};
     let onActivateStateChange; this.setOnActivateStateChange = function(fun){onActivateStateChange = fun;};
+	this.onmouseup;
 	
 	this.setDefaultSize = function(width, height) {
 		originalWinWidth = width;
@@ -239,7 +241,7 @@ function Window(resource) {
 			windowElement.classList.remove('activate');
 		}
 		if (onActivateStateChange !== undefined)
-			onActivateStateChange(boolean);
+			onActivateStateChange(isActivate);
 		return true;
 	}
 	this.isActivate = function(){return isActivate;};
@@ -263,12 +265,14 @@ function Window(resource) {
 			winManager.setDefaultLocation(this);
 		if (canResize === undefined)
 			setCanResize(true);
-		setActivate(true);
 		isMinimize = false;
         minWindow.open(winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {
 			winManager.openWindow(win); 
+			setActivate(true);
 			if (onSizeChange !== undefined)
 				onSizeChange(winWidth, winHeight - winHederHeight - winMenuHeight);
+			if (onOpen !== undefined)
+				onOpen();
         });
 	}
 	
@@ -288,11 +292,11 @@ function Window(resource) {
     }
 	
 	this.maximizeWindow = function() {
-		setActivate(true);
 		isMinimize = false;
 		minWindow.maximize(menuButtonPos + menuButton.offsetWidth / 2, 0, winX, winY + menuBarHeight, winWidth, winHeight, drawWindow, function() {
 			windowElement.style.display = '';
 			winManager.openWindow(win);
+			setActivate(true);
 		});
 	}
     
@@ -545,7 +549,8 @@ function WindowManager() {
 		} else if (resizeWin !== null) {
 			resizeWin.resetChangeSize();
 			resizeWin = null;
-		}
+		} else if (windows.length > 0 && windows[windows.length - 1].onmouseup !== undefined)
+			windows[windows.length - 1].onmouseup();
 	}
 	
 	document.onmousemove = function(e) {
@@ -584,9 +589,8 @@ function WindowManager() {
 	
 	// 開啟視窗
 	this.openWindow = function(win) {
-		if (windows.length > 0) {
+		if (windows.length > 0)
 			windows[windows.length - 1].setActivate(false);
-		}
 		win.index = windows.length;
 		win.style.zIndex = windows.length;
         windows.push(win);
@@ -601,9 +605,8 @@ function WindowManager() {
 			body.removeChild(win.windowElement);
 		}
 		
-		if (windows.length > 0) {
+		if (windows.length > 0)
 			windows[windows.length - 1].setActivate(true);
-		}
 	}
 	// 新增視窗
     this.addWindow = function(win) {
@@ -659,11 +662,10 @@ function WindowManager() {
 			window.setActivate(false);
 		}
 		win.index = windows.length;
-		windows.push(win);
-		
-		win.setActivate(true);
-		
 		win.style.zIndex = win.index;
+		
+		windows.push(win);
+		win.setActivate(true);
 	}
 	
 	function resizeSetUp(win, e) {

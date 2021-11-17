@@ -76,12 +76,12 @@ function desktopLoad() {
 
 
 //##############################初始化##############################
-	// programs.open('Terminal', function(app) {
+	programs.getProgram('Terminal').open(function(app) {
 		// app.setSize(true);
-		// app.open();
+		app.open();
 		// programs.open('About');
-	// });
-	programs.getProgram('Dashboard').open();
+	});
+	// programs.getProgram('Dashboard').open();
 
 	// 歡迎訊息
 	if (storage.getItem('joinBefore') === null) {
@@ -133,7 +133,7 @@ function Clock() {
 function DropDownList(target) {
 	const dropDownList = document.createElement('div');
 	dropDownList.classList.add('dropdownlist');
-	const slider = document.createElement('slider');
+	const slider = document.createElement('div');
 	slider.classList.add('slider');
 	dropDownList.appendChild(slider);
 	target.appendChild(dropDownList);

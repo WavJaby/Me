@@ -10,32 +10,20 @@
 .terminal > .result {
 	overflow: auto;
 }
-.terminal > .commandLine .group {
+.terminal .group {
 	color: fuchsia;
 }
-.terminal > .commandLine .user {
+.terminal .user {
 	color: aqua;
 }
-.terminal > .commandLine .path, .terminal > .commandLine .pre {
+.terminal .path, .terminal .pre {
 	color: limegreen;
 }
-.terminal > .commandLine > .hint {
+.terminal .hint {
 	color: rgb(50,50,50);
 }
-.terminal > .commandLine > .blink {
+.terminal .blink {
 	background-color: limegreen;
-}
-.terminal > .commandLine > .input {
-	width: 0;
-	/* background-color: transparent; */
-	/* caret-color: transparent; */
-	/* color: whitesmoke; */
-	/* font-size: 25px; */
-	/* line-height: 29px; */
-	
-	border: none;
-	padding: 0;
-	outline: none;
 }
 
 /* Command */

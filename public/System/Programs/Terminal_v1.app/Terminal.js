@@ -55,15 +55,20 @@ function Terminal(win) {
 	// win.addMenuItem(item);
 	win.addBody(terminal);
 	win.setOnSizeChange(function(width, height){result.style.maxHeight=(height-commandLine.offsetHeight)+'px';});
-	win.setOnActivateStateChange(function(boolean) {userIn.setCanInput(boolean);userIn.focus();});
+	win.setOnActivateStateChange(function(boolean) {
+		if (boolean)
+			document.onkeydown = userInput;
+		userIn.setCanInput(boolean);
+	});
 	win.setDefaultSize(600, 350);
 	
 //##############################載入##############################
 	// 使用者輸入
 	let userIn;
+	let userInput;
 	this.pluginLoaded = function(plugin, onLoad) {
 		userIn = new (plugin.UserInput)(commands, commandLine, showHints, submitCommand);
-		terminal.onmouseup = userIn.focus;
+		userInput = userIn.onInput;
 		
 		plugin.initCommands(this);
 		onLoad(this);
