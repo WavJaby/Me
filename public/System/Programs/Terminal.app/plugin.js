@@ -146,14 +146,17 @@ function Plugin(plugin) {
 		const endEle = document.createElement('span');
 		const hintEle = document.createElement('span');
 		hintEle.classList.add('hint');
+		hintEle.classList.add('clickThrough');
 		hintEle.classList.add('cantSelect');
 		
-		const input = document.createElement('input');
-		input.classList.add('input');
-		input.type = 'text';
+		// const input = document.createElement('input');
+		// input.classList.add('input');
+		// input.type = 'text';
+		// commandLineElement.appendChild(input);
 		
+        frontEle.contentEditable = 'true';
+		frontEle.classList.add('input');
 		commandLineElement.appendChild(frontEle);
-		commandLineElement.appendChild(input);
 		commandLineElement.appendChild(blinkerEle);
 		commandLineElement.appendChild(backEle);
 		commandLineElement.appendChild(hintEle);
@@ -179,7 +182,7 @@ function Plugin(plugin) {
 		
 		// 設定能否輸入
 		this.focus = function() {
-			if (canInput) input.focus();
+			if (canInput) frontEle.focus();
 		}
 		this.setCanInput = function(state) {
 			canInput = state;
@@ -189,26 +192,57 @@ function Plugin(plugin) {
 				stopBlink();
 		}
 		
-		input.onkeydown = function(e) {
+		frontEle.onkeydown = function(e) {
 			switch (e.which || e.keyCode || 0) {
-				case 9: //tab
+				case 9: // tab
 					e.preventDefault();
 					out('tab')
+					break;
+				case 13: // enter
+					e.preventDefault();
+					out('enter')
+					break;
+				case 37: // left
+					out('left')
+					break;
+				case 38: // up
+					out('up')
+					break;
+				case 39: // right
+					out('right')
+					break;
+				case 40: // down
+					out('down')
 					break;
 				default: 
 					// out(e);
 			}
 		}
-		
-		input.oninput = function(e) {
+        
+		const reg = /^[\u4E00-\u9FD5]+$/;
+        let lastInput;
+        let lastLength;
+		frontEle.oninput = function(e) {
 			const type = e.inputType;
+            const text = e.data;
 			switch (type) {
 				case 'insertText':
 					out(e);
 					break;
+                case 'insertCompositionText':
+                    const length = frontEle.innerText.length;
+                    out(length - lastLength);
+                    if (reg.test(text)) {
+                        out('中文')
+                    } else {
+                        out('不是中文')
+                    }
+                    lastInput = text;
+                    lastLength = length;
+                    break;
 				default: 
-					out(e);
 			}
+            // out(e);
 		}
 		
 		this.onInput = function(e) {
