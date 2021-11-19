@@ -1,9 +1,9 @@
 'use strict';
 var out = function(e1,e2,e3,e4,e5) {
-	if(!e2&&!e3&&!e4&&!e5) console.log(e1);
-	else if(!e3&&!e4&&!e5) console.log(e1,e2);
-	else if(!e4&&!e5) console.log(e1,e2,e3);
-	else if(!e5) console.log(e1,e2,e3,e4);
+	if(e2===undefined&&e3===undefined&&e4===undefined&&e5===undefined) console.log(e1);
+	else if(e3===undefined&&e4===undefined&&e5===undefined) console.log(e1,e2);
+	else if(e4===undefined&&e5===undefined) console.log(e1,e2,e3);
+	else if(e5===undefined) console.log(e1,e2,e3,e4);
 	else console.log(e1,e2,e3,e4,e5);
 };
 var warn = console.warn;

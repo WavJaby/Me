@@ -220,29 +220,51 @@ function Plugin(plugin) {
 		}
         
 		const reg = /^[\u4E00-\u9FD5]+$/;
-        let lastInput;
-        let lastLength;
+        let lastChar;
+        let lastText = '';
+        let lastLength = 0;
 		frontEle.oninput = function(e) {
 			const type = e.inputType;
             const text = e.data;
+			const innerText = frontEle.innerText;
+			const length = innerText.length;
 			switch (type) {
-				case 'insertText':
-					out(e);
-					break;
                 case 'insertCompositionText':
-                    const length = frontEle.innerText.length;
-                    out(length - lastLength);
-                    if (reg.test(text)) {
-                        out('中文')
-                    } else {
-                        out('不是中文')
-                    }
-                    lastInput = text;
-                    lastLength = length;
-                    break;
-				default: 
+					if (lastText !== text)
+						onInput(text, innerText, -lastText.length);
+					else if (lastText === text && length - lastLength === -1)
+						onInput(null, innerText, length - lastLength);
+					lastText = text;
+					break;
+				case 'insertText':
+					onInput(text, innerText, length - lastLength);
+					break;
+				default:
+					// out(e);
 			}
-            // out(e);
+			lastLength = length;
+            out(e);
+		}
+		
+		function onInput(text, userInput, posChange) {
+			// out(text, userInput, posChange);
+			out(posChange);
+			
+			if (posChange <= 0) {
+				args[argsPos] = args[argsPos].slice(0, posChange)
+				if (text !== null) {
+					args[argsPos] += text;
+					cursorPos += posChange + text.length;
+				} else
+					cursorPos += posChange;
+			} else {
+				args[argsPos] += text;
+				cursorPos += posChange;
+			}
+			
+			blinkText = backText = endText = '';
+			
+			out(args);
 		}
 		
 		this.onInput = function(e) {
