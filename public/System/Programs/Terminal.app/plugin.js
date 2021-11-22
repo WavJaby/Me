@@ -203,7 +203,21 @@ function Plugin(plugin) {
 					out('enter')
 					break;
 				case 37: // left
-					out('left')
+					out('left');
+					e.preventDefault();
+					if (cursorPos > 0) {
+						cursorPos--;
+						const space = userInput.charAt(cursorPos) === ' ';
+						if (space) {
+							argsPos--;
+							argsStartPos = cursorPos - args[argsPos].length;
+							hintTab = 0;
+						}
+						frontText = userInput.slice(0, cursorPos);
+						blinkText = userInput.charAt(cursorPos);
+						backText = args[argsPos].slice(cursorPos - argsStartPos + 1);
+						endText = userInput.slice(argsStartPos + args[argsPos].length);
+					}
 					break;
 				case 38: // up
 					out('up')
@@ -215,8 +229,14 @@ function Plugin(plugin) {
 					out('down')
 					break;
 				default: 
-					// out(e);
+					return;
 			}
+			inputChange = true;
+			startIdleTimer();
+			updateCommandLine();
+			PosEnd();
+			
+			// out(args)
 		}
         
 		const reg = /^[\u4E00-\u9FD5]+$/;
@@ -230,42 +250,127 @@ function Plugin(plugin) {
 			const length = innerText.length;
 			switch (type) {
                 case 'insertCompositionText':
-					if (lastText !== text)
-						onInput(text, innerText, -lastText.length);
-					else if (lastText === text && length - lastLength === -1)
-						onInput(null, innerText, length - lastLength);
-					lastText = text;
+					out(text)
+					// out(text, lastText)
+					out(length, lastLength)
+					onInput(innerText, -lastText.length);
 					break;
 				case 'insertText':
-					onInput(text, innerText, length - lastLength);
+					onInput(text, 1);
+					break;
+				case 'deleteContentBackward':
+					backspace();
 					break;
 				default:
 					// out(e);
 			}
+			lastText = innerText;
 			lastLength = length;
-            out(e);
+			
+			inputChange = true;
+			startIdleTimer();
+			updateCommandLine();
+			out(args)
+            // out(e);
 		}
 		
-		function onInput(text, userInput, posChange) {
+		function onInput(text, posChange) {
 			// out(text, userInput, posChange);
-			out(posChange);
+			
+			const space = text.length === 1 && text === ' ';
+			let arg = args[argsPos];
 			
 			if (posChange <= 0) {
 				args[argsPos] = args[argsPos].slice(0, posChange)
-				if (text !== null) {
+				if (text.length > 0) {
 					args[argsPos] += text;
-					cursorPos += posChange + text.length;
-				} else
-					cursorPos += posChange;
+					posChange += text.length;
+				}
 			} else {
-				args[argsPos] += text;
-				cursorPos += posChange;
+				if(!space)
+					args[argsPos] += text;
 			}
 			
-			blinkText = backText = endText = '';
+			// 向後增加
+			if (cursorPos === userInput.length) {
+				userInput += text;
+				blinkText = backText = endText = '';
+			} 
+			// insert
+			else {
+				const front = userInput.slice(0, cursorPos);
+				const end = userInput.slice(cursorPos);
+				userInput = front + text + end;
+				if (!space)
+					args[argsPos] = arg.slice(0, cursorPos - argsStartPos) + text + arg.slice(cursorPos - argsStartPos);
+				blinkText = end.charAt(0);
+				backText = arg.slice(cursorPos - argsStartPos + 1);
+				endText = userInput.slice(argsStartPos + arg.length + (cursorPos - argsStartPos === arg.length?2:1));
+			}
 			
-			out(args);
+			cursorPos += posChange;
+			if (space) {
+				argsPos++;
+				if (cursorPos - argsStartPos <= arg.length) {
+					args.insert(argsPos, args[argsPos - 1].slice(cursorPos - argsStartPos - 1));
+					args[argsPos - 1] = args[argsPos - 1].slice(0, cursorPos - argsStartPos - 1);
+				} else if (args[argsPos] === undefined) {
+					// getHint = false;
+					args[argsPos] = '';
+				}
+				argsStartPos = cursorPos;
+				hintTab = 0;
+			}
 		}
+		
+		function backspace() {
+			const space = userInput.charAt(cursorPos - 1) === ' ';
+			let arg = args[argsPos];
+			if (cursorPos === userInput.length) {
+				userInput = userInput.slice(0, -1);
+				if (!space)
+					args[argsPos] = arg.slice(0, -1);
+				frontText = userInput;
+				blinkText = backText = endText = '';
+			} else {
+				const front = userInput.slice(0, cursorPos);
+				const end = userInput.slice(cursorPos);
+				userInput = front + key + end;
+				if (!space)
+					args[argsPos] = arg.slice(0, cursorPos - argsStartPos - 1) + arg.slice(cursorPos - argsStartPos);
+				frontText = front;
+				blinkText = userInput.charAt(cursorPos - 1);
+				backText = arg.slice(cursorPos - argsStartPos + 1);
+				endText = userInput.slice(argsStartPos + arg.length - 1);
+			}
+			cursorPos--;
+			if (space) {
+				argsPos--;
+				argsStartPos = cursorPos - args[argsPos].length;
+				for (let i = argsPos + 1; i < args.length; i++) {
+					const nextArg = args[i];
+					if (nextArg === undefined || nextArg.length === 0) break;
+					args[i - 1] += nextArg;
+					args[i] = '';
+				}
+				hintTab = 0;
+			}
+		}
+		
+		function PosEnd() {
+            const len = frontEle.innerText.length;
+              
+            if (frontEle.setSelectionRange) {
+                frontEle.focus();
+                frontEle.setSelectionRange(len, len);
+            } else if (frontEle.createTextRange) {
+                const t = frontEle.createTextRange();
+                t.collapse(true);
+                t.moveEnd('character', len);
+                t.moveStart('character', len);
+                t.select();
+            }
+        }
 		
 		this.onInput = function(e) {
 			if (!canInput && e.auto === undefined)
