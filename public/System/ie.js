@@ -54,7 +54,7 @@ if (typeof requestAnimationFrame === 'undefined') {
 }
 
 // 給IE11以下的加載器
-function loadScriptIE(url, onload) {
+function loadScriptIE(url, element, onload) {
 	var request = new XMLHttpRequest();
 	request.open("GET", url);
 	request.onreadystatechange = function () {
@@ -62,7 +62,7 @@ function loadScriptIE(url, onload) {
 			var script = document.createElement('script');
 			script.textContent = toES5(request.responseText);
 			script.onload = onload;
-			document.head.appendChild(script);
+			element.appendChild(script);
 		}
 	}
 	request.send();

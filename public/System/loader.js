@@ -11,7 +11,17 @@ function loadScript(url, onload) {
 		script.src = url;
 		document.head.appendChild(script);
 	} else 
-		loadScriptIE(url, onload);
+		loadScriptIE(url, document.body, onload);
+}
+
+function loadScriptToElement(url, element, onload) {
+	if (ieVersion === null || ieVersion > 10) {
+		var script = document.createElement('script');
+		script.onload = onload;
+		script.src = url;
+		element.appendChild(script);
+	} else 
+		loadScriptIE(url,element, onload);
 }
 
 function getText(url, onload) {

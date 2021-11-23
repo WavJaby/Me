@@ -54,6 +54,8 @@ function FileSystem() {
 		WebRTC.addResource('WebRTC', 'css');
         
 		const WebAR = programFolder.createFile('WebAR', 'app', FileType.program);
+		WebAR.addResource('body', 'html');
+		WebAR.addResource('WebAR', 'css');
 		
 		const dashboard = programFolder.createFile('Dashboard', 'app', FileType.program);
 		dashboard.addResource('Dashboard', 'css');

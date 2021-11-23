@@ -1,0 +1,18 @@
+newmtl CubeFBXASC046016SG
+illum 4
+Kd 1.00 1.00 1.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.25 0.25 0.25
+Ns 34.00
+newmtl HSM0041:Base_LowSG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd vases_QH-09.jpg
+map_Ka vases_QH-09.jpg
+Ni 1.00
+Ks 0.00 0.00 0.00
+Ns 10.00

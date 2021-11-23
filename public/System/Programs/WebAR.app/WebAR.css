@@ -1,0 +1,21 @@
+.webAR {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.webAR canvas {
+    width: 100%;
+    height: 100%;
+}
+
+.webAR video {
+    z-index: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.a-enter-vr {
+    position: absolute !important;
+}
