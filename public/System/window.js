@@ -126,6 +126,7 @@ function Window(resource) {
 	windowHeader.appendChild(closeButton);
 	windowHeader.appendChild(minimizeButton);
 	
+	out('w', resource)
 	let windowIcon = resource.icon;
 	if (windowIcon !== undefined) {
 		windowIcon = windowIcon.cloneNode();

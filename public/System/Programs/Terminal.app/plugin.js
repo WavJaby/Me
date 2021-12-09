@@ -142,6 +142,8 @@ function Plugin(plugin) {
 		const blinkerEle = document.createElement('span');
 		blinkerEle.classList.add('blink');
 		const frontEle = document.createElement('span');
+        frontEle.contentEditable = 'true';
+		frontEle.classList.add('input');
 		const backEle = document.createElement('span');
 		const endEle = document.createElement('span');
 		const hintEle = document.createElement('span');
@@ -149,20 +151,19 @@ function Plugin(plugin) {
 		hintEle.classList.add('clickThrough');
 		hintEle.classList.add('cantSelect');
 		
-		// const input = document.createElement('input');
-		// input.classList.add('input');
-		// input.type = 'text';
-		// commandLineElement.appendChild(input);
+		frontEle.style.lineHeight = 
+		blinkerEle.style.lineHeight = 
+		backEle.style.lineHeight = 
+		endEle.style.lineHeight = 
+		hintEle.style.lineHeight = '29px';
 		
-        frontEle.contentEditable = 'true';
-		frontEle.classList.add('input');
 		commandLineElement.appendChild(frontEle);
 		commandLineElement.appendChild(blinkerEle);
 		commandLineElement.appendChild(backEle);
 		commandLineElement.appendChild(hintEle);
 		commandLineElement.appendChild(endEle);
 		
-		let frontText = '', blinkText = '', backText = '', hintText = '', endText = '';
+		let blinkText = '', backText = '', hintText = '', endText = '';
 
 		//控制項
 		let canInput;
@@ -192,15 +193,50 @@ function Plugin(plugin) {
 				stopBlink();
 		}
 		
+		let endInput = 0;
 		frontEle.onkeydown = function(e) {
 			switch (e.which || e.keyCode || 0) {
 				case 9: // tab
 					e.preventDefault();
 					out('tab')
+					let hint = commandHint(args, argsPos);
+					if (hint.length === 1) {
+						let arg = args[i];
+						hint = hint[hintPos];
+						args[argsPos] = hint;
+						userInput = userInput.slice(0, argsStartPos + arg.length) + hint.slice(arg.length) + userInput.slice(argsStartPos + arg.length);
+						cursorPos = argsStartPos + hint.length;
+						
+						frontEle.innerText = userInput.slice(0, cursorPos);
+						endText = userInput.slice(cursorPos + 1);
+						backText = hintText = '';
+						blinkText = ' ';
+						PosEnd();
+					} else if (hint.length > 1) {
+						hintPos++;
+						if (hintPos === hint.length)
+							hintPos = 0;
+						
+						if (Date.now() - lastTabTime < 100) {
+							showhints(hint);
+						}
+					} else {
+						hintTab++;
+						if (hintTab === 2 && hintMap !== null)
+							showhints(Object.keys(hintMap));
+					}
 					break;
 				case 13: // enter
 					e.preventDefault();
 					out('enter')
+					frontEle.innerText = userInput;
+					let last = 0;
+					for (let i = 0; i < args.length; i++)
+						if (args[i].length > 0) last = i+1;
+					onSubmit(args.slice(0, last), userInput);
+					historyPos = history.length;
+					history.push(args);
+					resetCommandLine();
 					break;
 				case 37: // left
 					out('left');
@@ -213,20 +249,43 @@ function Plugin(plugin) {
 							argsStartPos = cursorPos - args[argsPos].length;
 							hintTab = 0;
 						}
-						frontText = userInput.slice(0, cursorPos);
+						frontEle.innerText = userInput.slice(0, cursorPos);
 						blinkText = userInput.charAt(cursorPos);
 						backText = args[argsPos].slice(cursorPos - argsStartPos + 1);
 						endText = userInput.slice(argsStartPos + args[argsPos].length);
+						PosEnd();
+					}
+					break;
+				case 39: // right
+					e.preventDefault();
+					if (cursorPos < userInput.length) {
+						cursorPos++;
+						const space = userInput.charAt(cursorPos - 1) === ' ';
+						if (space) {
+							argsPos++;
+							argsStartPos = cursorPos;
+							hintTab = 0;
+						}
+						frontEle.innerText = userInput.slice(0, cursorPos);
+						blinkText = userInput.charAt(cursorPos);
+						backText = args[argsPos].slice(cursorPos - argsStartPos + 1);
+						endText = userInput.slice(argsStartPos + args[argsPos].length);
+						PosEnd();
 					}
 					break;
 				case 38: // up
 					out('up')
 					break;
-				case 39: // right
-					out('right')
-					break;
 				case 40: // down
 					out('down')
+					break;
+				case 229: // insertCompositionText
+					if (e.code === 'Enter')
+						endInput = 1;
+					else if (e.code === 'ArrowUp')
+						finishInput = false;
+					else
+						endInput = 0;
 					break;
 				default: 
 					return;
@@ -234,7 +293,6 @@ function Plugin(plugin) {
 			inputChange = true;
 			startIdleTimer();
 			updateCommandLine();
-			PosEnd();
 			
 			// out(args)
 		}
@@ -243,6 +301,7 @@ function Plugin(plugin) {
         let lastChar;
         let lastText = '';
         let lastLength = 0;
+		let finishInput = true;
 		frontEle.oninput = function(e) {
 			const type = e.inputType;
             const text = e.data;
@@ -250,10 +309,18 @@ function Plugin(plugin) {
 			const length = innerText.length;
 			switch (type) {
                 case 'insertCompositionText':
+					// enter
+					if (endInput === 1) {
+						if (finishInput) {
+							out('finish')
+						} else 
+							finishInput = true;
+					}
+					out(endInput)
 					out(text)
 					// out(text, lastText)
-					out(length, lastLength)
-					onInput(innerText, -lastText.length);
+					// out(length, lastLength)
+					// onInput(innerText, -lastText.length);
 					break;
 				case 'insertText':
 					onInput(text, 1);
@@ -267,10 +334,11 @@ function Plugin(plugin) {
 			lastText = innerText;
 			lastLength = length;
 			
+			getHint();
 			inputChange = true;
 			startIdleTimer();
 			updateCommandLine();
-			out(args)
+			// out(args)
             // out(e);
 		}
 		
@@ -280,20 +348,22 @@ function Plugin(plugin) {
 			const space = text.length === 1 && text === ' ';
 			let arg = args[argsPos];
 			
-			if (posChange <= 0) {
-				args[argsPos] = args[argsPos].slice(0, posChange)
-				if (text.length > 0) {
-					args[argsPos] += text;
-					posChange += text.length;
-				}
-			} else {
-				if(!space)
-					args[argsPos] += text;
-			}
+			// if (posChange <= 0) {
+				// args[argsPos] = args[argsPos].slice(0, posChange)
+				// if (text.length > 0) {
+					// args[argsPos] += text;
+					// posChange += text.length;
+				// }
+			// } else {
+				// if(!space)
+					// args[argsPos] += text;
+			// }
 			
 			// 向後增加
 			if (cursorPos === userInput.length) {
 				userInput += text;
+				if(!space)
+					args[argsPos] += text;
 				blinkText = backText = endText = '';
 			} 
 			// insert
@@ -330,15 +400,11 @@ function Plugin(plugin) {
 				userInput = userInput.slice(0, -1);
 				if (!space)
 					args[argsPos] = arg.slice(0, -1);
-				frontText = userInput;
 				blinkText = backText = endText = '';
 			} else {
-				const front = userInput.slice(0, cursorPos);
-				const end = userInput.slice(cursorPos);
-				userInput = front + key + end;
+				userInput = userInput.slice(0, cursorPos - 1) + userInput.slice(cursorPos);
 				if (!space)
 					args[argsPos] = arg.slice(0, cursorPos - argsStartPos - 1) + arg.slice(cursorPos - argsStartPos);
-				frontText = front;
 				blinkText = userInput.charAt(cursorPos - 1);
 				backText = arg.slice(cursorPos - argsStartPos + 1);
 				endText = userInput.slice(argsStartPos + arg.length - 1);
@@ -357,19 +423,44 @@ function Plugin(plugin) {
 			}
 		}
 		
+		function getHint(){
+			let arg = args[argsPos];
+			let hint = null;
+			if (getHint) {
+				const hints = commandHint(args, argsPos);
+				if (hintPos >= hints.length)
+					hintPos = 0;
+				if(hints.length > 0)
+					hint = hints[hintPos];
+			}
+			
+			
+			if (hint !== null && arg.length < hint.length) {
+				if (cursorPos - argsStartPos === arg.length) {
+					hintText = hint.slice(arg.length + 1);
+					blinkText = hint.charAt(arg.length);
+					blinkerEle.classList.add('hint');
+					blinkerEle.classList.add('cantSelect');
+				} else {
+					hintText = hint.slice(arg.length);
+					blinkerEle.classList.remove('hint');
+					blinkerEle.classList.remove('cantSelect');
+				}
+			} else {
+				hintText = '';
+				blinkerEle.classList.remove('hint');
+				blinkerEle.classList.remove('cantSelect');
+			}
+		}
+		
+		// 將游標移至最後
+		const selection = window.getSelection();
+		const range = document.createRange();
 		function PosEnd() {
-            const len = frontEle.innerText.length;
-              
-            if (frontEle.setSelectionRange) {
-                frontEle.focus();
-                frontEle.setSelectionRange(len, len);
-            } else if (frontEle.createTextRange) {
-                const t = frontEle.createTextRange();
-                t.collapse(true);
-                t.moveEnd('character', len);
-                t.moveStart('character', len);
-                t.select();
-            }
+			selection.removeAllRanges();
+			range.selectNodeContents(frontEle);
+			range.collapse(false);
+			selection.addRange(range);
         }
 		
 		this.onInput = function(e) {
@@ -587,7 +678,7 @@ function Plugin(plugin) {
 				else
 					blinkerEle.innerText = blinkText;
 				if (inputChange) {
-					frontEle.innerText = frontText;
+					// frontEle.innerText = frontText;
 					endEle.innerText = endText;
 				}
 				hintEle.innerText = hintText;
@@ -595,7 +686,7 @@ function Plugin(plugin) {
 			} else {
 				blinkerEle.innerText = '';
 				if (inputChange) {
-					frontEle.innerText = frontText;
+					// frontEle.innerText = frontText;
 					endEle.innerText = endText;
 				}
 				if (cursorPos - argsStartPos === args[argsPos].length) {
@@ -621,7 +712,7 @@ function Plugin(plugin) {
 			hintPos = 0;
 			hintTab = 0;
 			
-			frontText = blinkText = backText = hintText = endText = '';
+			blinkText = backText = hintText = endText = '';
 			frontEle.innerText = blinkerEle.innerText = backEle.innerText = hintEle.innerText = endEle.innerText = '';
 			updateCommandLine();
 		}

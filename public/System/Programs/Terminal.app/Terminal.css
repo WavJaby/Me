@@ -10,13 +10,18 @@
 .terminal > .result {
 	overflow: auto;
 }
+.terminal > .result .group,
 .terminal > .commandLine .group {
 	color: fuchsia;
 }
+.terminal > .result .user,
 .terminal > .commandLine .user {
 	color: aqua;
 }
-.terminal > .commandLine .path, .terminal > .commandLine .pre {
+.terminal > .result .path,
+.terminal > .result .pre,
+.terminal > .commandLine .path, 
+.terminal > .commandLine .pre {
 	color: limegreen;
 }
 .terminal > .commandLine > .hint {
@@ -28,7 +33,7 @@
 .terminal > .commandLine > .input {
 	/* width: 0; */
 	/* background-color: transparent; */
-	/* caret-color: transparent; */
+	caret-color: transparent;
 	/* color: whitesmoke; */
 	/* font-size: 25px; */
 	/* line-height: 29px; */
@@ -36,7 +41,6 @@
 	/* border: none; */
 	/* padding: 0; */
     
-	line-height: 29px;
 	outline: none;
 }
 

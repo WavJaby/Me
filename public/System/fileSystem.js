@@ -314,8 +314,8 @@ function FileSystem() {
 		
 		// 讀取資源
 		const notLoadResource = this.notLoadResource;
-		const resource = this.resource;
 		const needLoad = notLoadResource.length;
+		const resource = this.resource;
 		for (let i = 0; i < notLoadResource.length; i++) {
 			const res = notLoadResource[i];
 			const resPath = appPath + res.fullName;
@@ -353,7 +353,8 @@ function FileSystem() {
 					resource[res.fullName] = null;
 					loadCSS(resPath, load);
 					continue;
-				} else if (res.extension === 'svg' || res.extension === 'png') {
+				}
+				if (res.extension === 'svg' || res.extension === 'png') {
 					const image = resource[res.fullName] = new Image();
 					image.onload = load;
 					image.src = resPath;

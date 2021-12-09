@@ -1,12 +1,13 @@
-function WebRTC() {
+function WebRTC(win, res) {
 	// 初始化視窗
-	const win = new Window();
 	win.setTitle('Web RTC');
 	win.setDefaultSize(650, 500);
 	
 	const body = document.createElement('div');
 	body.classList.add('webRTC');
 	win.addBody(body);
+	
+	// loadScript('https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js');
 	
 	win.open();
 	
@@ -55,6 +56,8 @@ function WebRTC() {
 	body.appendChild(startButton);
 	body.appendChild(callButton);
 	body.appendChild(hangupButton);
+	
+	
 	
 	//Javascript variables holding stream and connection information
 	var localStream, localPeerConnection, remotePeerConnection;
@@ -143,10 +146,16 @@ function WebRTC() {
 		}
 
 		log("RTCPeerConnection object: " + RTCPeerConnection);
-
+		
 		// This is an optional configuration string, associated with
 		// NAT traversal setup
-		var servers = null;
+		var servers = {
+			iceServers: [{
+				url: 'stun:stun.l.google.com:19302' // Google's public STUN server
+			}]
+		};
+		
+		// var servers = null;
 
 		// Create the local PeerConnection object
 		localPeerConnection = new RTCPeerConnection(servers);
@@ -155,7 +164,7 @@ function WebRTC() {
 		localPeerConnection.onicecandidate = gotLocalIceCandidate;
 
 		// Create the remote PeerConnection object
-		remotePeerConnection = new RTCPeerConnection([servers]);
+		remotePeerConnection = new RTCPeerConnection(servers);
 		log("Created remote peer connection object remotePeerConnection");
 		// Add a handler associated with ICE protocol events...
 		remotePeerConnection.onicecandidate = gotRemoteIceCandidate;
@@ -182,7 +191,7 @@ function WebRTC() {
 	function gotLocalDescription(description){
 		// Add the local description to the local PeerConnection 
 		localPeerConnection.setLocalDescription(description);
-		log("Offer from localPeerConnection: \n" + description.sdp);
+		// log("Offer from localPeerConnection: \n" + description.sdp);
 		// ...do the same with the 'pseudoremote' PeerConnection
 		// Note: this is the part that will have to be changed if you want
 		// the communicating peers to become remote
@@ -196,7 +205,7 @@ function WebRTC() {
 		// Set the remote description as the local description of the
 		// remote PeerConnection.
 		remotePeerConnection.setLocalDescription(description);
-		log("Answer from remotePeerConnection: \n" + description.sdp);
+		// log("Answer from remotePeerConnection: \n" + description.sdp);
 		// Conversely, set the remote description as the remote description of the
 		// local PeerConnection
 		localPeerConnection.setRemoteDescription(description); 
@@ -225,9 +234,10 @@ function WebRTC() {
 		if (window.URL) {  
 			// Chrome 
 			rVideo.srcObject = event.stream;
+			out(event.stream)
 		} else {
 			// Firefox  
-			rVideo.srcObject = event.stream;  
+			rVideo.srcObject = event.stream;
 		}
 		log("Received remote stream"); 
 	}
