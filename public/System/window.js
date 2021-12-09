@@ -536,7 +536,7 @@ function WindowManager() {
 	let startX, startY;
 	let resizeX, resizeY;
 	let lastX, lastY;
-	document.onmouseup = document.touchcancel = document.ontouchend = function(e) {
+	document.onmouseup = function(e) {
 		if (moveWin !== null) {
 			if (moveWin.canResize()) {
 				if (e.pageY < menuBarHeight)
@@ -553,6 +553,13 @@ function WindowManager() {
 		} else if (windows.length > 0 && windows[windows.length - 1].onmouseup !== undefined)
 			windows[windows.length - 1].onmouseup();
 	}
+	
+	function touchEnd(e) {
+		getTouchPoint(e);
+		document.onmouseup(e);
+	}
+	document.addEventListener("touchend", touchEnd, false);
+	document.addEventListener("touchcancel", touchEnd, false);
 	
 	document.onmousemove = function(e) {
 		// if (moveWin === null && resizeWin === null) return;
@@ -583,10 +590,10 @@ function WindowManager() {
 		}
 	}
 	
-	document.ontouchmove = function(e) {
+	document.addEventListener("touchmove", function(e) {
 		getTouchPoint(e);
-		body.onmousemove(e);
-	}
+		document.onmousemove(e);
+	},false);
 	
 	// 開啟視窗
 	this.openWindow = function(win) {
@@ -623,10 +630,10 @@ function WindowManager() {
 			startX = win.getX() - e.pageX;
 			startY = win.getY() - e.pageY;
 		}
-		win.windowHeader.ontouchstart = function(e) {
+		win.windowHeader.addEventListener("touchstart", function(e) {
 			getTouchPoint(e);
-			win.windowHeader.onmousedown(e)
-		}
+			win.windowHeader.onmousedown(e);
+		}, false);
 		// 更動視窗大小
 		win.windowResizeN.onmousedown = function(e){resizeSetUp(win, e);resizeX = 0; resizeY = -1;};
 		win.windowResizeS.onmousedown = function(e){resizeSetUp(win, e);resizeX = 0; resizeY = 1;};
