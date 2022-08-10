@@ -1,3 +1,9 @@
 tags.sqlite
 
 *firebase*
+
+node/*
+
+.idea
+
+server.bat

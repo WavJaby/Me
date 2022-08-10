@@ -1,7 +1,9 @@
 'use strict';
 
 const dbUrl = 'https://script.google.com/macros/s/AKfycbwgQy6QNPc4CpD4AO4Atqj7we7N5NDBVAQT1w1t0KOLdlfLeVrdFGUs6t50O1Cn_1VE/exec';
-getData(dbUrl + '?data=MyWeb&post=connect', out);
+// getData(dbUrl + '?data=MyWeb&post=connect', out);
+
+const out = console.log
 
 const storage = getStorage();
 const fileSystem = new FileSystem();
@@ -12,7 +14,7 @@ out('準備檔案系統...');
 fileSystem.init(desktopLoad);
 
 function desktopLoad() {
-	timer('花費: ');
+	// timer('花費: ');
 	out('準備桌面...');
 //##############################視窗##############################
 	winManager.init();
@@ -30,16 +32,16 @@ function desktopLoad() {
 	homeMenu.appendChild(homeButton);
 
 	const programList = new DropDownList(homeMenu);
-	
+
 	function createListItem(text, appName) {
 		const button = document.createElement('div');
 		const title = document.createElement('div');
 		button.classList.add('item');
 		button.classList.add('fade');
-		
+
 		title.innerText = text;
 		const program = programs.getProgram(appName);
-		if (program.getIcon(function(icon){
+		if (program.getIcon(function (icon) {
 			// 加入Icon
 			button.appendChild(icon);
 			button.appendChild(title);
@@ -47,15 +49,15 @@ function desktopLoad() {
 			// 如果沒有Icon
 			button.appendChild(title);
 		}
-		
-		button.onclick = function() {
-			program.open(function(app) {if(app.open!==undefined)app.open();});
+
+		button.onclick = function () {
+			program.open(function (app) {if (app.open !== undefined) app.open();});
 			programList.close();
 		};
 		programList.addItem(button);
 	}
-	
-	
+
+
 	const programs = fileSystem.cd('System/Programs');
 	// 終端機
 	createListItem('終端機', 'Terminal');
@@ -76,10 +78,13 @@ function desktopLoad() {
 
 
 //##############################初始化##############################
-	programs.getProgram('Terminal').open(function(app) {
+	programs.getProgram('Terminal').open(function (app) {
 		// app.setSize(true);
 		app.open();
-		// programs.open('About');
+
+		// programs.getProgram('WebRTC').open(function(app) {
+		// app.open();
+		// });
 	});
 	// programs.getProgram('Dashboard').open();
 
@@ -98,33 +103,34 @@ function Clock() {
 	clock.classList.add('clock')
 	let date = new Date();
 	let dateText = format(date.getFullYear()) + '/' + format(date.getMonth()) + '/' + format(date.getDate());
-	this.init = function() {
+	this.init = function () {
 		menuBar.addEle(clock);
 		update();
 		sw = false;
-		setTimeout(setInterval, 1000 - Date.now()%1000, update, 500);
+		setTimeout(setInterval, 1000 - Date.now() % 1000, update, 500);
 	}
-	
+
 	let sw = false;
 	let time, hr, min, sec;
+
 	function update() {
-		if (sw = !sw) {
-			time = Date.now()/1000|0;
+		if ((sw = !sw)) {
+			time = Date.now() / 1000 | 0;
 			sec = time % 60;
-			time = time/60|0;
+			time = time / 60 | 0;
 			min = time % 60;
-			time = time/60|0;
+			time = time / 60 | 0;
 			hr = time % 24 + 8;
-			time = time/24|0;
-			if (sec+min+hr===0) {
+			time = time / 24 | 0;
+			if (sec + min + hr < 3) {
 				date = new Date();
-				dateText = format(date.getFullYear()) + '/' + format(date.getMonth()) + '/' + format(date.getDate());
+				dateText = format(date.getFullYear()) + '/' + format(date.getMonth() + 1) + '/' + format(date.getDate());
 			}
 			clock.innerText = dateText + ' ' + format(hr) + ':' + format(min) + ':' + format(sec);
 		} else
 			clock.innerText = dateText + ' ' + format(hr) + ' ' + format(min) + ' ' + format(sec);
 	}
-	
+
 	function format(i) {
 		return i < 10 ? '0' + i : i;
 	}
@@ -137,10 +143,10 @@ function DropDownList(target) {
 	slider.classList.add('slider');
 	dropDownList.appendChild(slider);
 	target.appendChild(dropDownList);
-	
+
 	let open = false;
-	
-	this.toggle = function() {
+
+	this.toggle = function () {
 		open = !open;
 		if (open) {
 			dropDownList.style.height = slider.offsetHeight + 'px';
@@ -149,13 +155,13 @@ function DropDownList(target) {
 		} else
 			slider.classList.remove('open');
 	}
-	
-	this.close = function() {
+
+	this.close = function () {
 		open = false;
 		slider.classList.remove('open');
 	}
-	
-	this.addItem = function(item) {
+
+	this.addItem = function (item) {
 		slider.appendChild(item);
 	}
 }
@@ -164,26 +170,26 @@ function MenuBar() {
 	const menuBar = document.createElement('div');
 	menuBar.classList.add('menuBar');
 	menuBar.classList.add('cantSelect');
-	
-	this.init = function() {
+
+	this.init = function () {
 		document.body.appendChild(menuBar);
 	}
-	
-	this.addEle = function(item) {
+
+	this.addEle = function (item) {
 		menuBar.appendChild(item);
 	}
-	
-	this.addItem = function(item) {
+
+	this.addItem = function (item) {
 		item.classList.add('item');
 		item.classList.add('fade');
 		menuBar.appendChild(item);
 	}
-	
-	this.removeItem = function(item) {
+
+	this.removeItem = function (item) {
 		menuBar.removeChild(item);
 	}
-	
-	this.getHeight = function() {
+
+	this.getHeight = function () {
 		return menuBar.offsetHeight;
 	}
 }

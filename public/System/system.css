@@ -1,0 +1,340 @@
+body {
+    background-color: rgb(10, 10, 10);
+    min-width: 400px;
+
+    /* overflow-x: auto; */
+    /* overflow-y: auto; */
+    overflow: hidden;
+}
+
+.body {
+    width: 100%;
+    margin-top: 40px;
+
+    z-index: 0;
+    position: absolute;
+}
+
+/* font */
+* {
+    font-family: bitstream_vera_sans_monoroman, Arial, sans-serif;
+}
+
+p {
+    color: whitesmoke;
+    margin: 0;
+}
+
+h1, h2 {
+    color: whitesmoke;
+    margin: 0;
+}
+
+/* Menu */
+.menuBar {
+    background-color: rgb(30, 30, 30);
+    width: 100%;
+    height: 40px;
+
+    z-index: 1;
+    position: absolute;
+}
+
+.menuBar > .homeMenu {
+    width: 40px;
+    height: 40px;
+    float: left;
+}
+
+.menuBar > .homeMenu > .homeButton {
+    width: 40px;
+    height: 40px;
+
+    display: block;
+    cursor: pointer;
+}
+
+.menuBar > .homeMenu .item {
+    background-color: rgb(30, 30, 30);
+    color: whitesmoke;
+    width: 200px;
+    height: 40px;
+    line-height: 40px;
+    font-size: 25px;
+
+    cursor: pointer;
+}
+
+.menuBar > .homeMenu .item > img {
+    height: 40px;
+
+    margin: 0 5px;
+    float: left;
+}
+
+.menuBar > .homeMenu > .homeButton:hover, .menuBar > .homeMenu .item:hover {
+    background-color: rgb(70, 70, 70);
+}
+
+.menuBar > .item {
+    color: whitesmoke;
+    line-height: 40px;
+    font-size: 25px;
+
+    padding: 0 10px;
+    float: left;
+    text-align: center;
+    cursor: pointer;
+}
+
+.menuBar > .activate {
+    background-color: rgb(70, 70, 70);
+}
+
+.menuBar > .item:not(.activate):hover {
+    background-color: rgb(50, 50, 50);
+}
+
+.menuBar > .item.activate:hover {
+    background-color: rgb(90, 90, 90);
+}
+
+.menuBar > .clock {
+    color: whitesmoke;
+    line-height: 40px;
+
+    white-space: pre;
+    margin-right: 10px;
+    float: right;
+}
+
+/* Window */
+.window {
+    position: absolute;
+}
+
+.window.activate {
+    box-shadow: -2px 2px 6px rgba(50, 50, 50, 0.7);
+}
+
+.wHeader {
+    background-color: rgb(50, 50, 50);
+    height: 30px;
+
+    position: relative;
+}
+
+.window.activate > .wHeader {
+    background-color: rgb(70, 70, 70);
+}
+
+.wHeader > .title {
+    color: whitesmoke;
+    font-size: 20px;
+    line-height: 30px;
+
+    margin-left: 5px;
+    float: left;
+}
+
+.wHeader > .icon {
+    width: 30px;
+
+    display: block;
+    float: left;
+    margin-left: 2px;
+}
+
+.wHeader > .close, .wHeader > .minimize {
+    width: 50px;
+
+    float: right;
+    line-height: 28px;
+    text-align: center;
+}
+
+.wHeader > .close:hover {
+    background-color: rgb(232, 17, 35);
+}
+
+.wHeader > .minimize:hover {
+    background-color: rgb(100, 100, 100);
+}
+
+.wHeader > div > img {
+    width: 13px;
+    margin-top: 5px;
+}
+
+.wMenu {
+    background-color: rgb(100, 100, 100);
+
+    position: relative;
+}
+
+.wMenu > .item {
+    color: whitesmoke;
+    line-height: 20px;
+    font-size: 16px;
+
+    padding: 0 10px;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.wBody {
+    background-color: black;
+
+    overflow: hidden;
+    position: relative;
+}
+
+.wTop {
+    width: 100%;
+    height: 100%;
+
+    top: 0;
+    position: absolute;
+}
+
+.wResizeN, .wResizeS {
+    height: 7px;
+    width: 100%;
+    position: absolute;
+}
+
+.wResizeN {
+    top: -7px;
+    cursor: n-resize;
+}
+
+.wResizeS {
+    top: 100%;
+    cursor: s-resize;
+}
+
+.wResizeE, .wResizeW {
+    top: 0;
+    width: 7px;
+    height: 100%;
+    position: absolute;
+}
+
+.wResizeW {
+    left: -7px;
+    cursor: e-resize;
+}
+
+.wResizeE {
+    left: 100%;
+    cursor: e-resize;
+}
+
+.wResizeNE, .wResizeNW, .wResizeSE, .wResizeSW {
+    height: 14px;
+    width: 14px;
+    position: absolute;
+}
+
+.wResizeNE {
+    top: -7px;
+    left: 100%;
+    margin-left: -7px;
+    cursor: ne-resize;
+}
+
+.wResizeNW {
+    top: -7px;
+    left: -7px;
+    cursor: nw-resize;
+}
+
+.wResizeSE {
+    top: 100%;
+    left: 100%;
+    margin-top: -7px;
+    margin-left: -7px;
+    cursor: se-resize;
+}
+
+.wResizeSW {
+    top: 100%;
+    left: -7px;
+    margin-top: -7px;
+    cursor: sw-resize;
+}
+
+iframe {
+    border: none;
+}
+
+.windowMinimize {
+    width: 100%;
+    height: 100%;
+
+    z-index: 2;
+    position: absolute;
+}
+
+/* Notification */
+.notificationWindow {
+    width: 320px;
+    height: 100%;
+
+    right: 0;
+    bottom: 0;
+    position: absolute;
+
+    overflow: hidden;
+}
+
+.notification {
+    background-color: rgb(50, 50, 50);
+    width: 300px;
+    height: 100px;
+
+    padding: 5px;
+    position: absolute;
+    bottom: 10px;
+}
+
+/* other */
+sp {
+    display: inline-block;
+    width: 2em;
+    height: 1em;
+}
+
+white {
+    color: whitesmoke;
+}
+
+green {
+    color: limegreen;
+}
+
+a:link, a:visited {
+    color: deepskyblue;
+}
+
+a:active {
+    color: whitesmoke;
+}
+
+.clickThrough {
+    pointer-events: none;
+}
+
+.padding {
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    -ms-box-sizing: border-box;
+    box-sizing: border-box; /* Opera/IE 8+ */
+}
+
+.cantSelect {
+    -webkit-user-select: none; /* Chrome all / Safari all */
+    -moz-user-select: none; /* Firefox all */
+    -ms-user-select: none; /* IE 10+ */
+    user-select: none; /* Likely future */
+}
